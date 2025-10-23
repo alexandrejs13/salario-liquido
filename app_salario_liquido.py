@@ -1,14 +1,22 @@
 # -------------------------------------------------------------
-# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.25)
+# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.26)
+# - Lê tabelas remotas (JSON no GitHub) com fallback local + cache
+# - Botão "Recarregar tabelas" força atualização do cache
 # -------------------------------------------------------------
 import streamlit as st
 import pandas as pd
 import altair as alt
+import requests
+from typing import Dict, Any
 
 st.set_page_config(
     page_title="Simulador de Salário Líquido e Custo do Empregador",
     layout="wide"
 )
+
+RAW_BASE = "https://raw.githubusercontent.com/alexandrejs13/salario-liquido/main"
+URL_US_STATES = f"{RAW_BASE}/us_state_tax_rates.json"
+URL_COUNTRY_TABLES = f"{RAW_BASE}/country_tables.json"
 
 # ========================= CSS ==============================
 st.markdown("""
@@ -21,12 +29,11 @@ hr { border:0; height:1px; background:#e2e6ea; margin:16px 0; }
 section[data-testid="stSidebar"] { background:#0a3d62 !important; }
 section[data-testid="stSidebar"] * { color:#ffffff !important; }
 section[data-testid="stSidebar"] .stSelectbox > div, 
-section[data-testid="stSidebar"] .stNumberInput > div {
-    background:#ffffff !important; border-radius:8px; padding:2px 6px;
+section[data-testid="stSidebar"] .stNumberInput > div, 
+section[data-testid="stSidebar"] .stButton>button {
+    background:#ffffff !important; border-radius:8px; padding:2px 6px; color:#0a0a0a !important;
 }
-section[data-testid="stSidebar"] input, 
-section[data-testid="stSidebar"] div[data-baseweb="select"] *,
-section[data-testid="stSidebar"] .st-bb { color:#0a0a0a !important; }
+.sidebar-small { color:#cfe3ff; font-size:12px; margin-top:6px; }
 
 /* Cards */
 .metric-card { background:#fff; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.08); padding:16px; text-align:center; }
@@ -35,17 +42,14 @@ section[data-testid="stSidebar"] .st-bb { color:#0a0a0a !important; }
 
 /* Tabela demonstrativo */
 .table-wrap { background:#fff; border:1px solid #d0d7de; border-radius:8px; overflow:hidden; }
-.demo-table { width:100%; border-collapse:collapse; }
-.demo-table th, .demo-table td { padding:10px 12px; border-bottom:1px solid #e6e9ef; }
-.demo-table th { background:#eff3f9; color:#0a3d62; text-align:left; }
-.demo-table tr:nth-child(even) { background:#f4f8fd; }
 
 /* Bandeira + título dinâmico */
 .country-header { display:flex; align-items:center; gap:10px; }
 .country-flag { font-size:28px; }
 .country-title { font-size:24px; font-weight:700; color:#0a3d62; }
 
-.small { color:#445; font-size:13px; }
+.badge-ok { display:inline-block; padding:2px 8px; border-radius:12px; background:#e6f6ed; color:#137333; font-size:12px; margin-left:8px;}
+.badge-fallback { display:inline-block; padding:2px 8px; border-radius:12px; background:#fdecea; color:#b00020; font-size:12px; margin-left:8px;}
 </style>
 """, unsafe_allow_html=True)
 
@@ -81,6 +85,9 @@ I18N = {
         "annual_total": "Remuneração Total Anual",
         "months_factor": "Meses considerados",
         "pie_title": "Distribuição Anual: Salário vs Bônus",
+        "reload": "Recarregar tabelas",
+        "source_remote": "Tabelas remotas",
+        "source_local": "Fallback local",
     },
     "English": {
         "app_title": "Net Salary & Employer Cost Simulator",
@@ -112,6 +119,9 @@ I18N = {
         "annual_total": "Total Annual Compensation",
         "months_factor": "Months considered",
         "pie_title": "Annual Split: Salary vs Bonus",
+        "reload": "Reload tables",
+        "source_remote": "Remote tables",
+        "source_local": "Local fallback",
     },
     "Español": {
         "app_title": "Simulador de Salario Neto y Costo del Empleador",
@@ -143,6 +153,9 @@ I18N = {
         "annual_total": "Remuneración Anual Total",
         "months_factor": "Meses considerados",
         "pie_title": "Distribución Anual: Salario vs Bono",
+        "reload": "Recargar tablas",
+        "source_remote": "Tablas remotas",
+        "source_local": "Copia local",
     }
 }
 
@@ -167,71 +180,29 @@ COUNTRY_BENEFITS = {
     "Canadá": {"ferias": False, "decimo": False},
 }
 
-# Fator de meses para REMUNERAÇÃO anual (não altera líquido mensal)
-REMUN_MONTHS = {
-    "Brasil":13.33,   # 12 salários + 1 férias + 1/3 adicional (≈ 13,33)
-    "México":12.50,   # aguinaldo mínimo (indicativo)
-    "Chile":12.00,
-    "Argentina":13.00, # SAC (13º)
-    "Colômbia":13.00, # prima de serviços
-    "Estados Unidos":12.00,
-    "Canadá":12.00
+# Fator de meses para REMUNERAÇÃO anual (pode vir do JSON externo)
+REMUN_MONTHS_DEFAULT = {
+    "Brasil":13.33, "México":12.50, "Chile":12.00, "Argentina":13.00,
+    "Colômbia":13.00, "Estados Unidos":12.00, "Canadá":12.00
 }
 
-# ================== Tabelas BR (exemplo simplificado) ========
-def br_inss_2025(sal: float) -> float:
-    faixas = [
-        (0.00, 1412.00, 0.075),
-        (1412.01, 2666.68, 0.09),
-        (2666.69, 4000.03, 0.12),
-        (4000.04, 8157.41, 0.14)
-    ]
-    contrib = 0.0
-    for ini, fim, aliq in faixas:
-        if sal > ini:
-            contrib += (min(sal, fim) - ini) * aliq
-    return min(max(contrib, 0.0), 1146.68)  # teto aprox.
-
-def br_irrf_2025(base: float, dependentes: int = 0) -> float:
-    ded_por_dep = 189.59
-    base = max(base - ded_por_dep * max(int(dependentes), 0), 0.0)
-    faixas = [
-        (0.00, 2259.20, 0.00, 0.00),
-        (2259.21, 2826.65, 0.075, 169.44),
-        (2826.66, 3751.05, 0.15, 381.44),
-        (3751.06, 4664.68, 0.225, 662.77),
-        (4664.69, 9e9, 0.275, 896.00),
-    ]
-    for ini, fim, aliq, ded in faixas:
-        if ini <= base <= fim:
-            return max(base * aliq - ded, 0.0)
-    return 0.0
-
-# ================== Tabelas dos países (simples) =============
-TABLES = {
+# ================== Tabelas internas (fallback) ==============
+US_STATE_RATES_DEFAULT = {
+    "No State Tax": 0.00, "AK": 0.00, "FL": 0.00, "NV": 0.00, "SD": 0.00, "TN": 0.00, "TX": 0.00, "WA": 0.00, "WY": 0.00, "NH": 0.00,
+    "AL": 0.05, "AR": 0.049, "AZ": 0.025, "CA": 0.06,  "CO": 0.044, "CT": 0.05, "DC": 0.06,  "DE": 0.055, "GA": 0.054, "HI": 0.08,
+    "IA": 0.05, "ID": 0.055, "IL": 0.0495, "IN": 0.0323, "KS": 0.052, "KY": 0.045, "LA": 0.045, "MA": 0.05, "MD": 0.047, "ME": 0.058,
+    "MI": 0.0425, "MN": 0.058, "MO": 0.045, "MS": 0.05, "MT": 0.054, "NC": 0.045, "ND": 0.02,  "NE": 0.05,  "NJ": 0.055, "NM": 0.049,
+    "NY": 0.064, "OH": 0.030, "OK": 0.0475,"OR": 0.08,  "PA": 0.0307, "RI": 0.0475,"SC": 0.052, "UT": 0.0485,"VA": 0.05,  "VT": 0.06,
+    "WI": 0.053, "WV": 0.05
+}
+TABLES_DEFAULT = {
     "México": {"rates": {"ISR": 0.15, "IMSS": 0.05, "INFONAVIT": 0.05}},
     "Chile": {"rates": {"AFP": 0.10, "Saúde": 0.07}},
     "Argentina": {"rates": {"Jubilación": 0.11, "Obra Social": 0.03, "PAMI": 0.03}},
     "Colômbia": {"rates": {"Saúde": 0.04, "Pensão": 0.04}},
     "Canadá": {"rates": {"CPP": 0.0595, "EI": 0.0163, "Income Tax": 0.15}}
 }
-
-# ================== EUA: todos os estados + taxas padrão =====
-US_STATE_RATES = {
-    "No State Tax": 0.00, "AK": 0.00, "FL": 0.00, "NV": 0.00, "SD": 0.00, "TN": 0.00, "TX": 0.00, "WA": 0.00, "WY": 0.00, "NH": 0.00,
-    "AL": 0.05, "AR": 0.049, "AZ": 0.025, "CA": 0.06,  "CO": 0.044,
-    "CT": 0.05, "DC": 0.06,  "DE": 0.055, "GA": 0.054, "HI": 0.08,
-    "IA": 0.05, "ID": 0.055, "IL": 0.0495, "IN": 0.0323, "KS": 0.052,
-    "KY": 0.045, "LA": 0.045, "MA": 0.05, "MD": 0.047, "ME": 0.058,
-    "MI": 0.0425, "MN": 0.058, "MO": 0.045, "MS": 0.05, "MT": 0.054,
-    "NC": 0.045, "ND": 0.02,  "NE": 0.05,  "NJ": 0.055, "NM": 0.049,
-    "NY": 0.064, "OH": 0.030, "OK": 0.0475,"OR": 0.08,  "PA": 0.0307,
-    "RI": 0.0475,"SC": 0.052, "UT": 0.0485,"VA": 0.05,  "VT": 0.06,
-    "WI": 0.053, "WV": 0.05
-}
-
-# ================== Employer cost (indicativo) ================
-EMPLOYER_COST = {
+EMPLOYER_COST_DEFAULT = {
     "Brasil": [
         {"nome":"INSS Patronal", "percentual":20.0, "base":"Salário Bruto", "ferias":True, "decimo":True, "bonus":True, "obs":"Previdência"},
         {"nome":"RAT", "percentual":2.0, "base":"Salário Bruto", "ferias":True, "decimo":True, "bonus":True, "obs":"Risco"},
@@ -263,6 +234,68 @@ EMPLOYER_COST = {
     ]
 }
 
+# =================== Fetch remoto com cache ==================
+@st.cache_data(ttl=3600, show_spinner=False)
+def fetch_json(url: str) -> Dict[str, Any]:
+    r = requests.get(url, timeout=8)
+    r.raise_for_status()
+    return r.json()
+
+def load_tables(force=False):
+    """Carrega tabelas remotas; se falhar, usa defaults locais."""
+    ok_remote = {"us": False, "country": False}
+    if force:  # limpa cache
+        fetch_json.clear()
+
+    # US states
+    try:
+        us_states = fetch_json(URL_US_STATES)
+        ok_remote["us"] = True
+    except Exception:
+        us_states = US_STATE_RATES_DEFAULT
+
+    # Country tables
+    try:
+        country_tables = fetch_json(URL_COUNTRY_TABLES)
+        ok_remote["country"] = True
+    except Exception:
+        country_tables = {
+            "TABLES": TABLES_DEFAULT,
+            "EMPLOYER_COST": EMPLOYER_COST_DEFAULT,
+            "REMUN_MONTHS": REMUN_MONTHS_DEFAULT,
+        }
+
+    return us_states, country_tables, ok_remote
+
+# ================== Tabelas BR (exemplo simplificado) ========
+def br_inss_2025(sal: float) -> float:
+    faixas = [
+        (0.00, 1412.00, 0.075),
+        (1412.01, 2666.68, 0.09),
+        (2666.69, 4000.03, 0.12),
+        (4000.04, 8157.41, 0.14)
+    ]
+    contrib = 0.0
+    for ini, fim, aliq in faixas:
+        if sal > ini:
+            contrib += (min(sal, fim) - ini) * aliq
+    return min(max(contrib, 0.0), 1146.68)  # teto aprox.
+
+def br_irrf_2025(base: float, dependentes: int = 0) -> float:
+    ded_por_dep = 189.59
+    base = max(base - ded_por_dep * max(int(dependentes), 0), 0.0)
+    faixas = [
+        (0.00, 2259.20, 0.00, 0.00),
+        (2259.21, 2826.65, 0.075, 169.44),
+        (2826.66, 3751.05, 0.15, 381.44),
+        (3751.06, 4664.68, 0.225, 662.77),
+        (4664.69, 9e9, 0.275, 896.00),
+    ]
+    for ini, fim, aliq, ded in faixas:
+        if ini <= base <= fim:
+            return max(base * aliq - ded, 0.0)
+    return 0.0
+
 # ========================== Helpers ==========================
 def fmt_money(v, sym): 
     return f"{sym} {v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
@@ -270,12 +303,10 @@ def fmt_money(v, sym):
 def money_or_blank(v, sym):
     return "" if abs(v) < 1e-9 else fmt_money(v, sym)
 
-def br_net(country, salary, dependentes):
+def br_net(salary, dependentes):
     lines = []
     total_earn = salary
-    # INSS progressivo com teto
     inss = br_inss_2025(salary)
-    # IRRF com dedução por dependente, após INSS
     base_ir = max(salary - inss, 0.0)
     irrf = br_irrf_2025(base_ir, dependentes=dependentes)
     lines.append(("Salário Base", salary, 0.0))
@@ -285,12 +316,13 @@ def br_net(country, salary, dependentes):
     net = total_earn - (inss + irrf)
     return lines, total_earn, inss + irrf, net, fgts_value
 
-def generic_net(country, salary, table_key):
-    r = TABLES[table_key]["rates"]
-    lines = [( "Base", salary, 0.0 )]
+def generic_net(salary, rates: Dict[str, float], labels_order=None):
+    lines = [("Base", salary, 0.0)]
     total_earn = salary
     total_ded = 0.0
-    for k, aliq in r.items():
+    keys = labels_order if labels_order else list(rates.keys())
+    for k in keys:
+        aliq = rates[k]
         v = salary * aliq
         total_ded += v
         lines.append((k, 0.0, v))
@@ -304,133 +336,119 @@ def us_net(salary, state_code, state_rate):
     medicare = salary * 0.0145
     total_ded = fica + medicare
     lines += [("FICA (Social Security)", 0.0, fica), ("Medicare", 0.0, medicare)]
-    sr = state_rate if state_rate is not None else US_STATE_RATES.get(state_code, 0.0)
-    if sr > 0:
-        sttax = salary * sr
-        total_ded += sttax
-        lines.append((f"State Tax ({state_code})", 0.0, sttax))
+    if state_code:
+        sr = state_rate if state_rate is not None else 0.0
+        if sr > 0:
+            sttax = salary * sr
+            total_ded += sttax
+            lines.append((f"State Tax ({state_code})", 0.0, sttax))
     net = total_earn - total_ded
     return lines, total_earn, total_ded, net
 
-def calc_country_net(country, salary, state_code=None, state_rate=None, dependentes=0):
+def calc_country_net(country, salary, state_code=None, state_rate=None, dependentes=0, tables_ext=None):
     if country == "Brasil":
-        lines, te, td, net, fgts = br_net(country, salary, dependentes)
+        lines, te, td, net, fgts = br_net(salary, dependentes)
         return {"lines": lines, "total_earn": te, "total_ded": td, "net": net, "fgts": fgts}
     elif country == "Estados Unidos":
         lines, te, td, net = us_net(salary, state_code, state_rate)
         return {"lines": lines, "total_earn": te, "total_ded": td, "net": net, "fgts": 0.0}
-    elif country in ("México","Chile","Argentina","Colômbia","Canadá"):
-        key = country
-        if country == "Colômbia": key = "Colômbia"
-        lines, te, td, net = generic_net(country, salary, key)
-        return {"lines": lines, "total_earn": te, "total_ded": td, "net": net, "fgts": 0.0}
     else:
-        return {"lines": [("Base", salary, 0.0)], "total_earn": salary, "total_ded": 0.0, "net": salary, "fgts": 0.0}
+        # usa TABLES do JSON externo
+        rates = (tables_ext or {}).get("TABLES", {}).get(country, {}).get("rates", {})
+        if not rates:  # fallback se algo estiver ausente
+            rates = TABLES_DEFAULT.get(country, {}).get("rates", {})
+        lines, te, td, net = generic_net(salary, rates)
+        return {"lines": lines, "total_earn": te, "total_ded": td, "net": net, "fgts": 0.0}
 
-def calc_employer_cost(country, salary):
-    enc = EMPLOYER_COST.get(country, [])
-    # Colunas variáveis: só mostramos Férias/13º se o país tiver esses benefícios
+def calc_employer_cost(country, salary, tables_ext=None):
+    # custos do empregador e meses do JSON externo (com fallback)
+    months = (tables_ext or {}).get("REMUN_MONTHS", {}).get(country, REMUN_MONTHS_DEFAULT.get(country, 12.0))
+    enc_list = (tables_ext or {}).get("EMPLOYER_COST", {}).get(country, EMPLOYER_COST_DEFAULT.get(country, []))
     benefits = COUNTRY_BENEFITS.get(country, {"ferias": False, "decimo": False})
-    df = pd.DataFrame(enc)
-    # Marcação de incidência condicionada
-    if benefits.get("ferias", False):
-        df["Incide Férias"] = ["✅" if row else "❌" for row in df["ferias"]]
-    if benefits.get("decimo", False):
-        df["Incide 13º"] = ["✅" if row else "❌" for row in df["decimo"]]
-    df["Incide Bônus"] = ["✅" if row else "❌" for row in df["bonus"]]
-    df.rename(columns={"nome":"Encargo","percentual":"Percentual (%)","obs":"Observação","base":"Base"}, inplace=True)
-    # Seleção de colunas dinâmica
-    cols_show = ["Encargo","Percentual (%)","Base"]
-    if benefits.get("ferias", False):
-        cols_show.append("Incide Férias")
-    if benefits.get("decimo", False):
-        cols_show.append("Incide 13º")
-    cols_show.append("Incide Bônus")
-    cols_show.append("Observação")
-    # Cálculo do custo total anual (apenas um indicativo multiplicando percentuais sobre salário × meses)
-    months = REMUN_MONTHS.get(country, 12.0)
-    perc_total = sum(e["percentual"] for e in enc)
+    df = pd.DataFrame(enc_list)
+    if not df.empty:
+        if benefits.get("ferias", False):
+            df["Incide Férias"] = ["✅" if row else "❌" for row in df["ferias"]]
+        if benefits.get("decimo", False):
+            df["Incide 13º"] = ["✅" if row else "❌" for row in df["decimo"]]
+        df["Incide Bônus"] = ["✅" if row else "❌" for row in df["bonus"]]
+        df.rename(columns={"nome":"Encargo","percentual":"Percentual (%)","obs":"Observação","base":"Base"}, inplace=True)
+        cols = ["Encargo","Percentual (%)","Base"]
+        if benefits.get("ferias", False): cols.append("Incide Férias")
+        if benefits.get("decimo", False): cols.append("Incide 13º")
+        cols += ["Incide Bônus","Observação"]
+        df = df[cols]
+    # custo anual indicativo
+    perc_total = sum(e.get("percentual", 0.0) for e in enc_list)
     anual = salary * months * (1 + perc_total/100.0)
     mult = (anual / (salary * 12.0)) if salary > 0 else 0.0
-    return anual, mult, df[cols_show], months
+    return anual, mult, df, months
 
 def render_rules(country, T):
-    # Texto detalhado dividindo empregado × empregador
     st.markdown(f"### {T['rules_emp']}")
     if country == "Brasil":
         st.markdown("""
 **Empregado (Brasil)**  
-- **INSS (progressivo)**: calcula-se por faixas de salário, somando a contribuição de cada faixa até o seu salário. Há **teto mensal** de contribuição (valor indicativo).  
-- **IRRF**: base = **salário bruto − INSS − dedução por dependentes** (R$ 189,59/mês por dependente). Aplica-se a **tabela progressiva** com **deduções fixas por faixa**; resultado não pode ser negativo.
-- **FGTS**: **não** é desconto do empregado.
-
-Exemplo de lógica:  
-1) Calcular INSS por faixas com teto.  
-2) Base do IRRF = bruto − INSS − (dependentes × dedução).  
-3) Aplicar alíquota e dedução da faixa → **IRRF devido**.
+- **INSS (progressivo)**: cálculo por faixas acumuladas até o salário, com **teto mensal** de contribuição.  
+- **IRRF**: base = **salário bruto − INSS − dedução por dependentes** (R$ 189,59/mês por dependente). Aplicam-se faixas e **deduções fixas** por faixa.  
+- **FGTS**: depósito do empregador; **não** é desconto do empregado.
         """)
         st.markdown(f"### {T['rules_er']}")
         st.markdown("""
 **Empregador (Brasil)**  
-- **INSS Patronal (20%)**, **RAT (≈2%)**, **Sistema S (≈5,8%)**: percentuais sobre a folha (variam por CNAE/regra específica).  
-- **FGTS (8%)**: depósito mensal.  
-- Em geral, **incidem também sobre férias e 13º**, compondo o custo anual.
+- **INSS Patronal (20%) + RAT (~2%) + Sistema S (~5,8%) + FGTS (8%)** sobre a folha.  
+- Em geral incidem também sobre **férias** e **13º**, compondo o custo anual.
         """)
 
     elif country == "Estados Unidos":
         st.markdown("""
 **Empregado (EUA)**  
-- **FICA**: 6,2% para Social Security até o **wage base** anual.  
-- **Medicare**: 1,45% sem teto (adicional para altas rendas pode existir).  
-- **State Tax**: depende do estado; neste simulador, você escolhe o estado e pode **ajustar a taxa** no campo **State Tax (%)**.  
+- **FICA**: 6,2% (Social Security) até o **wage base** anual.  
+- **Medicare**: 1,45% (sem teto).  
+- **State Tax**: depende do estado; neste simulador, selecione o estado e ajuste a **State Tax (%)** se necessário.
         """)
         st.markdown(f"### {T['rules_er']}")
         st.markdown("""
 **Empregador (EUA)**  
-- **Social Security (ER)** 6,2% (espelha o empregado, respeitando wage base).  
-- **Medicare (ER)** 1,45%.  
-- **SUTA** (desemprego estadual): varia por estado (usamos ~2% indicativo).  
-- Benefícios como férias/13º não são mandatórios federais, por isso **não entram** como meses adicionais por padrão.
+- **Social Security (ER)** 6,2%, **Medicare (ER)** 1,45% e **SUTA** médio (~2%, indicativo).  
+- Não há férias/13º mandatórios federais → meses **12** por padrão.
         """)
 
     elif country == "México":
         st.markdown("""
 **Empleado (México)**  
-- **ISR** (impuesto sobre la renta): progresivo por tablas oficiales.  
-- **IMSS**: seguridad social del trabajador.  
-- **INFONAVIT**: contribución habitacional (puede retenerse en nómina).
+- **ISR**: impuesto sobre la renta (tablas progresivas oficiales).  
+- **IMSS** (trabajador) y **INFONAVIT** (retenciones posibles).  
         """)
         st.markdown(f"### {T['rules_er']}")
         st.markdown("""
 **Empleador (México)**  
-- **IMSS patronal** y **INFONAVIT** patronal: porcentajes sobre la base salarial, con variaciones por riesgo/actividad.  
-- **Aguinaldo** mínimo suele equivaler a fracción de mes; por eso consideramos **12,5 meses** como indicativo en la remuneração anual.
+- **IMSS patronal** y **INFONAVIT** patronal sobre la base salarial (porcentajes varían).  
+- Aguinaldo mínimo → meses ~**12,5** (indicativo).
         """)
 
     elif country == "Chile":
         st.markdown("""
 **Trabajador (Chile)**  
-- **AFP** (~10%): pensiones.  
-- **Salud** (~7%): FONASA/ISAPRE.  
+- **AFP** (~10%) y **Salud** (~7%).  
         """)
         st.markdown(f"### {T['rules_er']}")
         st.markdown("""
 **Empleador (Chile)**  
 - **Seguro de cesantía (empleador)** ~2,4% (indicativo).  
-- No há 13º mandatário; meses considerados **12**.
+- Meses **12**.
         """)
 
     elif country == "Argentina":
         st.markdown("""
 **Empleado (Argentina)**  
 - **Jubilación** 11%, **Obra Social** 3%, **PAMI** 3% (indicativos).  
-- Puede existir retención de Ganancias por escalas (no detalhado aquí).
         """)
         st.markdown(f"### {T['rules_er']}")
         st.markdown("""
 **Empleador (Argentina)**  
-- **Contribuciones patronales** promedian ~18% (según actividad/región).  
-- Existe **SAC (13º)** → meses considerados **13**.
+- **Contribuciones patronales** ~18% (varía por régimen/actividad).  
+- **SAC (13º)** → meses **13**.
         """)
 
     elif country == "Colômbia":
@@ -442,19 +460,19 @@ Exemplo de lógica:
         st.markdown("""
 **Empleador (Colombia)**  
 - **Salud (empleador)** ~8,5% y **Pensión (empleador)** ~12%.  
-- Suele existir **prima de servicios** → meses considerados **13**.
+- **Prima de servicios** → meses **13**.
         """)
 
     elif country == "Canadá":
         st.markdown("""
 **Employee (Canada)**  
-- **CPP** ~5,95%, **EI** ~1,63%, **Income Tax** provincial/federal progresivo (indicativo).  
+- **CPP** ~5,95%, **EI** ~1,63%, **Income Tax** federal/provincial (progressivo).  
         """)
         st.markdown(f"### {T['rules_er']}")
         st.markdown("""
 **Employer (Canada)**  
-- **CPP (ER)** ~5,95% y **EI (ER)** ~2,28% (indicativos).  
-- Meses considerados **12**.
+- **CPP (ER)** ~5,95% e **EI (ER)** ~2,28%.  
+- Meses **12**.
         """)
     else:
         st.info("—")
@@ -462,6 +480,17 @@ Exemplo de lógica:
 # ========================= Sidebar ===========================
 idioma = st.sidebar.selectbox("🌐 Idioma / Language / Idioma", list(I18N.keys()), index=0, key="lang_select")
 T = I18N[idioma]
+
+# Botão para recarregar tabelas (limpa cache e relê JSON remotos)
+reload_clicked = st.sidebar.button(f"🔄 {T['reload']}")
+
+US_STATE_RATES, COUNTRY_TABLES, OK_REMOTE = load_tables(force=reload_clicked)
+
+# Mostra badge de origem dos dados
+if OK_REMOTE["us"] and OK_REMOTE["country"]:
+    st.markdown(f"<span class='badge-ok'>✓ {T['source_remote']}</span>", unsafe_allow_html=True)
+else:
+    st.markdown(f"<span class='badge-fallback'>⚠ {T['source_local']}</span>", unsafe_allow_html=True)
 
 st.sidebar.markdown(f"### {T['country']}")
 country = st.sidebar.selectbox(" ", list(COUNTRIES.keys()), index=0, key="country_select")
@@ -508,7 +537,7 @@ if menu == T["menu_calc"]:
         dependentes = 0
         state_code, state_rate = None, None
 
-    calc = calc_country_net(country, salario, state_code=state_code, state_rate=state_rate, dependentes=dependentes)
+    calc = calc_country_net(country, salario, state_code=state_code, state_rate=state_rate, dependentes=dependentes, tables_ext=COUNTRY_TABLES)
 
     df = pd.DataFrame(calc["lines"], columns=["Descrição", T["earnings"], T["deductions"]])
     df[T["earnings"]] = df[T["earnings"]].apply(lambda v: money_or_blank(v, symbol))
@@ -530,20 +559,15 @@ if menu == T["menu_calc"]:
     # ---------- Composição da Remuneração Total Anual ----------
     st.write("---")
     st.subheader(T["annual_comp_title"])
-    months = REMUN_MONTHS.get(country, 12.0)
+    months = COUNTRY_TABLES.get("REMUN_MONTHS", {}).get(country, REMUN_MONTHS_DEFAULT.get(country, 12.0))
     salario_anual = salario * months
     total_anual = salario_anual + bonus_anual
 
-    # Cards verticais (um abaixo do outro)
     st.markdown(f"<div class='metric-card'><h4>📅 {T['annual_salary']} — ({T['months_factor']}: {months})</h4><h3>{fmt_money(salario_anual, symbol)}</h3></div>", unsafe_allow_html=True)
     st.markdown(f"<div class='metric-card'><h4>🎯 {T['annual_bonus']}</h4><h3>{fmt_money(bonus_anual, symbol)}</h3></div>", unsafe_allow_html=True)
     st.markdown(f"<div class='metric-card'><h4>💼 {T['annual_total']}</h4><h3>{fmt_money(total_anual, symbol)}</h3></div>", unsafe_allow_html=True)
 
-    # Gráfico de Pizza: salário vs bônus
-    chart_df = pd.DataFrame({
-        "Componente": [T["annual_salary"], T["annual_bonus"]],
-        "Valor": [salario_anual, bonus_anual]
-    })
+    chart_df = pd.DataFrame({"Componente": [T["annual_salary"], T["annual_bonus"]], "Valor": [salario_anual, bonus_anual]})
     pie = alt.Chart(chart_df).mark_arc(innerRadius=60).encode(
         theta=alt.Theta(field="Valor", type="quantitative"),
         color=alt.Color(field="Componente", type="nominal"),
@@ -558,7 +582,9 @@ elif menu == T["menu_rules"]:
 # =============== Seção: Custo do Empregador ==================
 else:
     salario = st.number_input(f"{T['salary']} ({symbol})", min_value=0.0, value=10000.0, step=100.0, key="salary_cost")
-    anual, mult, df_cost, months = calc_employer_cost(country, salario)
-
+    anual, mult, df_cost, months = calc_employer_cost(country, salario, tables_ext=COUNTRY_TABLES)
     st.markdown(f"**{T['employer_cost_total']}:** {fmt_money(anual, symbol)}  \n**Equivalente:** {mult:.3f} × (12 meses)  \n**{T['months_factor']}:** {months}")
-    st.dataframe(df_cost, use_container_width=True)
+    if not df_cost.empty:
+        st.dataframe(df_cost, use_container_width=True)
+    else:
+        st.info("Sem encargos configurados para este país (no JSON).")
