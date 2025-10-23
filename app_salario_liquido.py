@@ -1,217 +1,178 @@
 import streamlit as st
-import requests
-import json
 import pandas as pd
-import matplotlib.pyplot as plt
-from io import BytesIO
-from fpdf import FPDF
-from forex_python.converter import CurrencyRates
+import json
+import requests
 
-# ============================================
-# 🔹 CONFIGURAÇÃO INICIAL
-# ============================================
-st.set_page_config(page_title="Calculadora Internacional de Salário Líquido",
-                   page_icon="🌍", layout="centered")
+# -------------------------------------------------------------
+# Configuração inicial
+# -------------------------------------------------------------
+st.set_page_config(page_title="Calculadora Global de Salário Líquido", layout="wide")
 
-# ============================================
-# 🔹 CARREGAR ARQUIVOS DO GITHUB
-# ============================================
-URL_SALARIOS = "https://raw.githubusercontent.com/alexandrejs13/salario-liquido/main/tabelas_salarios.json"
-URL_REGRAS = "https://raw.githubusercontent.com/alexandrejs13/salario-liquido/main/regras_fiscais.json"
+# Idioma padrão
+idioma_padrao = "Português"
 
-@st.cache_data(ttl=86400)
+# -------------------------------------------------------------
+# Funções utilitárias
+# -------------------------------------------------------------
 def carregar_json(url):
+    """Carrega arquivos JSON locais ou do GitHub"""
     try:
-        r = requests.get(url, timeout=10)
-        if r.status_code == 200:
-            return r.json()
+        if url.startswith("http"):
+            resp = requests.get(url)
+            if resp.status_code == 200:
+                return resp.json()
+            else:
+                st.warning(f"Não foi possível carregar {url}")
+                return {}
+        else:
+            with open(url, "r", encoding="utf-8") as f:
+                return json.load(f)
     except Exception as e:
         st.error(f"Erro ao carregar {url}: {e}")
-        st.stop()
+        return {}
 
-dados = carregar_json(URL_SALARIOS)
-regras_fiscais = carregar_json(URL_REGRAS)
+def formatar_moeda(valor, simbolo):
+    """Formata o valor monetário com o símbolo do país"""
+    try:
+        if simbolo in ["R$", "MX$", "US$", "CAD$", "CLP$", "COP$", "ARS$"]:
+            return f"{simbolo} {valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        else:
+            return f"{simbolo} {valor:,.2f}"
+    except:
+        return f"{simbolo} {valor}"
 
-# ============================================
-# 🔹 BANDEIRAS E LINGUAGEM
-# ============================================
-bandeiras = {
-    "Brasil": "🇧🇷", "Chile": "🇨🇱", "Argentina": "🇦🇷",
-    "Colômbia": "🇨🇴", "México": "🇲🇽",
-    "Estados Unidos": "🇺🇸", "Canadá": "🇨🇦"
+# -------------------------------------------------------------
+# URLs dos arquivos JSON
+# -------------------------------------------------------------
+URL_TABELAS = "https://raw.githubusercontent.com/alexandrejs13/salario-liquido/main/tabelas_salarios.json"
+URL_REGRAS = "https://raw.githubusercontent.com/alexandrejs13/salario-liquido/main/regras_fiscais.json"
+URL_CUSTOS = "https://raw.githubusercontent.com/alexandrejs13/salario-liquido/main/custos_empregador.json"
+
+# -------------------------------------------------------------
+# Carregamento de dados
+# -------------------------------------------------------------
+tabelas = carregar_json(URL_TABELAS)
+regras = carregar_json(URL_REGRAS)
+custos = carregar_json(URL_CUSTOS)
+
+# -------------------------------------------------------------
+# Funções de cálculo
+# -------------------------------------------------------------
+def calcular_salario_liquido(pais, salario):
+    if pais not in tabelas:
+        return 0, {}, 0, 0
+
+    data = tabelas[pais]
+    descontos = {}
+    total_descontos = 0
+    fgts = 0
+
+    for d in data["descontos"]:
+        nome = d["nome"]
+        tipo = d["tipo"]
+        perc = d["percentual"]
+        if tipo == "desconto":
+            valor = salario * perc / 100
+            total_descontos += valor
+        else:
+            valor = salario * perc / 100
+            fgts += valor
+        descontos[nome] = valor
+
+    liquido = salario - total_descontos
+    custo_total = salario + fgts
+    return liquido, descontos, fgts, custo_total
+
+def calcular_custo_empregado(pais, salario):
+    if pais not in custos:
+        return None
+    dados = custos[pais]
+    fator = dados["fator_salarios_ano"]
+    encargos = dados["encargos"]
+    total_encargos = sum([e["percentual"] for e in encargos])
+    custo_anual = salario * fator * (1 + total_encargos / 100)
+    custo_mensal_equiv = custo_anual / 12
+    multiplicador = custo_anual / (salario * 12)
+    return custo_anual, custo_mensal_equiv, multiplicador, encargos
+
+# -------------------------------------------------------------
+# Dicionário de símbolos monetários
+# -------------------------------------------------------------
+moedas = {
+    "Brasil": "R$",
+    "Chile": "CLP$",
+    "México": "MX$",
+    "Estados Unidos": "US$",
+    "Canadá": "CAD$",
+    "Colômbia": "COP$",
+    "Argentina": "ARS$"
 }
 
-idiomas = {"Português 🇧🇷": "pt", "English 🇺🇸": "en", "Español 🇪🇸": "es"}
-idioma_escolhido = st.sidebar.radio("🌐 Idioma / Language / Idioma", list(idiomas.keys()))
-lang = idiomas[idioma_escolhido]
+# -------------------------------------------------------------
+# Interface principal
+# -------------------------------------------------------------
+st.title("🌍 Calculadora Global de Salário Líquido – v2025.15")
 
-menu = st.sidebar.radio("📂 Menu Principal", ["📊 Cálculo do Salário Líquido", "📘 Regras de Cálculo"])
+menu = st.sidebar.radio("Menu", ["📊 Cálculo do Salário Líquido", "📘 Regras de Cálculo", "💼 Custo do Empregado"])
 
-# ============================================
-# 🔹 CABEÇALHO
-# ============================================
-st.markdown("## 🌍 Calculadora Internacional de Salário Líquido")
-st.caption("Versão 2025.13 • Layout Executivo Global • CTC Completo • Conversão Cambial")
+paises = list(moedas.keys())
+pais = st.sidebar.selectbox("Selecione o país", paises, index=0)
+simbolo = moedas.get(pais, "R$")
 
-# =========================================================
-# 📊 CÁLCULO DO SALÁRIO LÍQUIDO
-# =========================================================
+salario = st.sidebar.number_input("Informe o salário bruto mensal", min_value=0.0, value=10000.0, step=100.0)
+
+# -------------------------------------------------------------
+# 📊 Cálculo do Salário Líquido
+# -------------------------------------------------------------
 if menu == "📊 Cálculo do Salário Líquido":
+    st.header(f"📊 Cálculo do Salário Líquido – {pais}")
+    liquido, descontos, fgts, custo_total = calcular_salario_liquido(pais, salario)
+    col1, col2, col3, col4, col5 = st.columns(5)
+    col1.metric("💰 Salário Bruto", formatar_moeda(salario, simbolo))
+    col2.metric("💸 Descontos", formatar_moeda(sum(descontos.values()), simbolo))
+    col3.metric("🟩 FGTS / Crédito Empregador", formatar_moeda(fgts, simbolo))
+    col4.metric("🟦 Salário Líquido", formatar_moeda(liquido, simbolo))
+    col5.metric("🟧 Custo Total Empregador", formatar_moeda(custo_total, simbolo))
 
-    paises = [p["pais"] for p in dados["paises"]]
-    pais = st.selectbox("🌎 Escolha o país", paises)
-    info = next(p for p in dados["paises"] if p["pais"] == pais)
-    moeda = info.get("moeda", "")
-    flag = bandeiras.get(pais, "🌍")
+    st.subheader("Detalhamento dos Descontos")
+    df = pd.DataFrame(descontos.items(), columns=["Tipo", "Valor"])
+    df["Valor"] = df["Valor"].apply(lambda x: formatar_moeda(x, simbolo))
+    st.table(df)
 
-    st.markdown(f"### {flag} {pais}")
-    salario = st.number_input(f"Informe o salário bruto ({moeda})",
-                              min_value=0.0, step=100.0, format="%.2f")
-
-    # Estados EUA
-    state_tax_rate, estado = 0.0, None
-    if pais == "Estados Unidos":
-        state_tax_rates = {
-            "California": 0.093, "Florida": 0.00,
-            "New York": 0.0645, "Texas": 0.00, "Illinois": 0.0495
-        }
-        estado = st.selectbox("🗽 Escolha o Estado", list(state_tax_rates.keys()))
-        state_tax_rate = state_tax_rates[estado]
-
-    # =========================================================
-    # FUNÇÃO DE CÁLCULO
-    # =========================================================
-    def calcular(pais, salario):
-        descontos, total, fgts, patronal = [], 0, 0, 0
-        for d in pais["descontos"]:
-            tipo = d["tipo"]
-            parte = d.get("parte_empregado", 0)
-            # --- tratamento dinâmico de faixas ---
-            if isinstance(parte, list):
-                aliquota = 0.0
-                for faixa in parte:
-                    if faixa["faixa_fim"] is None or salario <= faixa["faixa_fim"]:
-                        aliquota = faixa["aliquota"]
-                        break
-            else:
-                aliquota = float(parte)
-            valor = salario * aliquota
-
-            # 🇧🇷 INSS progressivo
-            if pais["pais"] == "Brasil" and "INSS" in tipo.upper():
-                teto = pais.get("teto_inss", 908.85)
-                if salario > 8157.41:
-                    valor = teto
-                else:
-                    faixas = [(1412, 0.075), (2666.68, 0.09), (4000.03, 0.12), (8157.41, 0.14)]
-                    inss, restante = 0, salario
-                    for lim, a in faixas:
-                        if restante > lim:
-                            inss += lim * a
-                            restante -= lim
-                        else:
-                            inss += restante * a
-                            break
-                    valor = min(inss, teto)
-
-            # 🇧🇷 FGTS
-            if pais["pais"] == "Brasil" and "FGTS" in tipo.upper():
-                fgts = salario * 0.08
-                patronal += fgts
-                continue
-
-            # 🇲🇽 INFONAVIT
-            if pais["pais"] == "México" and "INFONAVIT" in tipo.upper():
-                valor = salario * 0.05
-
-            total += valor
-            descontos.append((tipo, aliquota * 100, valor))
-
-        # 🇺🇸 State Tax
-        if pais["pais"] == "Estados Unidos" and state_tax_rate > 0:
-            stax = salario * state_tax_rate
-            total += stax
-            descontos.append((f"State Tax ({estado})", state_tax_rate * 100, stax))
-
-        liquido = salario - total
-        custo_total = salario + patronal
-        return liquido, descontos, fgts, custo_total
-
-    # =========================================================
-    # EXECUÇÃO DO CÁLCULO
-    # =========================================================
-    if salario > 0:
-        liquido, desc, fgts, custo = calcular(info, salario)
-        st.subheader("📊 Resultado do Cálculo")
-
-        c1, c2, c3, c4 = st.columns(4)
-        c1.metric("Bruto", f"{salario:,.2f} {moeda}")
-        c2.metric("Líquido", f"{liquido:,.2f} {moeda}")
-        c3.metric("FGTS", f"{fgts:,.2f} {moeda}")
-        c4.metric("Custo Total", f"{custo:,.2f} {moeda}")
-
-        perc = (salario - liquido) / salario * 100
-        st.markdown(f"**Descontos Totais:** {perc:.1f}%")
-
-        if desc:
-            labels = [d[0] for d in desc]
-            sizes = [d[2] for d in desc]
-            fig, ax = plt.subplots()
-            ax.pie(sizes, labels=labels, autopct="%1.1f%%", startangle=90)
-            ax.axis("equal")
-            st.pyplot(fig)
-
-        # Conversão cambial
-        try:
-            c = CurrencyRates()
-            usd = c.convert(moeda, "USD", liquido)
-            st.caption(f"💵 Equivalente aproximado: {usd:,.2f} USD")
-        except:
-            st.caption("💵 Conversão cambial indisponível no momento.")
-
-        # Tabela detalhada
-        st.markdown("### 💼 Detalhamento dos Descontos")
-        st.table([{"Tipo": t, "Alíquota (%)": round(a, 2), f"Valor ({moeda})": round(v, 2)} for t, a, v in desc])
-
-        # Exportar PDF/Excel
-        df = pd.DataFrame(desc, columns=["Tipo", "Alíquota (%)", f"Valor ({moeda})"])
-        excel = BytesIO()
-        with pd.ExcelWriter(excel, engine="xlsxwriter") as writer:
-            df.to_excel(writer, index=False)
-        st.download_button("⬇️ Baixar em Excel", data=excel.getvalue(),
-                           file_name=f"calculo_{pais}.xlsx", mime="application/vnd.ms-excel")
-
-        # PDF simples
-        pdf = FPDF()
-        pdf.add_page()
-        pdf.set_font("Arial", "B", 16)
-        pdf.cell(200, 10, f"Relatório de Cálculo - {pais}", ln=True)
-        pdf.set_font("Arial", "", 12)
-        for t, a, v in desc:
-            pdf.cell(200, 8, f"{t}: {a:.1f}% → {v:,.2f} {moeda}", ln=True)
-        pdf.cell(200, 10, f"Salário Bruto: {salario:,.2f} {moeda}", ln=True)
-        pdf.cell(200, 10, f"Salário Líquido: {liquido:,.2f} {moeda}", ln=True)
-        pdf_out = BytesIO(pdf.output(dest="S").encode("latin1"))
-        st.download_button("📄 Baixar PDF", data=pdf_out,
-                           file_name=f"relatorio_{pais}.pdf", mime="application/pdf")
-
-# =========================================================
-# 📘 REGRAS DE CÁLCULO (JSON EXTERNO)
-# =========================================================
+# -------------------------------------------------------------
+# 📘 Regras de Cálculo
+# -------------------------------------------------------------
 elif menu == "📘 Regras de Cálculo":
-    pais = st.selectbox("Selecione o país para visualizar as regras:", list(regras_fiscais.keys()))
-    flag = bandeiras.get(pais, "🌍")
-    st.markdown(f"### {flag} {pais}")
+    st.header(f"📘 Regras de Cálculo – {pais}")
+    if pais in regras:
+        regras_pais = regras[pais]["pt"]["regras"]
+        for r in regras_pais:
+            st.markdown(f"**{r['tipo']}** – {r['explicacao']}")
+            if "faixas" in r:
+                df = pd.DataFrame(r["faixas"])
+                st.dataframe(df)
+    else:
+        st.info("Nenhuma regra cadastrada para este país.")
 
-    bloco = regras_fiscais[pais][lang]
-    st.markdown(f"#### {bloco['titulo']}")
+# -------------------------------------------------------------
+# 💼 Custo do Empregado
+# -------------------------------------------------------------
+elif menu == "💼 Custo do Empregado":
+    st.header(f"💼 Custo do Empregado – {pais}")
+    resultado = calcular_custo_empregado(pais, salario)
+    if resultado:
+        custo_anual, custo_mensal_equiv, multiplicador, encargos = resultado
+        st.markdown(f"💵 **Custo anual total:** {formatar_moeda(custo_anual, simbolo)}")
+        st.markdown(f"📈 **Equivalente a:** {multiplicador:.3f} × salário bruto mensal")
+        st.markdown(f"🗓 **Custo mensal equivalente:** {formatar_moeda(custo_mensal_equiv, simbolo)}")
 
-    for r in bloco["regras"]:
-        st.markdown(f"**{r['tipo']}**")
-        if "faixas" in r:
-            df = pd.DataFrame(r["faixas"])
-            st.dataframe(df, use_container_width=True)
-        st.markdown(r["explicacao"])
-        st.markdown("---")
-
-st.caption("🔄 Atualização automática via GitHub • INSS 🇧🇷 • FGTS • INFONAVIT 🇲🇽 • State Tax 🇺🇸")
+        st.subheader("Encargos Patronais")
+        df = pd.DataFrame(encargos)
+        df["Aplica sobre"] = df["base"]
+        df["Incide sobre Férias"] = df["ferias"].apply(lambda x: "✅" if x else "❌")
+        df["Incide sobre 13º"] = df["decimo"].apply(lambda x: "✅" if x else "❌")
+        df["Incide sobre Bônus"] = df["bonus"].apply(lambda x: "✅" if x else "❌")
+        df["Percentual (%)"] = df["percentual"]
+        st.dataframe(df[["nome", "Percentual (%)", "Aplica sobre", "Incide sobre Férias", "Incide sobre 13º", "Incide sobre Bônus", "obs"]])
+    else:
+        st.info("Nenhum dado disponível para este país.")
