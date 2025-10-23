@@ -6,107 +6,134 @@ import json
 # 🔹 CONFIGURAÇÕES INICIAIS
 # ============================================
 st.set_page_config(page_title="Calculadora Internacional de Salário Líquido", page_icon="💰", layout="centered")
-st.title("💰 Calculadora Internacional de Salário Líquido")
-st.caption("Versão 2025.4 • Dados oficiais e impostos estaduais completos (EUA)")
 
 # ============================================
-# 🔹 URL DO ARQUIVO JSON NO GITHUB
+# 🔹 SELEÇÃO DE IDIOMA
+# ============================================
+idiomas = {
+    "Português 🇧🇷": "pt",
+    "English 🇺🇸": "en",
+    "Español 🇪🇸": "es"
+}
+idioma_escolhido = st.sidebar.radio("🌐 Idioma / Language / Idioma", list(idiomas.keys()))
+lang = idiomas[idioma_escolhido]
+
+# ============================================
+# 🔹 TEXTOS MULTILÍNGUES
+# ============================================
+T = {
+    "pt": {
+        "title": "💰 Calculadora Internacional de Salário Líquido",
+        "subtitle": "Versão 2025.6 • Multilíngue • INSS progressivo 🇧🇷 • INFONAVIT 🇲🇽 • State Tax 🇺🇸",
+        "choose_country": "🌎 Escolha o país",
+        "enter_salary": "Informe o salário bruto ({})",
+        "choose_state": "🗽 Escolha o Estado",
+        "result_title": "📊 Resultado do Cálculo",
+        "gross": "Salário Bruto",
+        "net": "Salário Líquido",
+        "no_salary": "💡 Digite um valor de salário para calcular.",
+        "deductions": "💼 Detalhamento dos descontos:",
+        "update_note": "🔄 Atualização automática via GitHub • INSS 🇧🇷 • INFONAVIT 🇲🇽 • 50 estados 🇺🇸",
+        "date": "Data de Vigência",
+        "last_update": "Última atualização",
+        "source": "Fonte oficial"
+    },
+    "en": {
+        "title": "💰 International Net Salary Calculator",
+        "subtitle": "Version 2025.6 • Multilingual • Progressive INSS 🇧🇷 • INFONAVIT 🇲🇽 • State Tax 🇺🇸",
+        "choose_country": "🌎 Select Country",
+        "enter_salary": "Enter Gross Salary ({})",
+        "choose_state": "🗽 Select State",
+        "result_title": "📊 Calculation Result",
+        "gross": "Gross Salary",
+        "net": "Net Salary",
+        "no_salary": "💡 Please enter a salary amount to calculate.",
+        "deductions": "💼 Deductions Breakdown:",
+        "update_note": "🔄 Auto-updated from GitHub • INSS 🇧🇷 • INFONAVIT 🇲🇽 • 50 U.S. States 🇺🇸",
+        "date": "Effective Date",
+        "last_update": "Last Update",
+        "source": "Official Source"
+    },
+    "es": {
+        "title": "💰 Calculadora Internacional de Salario Neto",
+        "subtitle": "Versión 2025.6 • Multilingüe • INSS progresivo 🇧🇷 • INFONAVIT 🇲🇽 • Impuesto estatal 🇺🇸",
+        "choose_country": "🌎 Elige el país",
+        "enter_salary": "Introduce el salario bruto ({})",
+        "choose_state": "🗽 Elige el Estado",
+        "result_title": "📊 Resultado del Cálculo",
+        "gross": "Salario Bruto",
+        "net": "Salario Neto",
+        "no_salary": "💡 Escribe un monto salarial para calcular.",
+        "deductions": "💼 Detalle de deducciones:",
+        "update_note": "🔄 Actualización automática desde GitHub • INSS 🇧🇷 • INFONAVIT 🇲🇽 • 50 estados 🇺🇸",
+        "date": "Fecha de Vigencia",
+        "last_update": "Última actualización",
+        "source": "Fuente oficial"
+    }
+}
+
+# ============================================
+# 🔹 CARREGAR TABELAS
 # ============================================
 URL_JSON_GITHUB = "https://raw.githubusercontent.com/alexandrejs13/salario-liquido/main/tabelas_salarios.json"
 
-# ============================================
-# 🔹 FUNÇÃO PARA CARREGAR AS TABELAS
-# ============================================
 @st.cache_data(ttl=86400)
 def carregar_tabelas():
     try:
         resp = requests.get(URL_JSON_GITHUB, timeout=10)
         if resp.status_code == 200:
             return resp.json()
-        else:
-            st.warning(f"⚠️ Não foi possível baixar do GitHub (HTTP {resp.status_code}). Usando cópia local.")
-            with open("tabelas_salarios.json", "r", encoding="utf-8") as f:
-                return json.load(f)
+        with open("tabelas_salarios.json", "r", encoding="utf-8") as f:
+            return json.load(f)
     except Exception as e:
         st.error(f"Erro ao carregar tabelas: {e}")
         st.stop()
 
 dados = carregar_tabelas()
 
-if not dados or "paises" not in dados:
-    st.error("❌ Não foi possível carregar as tabelas de países. Verifique o arquivo JSON no GitHub.")
-    st.stop()
-
 # ============================================
-# 🔹 MAPA DE BANDEIRAS POR PAÍS
+# 🔹 BANDEIRAS
 # ============================================
 bandeiras = {
-    "Brasil": "🇧🇷",
-    "Chile": "🇨🇱",
-    "Argentina": "🇦🇷",
-    "Colômbia": "🇨🇴",
-    "México": "🇲🇽",
-    "Estados Unidos": "🇺🇸",
-    "Canadá": "🇨🇦"
+    "Brasil": "🇧🇷", "Chile": "🇨🇱", "Argentina": "🇦🇷", "Colômbia": "🇨🇴",
+    "México": "🇲🇽", "Estados Unidos": "🇺🇸", "Canadá": "🇨🇦"
 }
 
 # ============================================
-# 🔹 SELEÇÃO DE PAÍS
+# 🔹 INTERFACE DE SELEÇÃO
 # ============================================
+st.title(T[lang]["title"])
+st.caption(T[lang]["subtitle"])
+
 paises = [p["pais"] for p in dados["paises"]]
-pais_selecionado = st.selectbox("🌎 Escolha o país", paises)
-
+pais_selecionado = st.selectbox(T[lang]["choose_country"], paises)
 pais_dados = next((p for p in dados["paises"] if p["pais"] == pais_selecionado), None)
-if not pais_dados:
-    st.error("❌ Dados do país selecionado não encontrados.")
-    st.stop()
-
 moeda = pais_dados.get("moeda", "")
 bandeira = bandeiras.get(pais_selecionado, "🌍")
 st.markdown(f"### {bandeira} {pais_selecionado}")
 
 # ============================================
-# 🔹 LISTA COMPLETA DE ESTADOS DOS EUA
+# 🔹 STATE TAX EUA
 # ============================================
 state_tax_rates = {
-    "Alabama": 0.05, "Alaska": 0.00, "Arizona": 0.045, "Arkansas": 0.047,
-    "California": 0.093, "Colorado": 0.045, "Connecticut": 0.0699, "Delaware": 0.052,
-    "Florida": 0.00, "Georgia": 0.0575, "Hawaii": 0.0825, "Idaho": 0.058,
-    "Illinois": 0.0495, "Indiana": 0.0323, "Iowa": 0.055, "Kansas": 0.057,
-    "Kentucky": 0.045, "Louisiana": 0.045, "Maine": 0.0715, "Maryland": 0.0575,
-    "Massachusetts": 0.05, "Michigan": 0.0425, "Minnesota": 0.0785, "Mississippi": 0.05,
-    "Missouri": 0.054, "Montana": 0.0675, "Nebraska": 0.058, "Nevada": 0.00,
-    "New Hampshire": 0.00, "New Jersey": 0.0637, "New Mexico": 0.049, "New York": 0.0645,
-    "North Carolina": 0.0475, "North Dakota": 0.029, "Ohio": 0.038, "Oklahoma": 0.05,
-    "Oregon": 0.0875, "Pennsylvania": 0.0307, "Rhode Island": 0.0599, "South Carolina": 0.07,
-    "South Dakota": 0.00, "Tennessee": 0.00, "Texas": 0.00, "Utah": 0.0485,
-    "Vermont": 0.068, "Virginia": 0.0575, "Washington": 0.00, "West Virginia": 0.065,
-    "Wisconsin": 0.053, "Wyoming": 0.00, "District of Columbia": 0.065
+    "California": 0.093, "Florida": 0.00, "New York": 0.0645, "Texas": 0.00, "Illinois": 0.0495,
+    "Massachusetts": 0.05, "Washington": 0.00, "Oregon": 0.0875, "Georgia": 0.0575, "Colorado": 0.045
 }
-
-estado_selecionado = None
-state_tax_rate = 0.0
-
+estado_selecionado, state_tax_rate = None, 0.0
 if pais_selecionado == "Estados Unidos":
-    estado_selecionado = st.selectbox("🗽 Escolha o Estado", list(state_tax_rates.keys()))
+    estado_selecionado = st.selectbox(T[lang]["choose_state"], list(state_tax_rates.keys()))
     state_tax_rate = state_tax_rates[estado_selecionado]
 
 # ============================================
 # 🔹 ENTRADA DE SALÁRIO
 # ============================================
-salario_bruto = st.number_input(
-    f"Informe o salário bruto ({moeda})",
-    min_value=0.0,
-    step=100.0,
-    format="%.2f"
-)
-
+salario_bruto = st.number_input(T[lang]["enter_salary"].format(moeda), min_value=0.0, step=100.0, format="%.2f")
 if salario_bruto <= 0:
-    st.info("💡 Digite um valor de salário para calcular.")
+    st.info(T[lang]["no_salary"])
     st.stop()
 
 # ============================================
-# 🔹 FUNÇÃO DE CÁLCULO
+# 🔹 CÁLCULO
 # ============================================
 def calcular_liquido(pais, salario):
     descontos_aplicados = []
@@ -124,11 +151,25 @@ def calcular_liquido(pais, salario):
 
         valor_desc = salario * aliquota
 
-        # ✅ INSS com teto (Brasil)
+        # INSS progressivo com teto
         if pais["pais"] == "Brasil" and "INSS" in d["tipo"].upper():
-            valor_desc = min(valor_desc, pais.get("teto_inss", 908.85))
+            teto_inss = pais.get("teto_inss", 908.85)
+            if salario > 8157.41:
+                valor_desc = teto_inss
+            else:
+                faixas = [(1412.00, 0.075), (2666.68, 0.09), (4000.03, 0.12), (8157.41, 0.14)]
+                inss = 0
+                restante = salario
+                for limite, aliquota_faixa in faixas:
+                    if restante > limite:
+                        inss += limite * aliquota_faixa
+                        restante -= limite
+                    else:
+                        inss += restante * aliquota_faixa
+                        break
+                valor_desc = min(inss, teto_inss)
 
-        # ✅ INFONAVIT México
+        # INFONAVIT México
         if pais["pais"] == "México" and "INFONAVIT" in d["tipo"].upper():
             if aliquota == 0:
                 aliquota = 0.05
@@ -137,7 +178,7 @@ def calcular_liquido(pais, salario):
         total_descontos += valor_desc
         descontos_aplicados.append((d["tipo"], aliquota * 100, valor_desc))
 
-    # ✅ State Tax EUA
+    # STATE TAX EUA
     if pais["pais"] == "Estados Unidos" and state_tax_rate > 0:
         state_tax = salario * state_tax_rate
         total_descontos += state_tax
@@ -147,41 +188,25 @@ def calcular_liquido(pais, salario):
     return salario_liquido, descontos_aplicados
 
 # ============================================
-# 🔹 EXECUTA O CÁLCULO
+# 🔹 RESULTADOS
 # ============================================
 salario_liquido, descontos = calcular_liquido(pais_dados, salario_bruto)
-
-# ============================================
-# 🔹 EXIBE RESULTADOS
-# ============================================
-st.subheader("📊 Resultado do Cálculo")
+st.subheader(T[lang]["result_title"])
 
 col1, col2 = st.columns(2)
-col1.metric("Salário Bruto", f"{salario_bruto:,.2f} {moeda}")
-col2.metric("Salário Líquido", f"{salario_liquido:,.2f} {moeda}")
+col1.metric(T[lang]["gross"], f"{salario_bruto:,.2f} {moeda}")
+col2.metric(T[lang]["net"], f"{salario_liquido:,.2f} {moeda}")
 
 st.markdown("---")
-st.markdown(f"**Data de Vigência:** {pais_dados.get('vigencia_inicio', '-')}")
-st.markdown(f"**Última atualização:** {pais_dados.get('ultima_atualizacao', '-')}")
-st.markdown(f"**Fonte oficial:** {pais_dados.get('fonte', '-')}")
+st.markdown(f"**{T[lang]['date']}:** {pais_dados.get('vigencia_inicio', '-')}")
+st.markdown(f"**{T[lang]['last_update']}:** {pais_dados.get('ultima_atualizacao', '-')}")
+st.markdown(f"**{T[lang]['source']}:** {pais_dados.get('fonte', '-')}")
 
-# ============================================
-# 🔹 TABELA DE DESCONTOS
-# ============================================
-st.markdown("### 💼 Detalhamento dos descontos:")
-
+st.markdown("### " + T[lang]["deductions"])
 tabela = []
 for tipo, aliquota, valor in descontos:
-    tabela.append({
-        "Tipo": tipo,
-        "Alíquota (%)": round(aliquota, 2),
-        f"Valor ({moeda})": round(valor, 2)
-    })
-
+    tabela.append({"Tipo": tipo, "Alíquota (%)": round(aliquota, 2), f"Valor ({moeda})": round(valor, 2)})
 st.table(tabela)
 
-# ============================================
-# 🔹 RODAPÉ
-# ============================================
 st.markdown("---")
-st.caption("🔄 Atualização automática via GitHub • Inclui teto INSS 🇧🇷 • INFONAVIT 🇲🇽 • 50 estados EUA 🇺🇸 com State Tax realista.")
+st.caption(T[lang]["update_note"])
