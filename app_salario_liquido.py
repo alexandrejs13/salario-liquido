@@ -5,22 +5,14 @@ import matplotlib.pyplot as plt
 from forex_python.converter import CurrencyRates
 
 # ============================================
-# 🔹 CONFIGURAÇÕES INICIAIS
+# 🔹 CONFIGURAÇÃO INICIAL
 # ============================================
-st.set_page_config(
-    page_title="Calculadora Internacional de Salário Líquido",
-    page_icon="🌍",
-    layout="centered"
-)
+st.set_page_config(page_title="Calculadora Internacional de Salário Líquido", page_icon="🌍", layout="centered")
 
 # ============================================
-# 🔹 IDIOMAS DISPONÍVEIS
+# 🔹 IDIOMA
 # ============================================
-idiomas = {
-    "Português 🇧🇷": "pt",
-    "English 🇺🇸": "en",
-    "Español 🇪🇸": "es"
-}
+idiomas = {"Português 🇧🇷": "pt", "English 🇺🇸": "en", "Español 🇪🇸": "es"}
 idioma_escolhido = st.sidebar.radio("🌐 Idioma / Language / Idioma", list(idiomas.keys()))
 lang = idiomas[idioma_escolhido]
 
@@ -32,7 +24,7 @@ T = {
         "menu_calc": "📊 Cálculo do Salário Líquido",
         "menu_rules": "📘 Regras de Cálculo",
         "title": "Calculadora Internacional de Salário Líquido",
-        "subtitle": "Versão 2025.10 • Layout Executivo Global • Conversão cambial 🌍 • FGTS como crédito 🇧🇷",
+        "subtitle": "Versão 2025.12 • Layout Executivo Global • Custo Total do Empregador • Conversão cambial 🌍",
         "choose_country": "🌎 Escolha o país",
         "enter_salary": "Informe o salário bruto ({})",
         "choose_state": "🗽 Escolha o Estado (para EUA)",
@@ -41,49 +33,11 @@ T = {
         "net": "Salário Líquido",
         "fgts_credit": "Crédito FGTS",
         "deductions": "💼 Detalhamento dos descontos:",
-        "rules_select": "Selecione o país para visualizar as regras:",
-        "update_note": "🔄 Atualização automática via GitHub • INSS 🇧🇷 • FGTS • INFONAVIT 🇲🇽 • State Tax 🇺🇸",
         "total_deductions": "Descontos Totais",
         "usd_equivalent": "Equivalente aproximado em USD",
-        "employer_cost": "Custo Total do Empregador"
-    },
-    "en": {
-        "menu_calc": "📊 Net Salary Calculation",
-        "menu_rules": "📘 Calculation Rules",
-        "title": "International Net Salary Calculator",
-        "subtitle": "Version 2025.10 • Executive HR Layout • Currency Conversion 🌍 • FGTS as Credit 🇧🇷",
-        "choose_country": "🌎 Select Country",
-        "enter_salary": "Enter Gross Salary ({})",
-        "choose_state": "🗽 Select State (for USA)",
-        "result_title": "📊 Calculation Result",
-        "gross": "Gross Salary",
-        "net": "Net Salary",
-        "fgts_credit": "FGTS Credit",
-        "deductions": "💼 Deductions Breakdown:",
-        "rules_select": "Select a country to view calculation rules:",
-        "update_note": "🔄 Auto-updated via GitHub • INSS 🇧🇷 • FGTS • INFONAVIT 🇲🇽 • State Tax 🇺🇸",
-        "total_deductions": "Total Deductions",
-        "usd_equivalent": "Approx. Equivalent in USD",
-        "employer_cost": "Employer Total Cost"
-    },
-    "es": {
-        "menu_calc": "📊 Cálculo del Salario Neto",
-        "menu_rules": "📘 Reglas de Cálculo",
-        "title": "Calculadora Internacional de Salario Neto",
-        "subtitle": "Versión 2025.10 • Diseño Ejecutivo Global • Conversión Monetaria 🌍 • FGTS como crédito 🇧🇷",
-        "choose_country": "🌎 Elige el país",
-        "enter_salary": "Introduce el salario bruto ({})",
-        "choose_state": "🗽 Elige el Estado (para EE.UU.)",
-        "result_title": "📊 Resultado del Cálculo",
-        "gross": "Salario Bruto",
-        "net": "Salario Neto",
-        "fgts_credit": "Crédito FGTS",
-        "deductions": "💼 Detalle de deducciones:",
-        "rules_select": "Selecciona el país para ver las reglas:",
-        "update_note": "🔄 Actualización automática desde GitHub • INSS 🇧🇷 • FGTS • INFONAVIT 🇲🇽 • State Tax 🇺🇸",
-        "total_deductions": "Descuentos Totales",
-        "usd_equivalent": "Equivalente aproximado en USD",
-        "employer_cost": "Costo Total del Empleador"
+        "employer_cost": "Custo Total do Empregador",
+        "rules_select": "Selecione o país para visualizar as regras de cálculo:",
+        "update_note": "🔄 Atualização automática via GitHub • INSS 🇧🇷 • FGTS • INFONAVIT 🇲🇽 • State Tax 🇺🇸"
     }
 }
 
@@ -115,140 +69,166 @@ bandeiras = {
 }
 
 # ============================================
-# 🔹 MENU LATERAL
+# 🔹 MENU
 # ============================================
-menu = st.sidebar.radio("📂 Menu Principal", [T[lang]["menu_calc"], T[lang]["menu_rules"]])
+menu = st.sidebar.radio("📂 Menu Principal", [T["pt"]["menu_calc"], T["pt"]["menu_rules"]])
 
 # ============================================
 # 🔹 INTERFACE PRINCIPAL
 # ============================================
-st.markdown(f"## {T[lang]['title']}")
-st.caption(T[lang]["subtitle"])
+st.markdown(f"## {T['pt']['title']}")
+st.caption(T["pt"]["subtitle"])
 
 # =========================================================
 # 📊 CÁLCULO DO SALÁRIO LÍQUIDO
 # =========================================================
-if menu == T[lang]["menu_calc"]:
+if menu == T["pt"]["menu_calc"]:
     paises = [p["pais"] for p in dados["paises"]]
-    pais_selecionado = st.selectbox(T[lang]["choose_country"], paises)
-    pais_dados = next((p for p in dados["paises"] if p["pais"] == pais_selecionado), None)
-    moeda = pais_dados.get("moeda", "")
-    bandeira = bandeiras.get(pais_selecionado, "🌍")
+    pais = st.selectbox(T["pt"]["choose_country"], paises)
+    info = next(p for p in dados["paises"] if p["pais"] == pais)
+    moeda = info.get("moeda", "")
+    flag = bandeiras.get(pais, "🌍")
 
-    st.markdown(f"### {bandeira} {pais_selecionado}")
-    salario_bruto = st.number_input(T[lang]["enter_salary"].format(moeda), min_value=0.0, step=100.0, format="%.2f")
+    st.markdown(f"### {flag} {pais}")
+    salario = st.number_input(T["pt"]["enter_salary"].format(moeda), min_value=0.0, step=100.0, format="%.2f")
 
-    # Estados (EUA)
-    state_tax_rate, estado_selecionado = 0.0, None
-    if pais_selecionado == "Estados Unidos":
+    # Estados EUA
+    state_tax_rate, estado = 0.0, None
+    if pais == "Estados Unidos":
         state_tax_rates = {"California": 0.093, "Florida": 0.00, "New York": 0.0645, "Texas": 0.00, "Illinois": 0.0495}
-        estado_selecionado = st.selectbox(T[lang]["choose_state"], list(state_tax_rates.keys()))
-        state_tax_rate = state_tax_rates[estado_selecionado]
+        estado = st.selectbox(T["pt"]["choose_state"], list(state_tax_rates.keys()))
+        state_tax_rate = state_tax_rates[estado]
 
-    if salario_bruto > 0:
-        # Função principal de cálculo
-        def calcular_liquido(pais, salario):
-            descontos, total_desc, fgts_credito, custos_empregador = [], 0, 0, 0
+    if salario > 0:
+        # === CÁLCULO ===
+        def calcular(pais, salario):
+            descontos, total, fgts, patronal = [], 0, 0, 0
             for d in pais["descontos"]:
                 tipo = d["tipo"]
                 aliquota = d.get("parte_empregado", 0)
                 valor = salario * aliquota
 
-                # 🇧🇷 INSS progressivo e teto
                 if pais["pais"] == "Brasil" and "INSS" in tipo.upper():
                     teto = pais.get("teto_inss", 908.85)
-                    if salario > 8157.41:
-                        valor = teto
-                    else:
-                        faixas = [(1412, 0.075), (2666.68, 0.09), (4000.03, 0.12), (8157.41, 0.14)]
-                        inss = 0
-                        restante = salario
-                        for limite, aliq in faixas:
-                            if restante > limite:
-                                inss += limite * aliq
-                                restante -= limite
-                            else:
-                                inss += restante * aliq
-                                break
-                        valor = min(inss, teto)
+                    faixas = [(1412, 0.075), (2666.68, 0.09), (4000.03, 0.12), (8157.41, 0.14)]
+                    inss = 0
+                    restante = salario
+                    for lim, a in faixas:
+                        if restante > lim:
+                            inss += lim * a
+                            restante -= lim
+                        else:
+                            inss += restante * a
+                            break
+                    valor = min(inss, teto)
 
-                # 🇧🇷 FGTS como crédito
                 if pais["pais"] == "Brasil" and "FGTS" in tipo.upper():
-                    fgts_credito = salario * 0.08
-                    custos_empregador += fgts_credito
+                    fgts = salario * 0.08
+                    patronal += fgts
                     continue
 
-                # 🇲🇽 INFONAVIT fixo
                 if pais["pais"] == "México" and "INFONAVIT" in tipo.upper():
                     valor = salario * 0.05
 
-                total_desc += valor
+                total += valor
                 descontos.append((tipo, aliquota * 100, valor))
 
-            # 🇺🇸 State Tax
             if pais["pais"] == "Estados Unidos" and state_tax_rate > 0:
-                tax = salario * state_tax_rate
-                total_desc += tax
-                descontos.append((f"State Tax ({estado_selecionado})", state_tax_rate * 100, tax))
+                stax = salario * state_tax_rate
+                total += stax
+                descontos.append((f"State Tax ({estado})", state_tax_rate * 100, stax))
 
-            salario_liquido = salario - total_desc
-            custo_total = salario + custos_empregador
-            return salario_liquido, descontos, fgts_credito, custo_total
+            liquido = salario - total
+            custo_total = salario + patronal
+            return liquido, descontos, fgts, custo_total
 
-        salario_liquido, descontos, fgts_credito, custo_total = calcular_liquido(pais_dados, salario_bruto)
+        liquido, desc, fgts, custo = calcular(info, salario)
 
-        # ===================== EXIBIÇÃO =====================
-        st.subheader(T[lang]["result_title"])
-        st.metric(T[lang]["gross"], f"{salario_bruto:,.2f} {moeda}")
-        st.metric(T[lang]["net"], f"{salario_liquido:,.2f} {moeda}")
-        st.metric(T[lang]["fgts_credit"], f"{fgts_credito:,.2f} {moeda}")
-        st.metric(T[lang]["employer_cost"], f"{custo_total:,.2f} {moeda}")
+        # === EXIBIÇÃO ===
+        st.subheader(T["pt"]["result_title"])
+        st.metric(T["pt"]["gross"], f"{salario:,.2f} {moeda}")
+        st.metric(T["pt"]["net"], f"{liquido:,.2f} {moeda}")
+        st.metric(T["pt"]["fgts_credit"], f"{fgts:,.2f} {moeda}")
+        st.metric(T["pt"]["employer_cost"], f"{custo:,.2f} {moeda}")
 
-        total_percent = (salario_bruto - salario_liquido) / salario_bruto * 100
-        st.markdown(f"**{T[lang]['total_deductions']}:** {total_percent:.1f}%")
+        perc = (salario - liquido) / salario * 100
+        st.markdown(f"**{T['pt']['total_deductions']}:** {perc:.1f}%")
 
-        # Gráfico de composição
-        if descontos:
-            labels = [d[0] for d in descontos]
-            sizes = [d[2] for d in descontos]
+        if desc:
+            labels = [d[0] for d in desc]
+            sizes = [d[2] for d in desc]
             fig, ax = plt.subplots()
             ax.pie(sizes, labels=labels, autopct="%1.1f%%", startangle=90)
             ax.axis("equal")
             st.pyplot(fig)
 
-        # Conversão cambial
         try:
             c = CurrencyRates()
-            usd = c.convert(moeda, "USD", salario_liquido)
-            st.caption(f"💵 {T[lang]['usd_equivalent']}: {usd:,.2f} USD")
+            usd = c.convert(moeda, "USD", liquido)
+            st.caption(f"💵 {T['pt']['usd_equivalent']}: {usd:,.2f} USD")
         except:
             st.caption("💵 Conversão cambial indisponível no momento.")
 
-        # Tabela detalhada
-        st.markdown("### " + T[lang]["deductions"])
-        st.table([{"Tipo": t, "Alíquota (%)": round(a, 2), f"Valor ({moeda})": round(v, 2)} for t, a, v in descontos])
+        st.markdown("### " + T["pt"]["deductions"])
+        st.table([{"Tipo": t, "Alíquota (%)": round(a, 2), f"Valor ({moeda})": round(v, 2)} for t, a, v in desc])
         st.markdown("---")
-        st.caption(T[lang]["update_note"])
+        st.caption(T["pt"]["update_note"])
 
 # =========================================================
 # 📘 REGRAS DE CÁLCULO
 # =========================================================
-elif menu == T[lang]["menu_rules"]:
-    pais_regra = st.selectbox(T[lang]["rules_select"], list(bandeiras.keys()))
-    bandeira = bandeiras[pais_regra]
-    st.markdown(f"### {bandeira} {pais_regra}")
+elif menu == T["pt"]["menu_rules"]:
+    pais = st.selectbox(T["pt"]["rules_select"], list(bandeiras.keys()))
+    flag = bandeiras[pais]
+    st.markdown(f"### {flag} {pais}")
 
     regras = {
         "Brasil": """
-**INSS:** progressivo até R$ 8.157,41 (7,5% a 14%), teto R$ 908,85  
-**IRRF:** progressivo conforme Receita Federal  
-**FGTS:** 8% do salário bruto — crédito do empregador (não descontado)
-        """,
-        "Chile": "**AFP:** ~10% • **Saúde:** 7% • **Desemprego:** 0,6%",
-        "México": "**IMSS:** ~6% • **ISR:** 1,9%–35% • **INFONAVIT:** 5%",
-        "Argentina": "**Jubilación:** 11% • **Obra Social:** 3% • **PAMI:** 3%",
-        "Colômbia": "**Saúde:** 4% • **Pensão:** 4% • **Solidariedade:** +1%",
-        "Estados Unidos": "**Federal Tax:** até 37% • **Social Security:** 6,2% • **Medicare:** 1,45% • **State Tax:** variável",
-        "Canadá": "**CPP:** 5,95% • **EI:** 1,63% • **IR:** federal + provincial"
+**INSS:** progressivo de 7,5 a 14 % até R$ 8.157,41 → R$ 908,85 de teto.  
+**IRRF:** tabela progressiva (0 a 27,5 %), após deduzir INSS + dependentes.  
+**FGTS:** 8 % do salário bruto — crédito pago pelo empregador.  
+**Cálculo:**  
+Salário Líquido = Bruto − INSS − IRRF.  
+Custo Empregador = Bruto + FGTS.
+""",
+        "México": """
+**IMSS:** ≈ 6 % do salário para seguro social.  
+**ISR:** 1,9 % a 35 % progressivo conforme faixa do SAT.  
+**INFONAVIT:** 5 % habitação.  
+**Cálculo:**  
+Líquido = Bruto − (IMSS + ISR + INFONAVIT).  
+""",
+        "Estados Unidos": """
+**Federal Tax:** 10 % a 37 %.  
+**Social Security:** 6,2 % até US$ 168 600.  
+**Medicare:** 1,45 %.  
+**State Tax:** 0 a 10 % (estado dependente).  
+**Cálculo:** Bruto − todas as alíquotas.  
+""",
+        "Argentina": """
+**Jubilación:** 11 %.  
+**Obra Social:** 3 %.  
+**PAMI:** 3 %.  
+**Ganancias (IRPF):** 5 a 35 %.  
+**Cálculo:** Bruto − soma de encargos sobre a base total.  
+""",
+        "Chile": """
+**AFP:** 10 %.  
+**Saúde:** 7 %.  
+**Desemprego:** 0,6 %.  
+**Cálculo:** Bruto − 17,6 % de descontos totais.  
+""",
+        "Canadá": """
+**CPP:** 5,95 %.  
+**EI:** 1,63 %.  
+**Imposto de Renda:** progressivo federal + provincial.  
+**Cálculo:** Bruto − (IR + CPP + EI).  
+""",
+        "Colômbia": """
+**Saúde:** 4 %.  
+**Pensão:** 4 %.  
+**Fundo de Solidariedade:** 1 %.  
+**Cálculo:** Bruto − (9 % total).  
+"""
     }
-    st.markdown(regras[pais_regra])
+    st.markdown(regras[pais])
