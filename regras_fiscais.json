@@ -11,7 +11,7 @@
             {"faixa_inicio": 2666.69, "faixa_fim": 4000.03, "aliquota": "12%"},
             {"faixa_inicio": 4000.04, "faixa_fim": 8157.41, "aliquota": "14%"}
           ],
-          "explicacao": "O INSS é progressivo e calculado por faixas até o teto de R$ 8.157,41 (máximo de R$ 908,85)."
+          "explicacao": "O INSS é progressivo até o teto de R$ 8.157,41 (máximo de R$ 908,85)."
         },
         {
           "tipo": "IRRF",
@@ -22,11 +22,11 @@
             {"faixa_inicio": 3751.06, "faixa_fim": 4664.68, "aliquota": "22.5%"},
             {"faixa_inicio": 4664.69, "faixa_fim": null, "aliquota": "27.5%"}
           ],
-          "explicacao": "O IRRF incide sobre a base após o desconto do INSS e deduções legais (dependentes e simplificado)."
+          "explicacao": "O IRRF incide sobre a base após desconto do INSS e deduções legais."
         },
         {
           "tipo": "FGTS",
-          "explicacao": "O FGTS corresponde a 8% do salário bruto e é crédito do empregador, não um desconto."
+          "explicacao": "O FGTS é 8% do salário bruto e pago pelo empregador, não descontado."
         }
       ]
     }
@@ -35,7 +35,7 @@
     "pt": {
       "titulo": "🇺🇸 EUA — Tabelas e Cálculo",
       "regras": [
-        {"tipo": "Federal Tax", "explicacao": "10% a 37% conforme faixa de renda."},
+        {"tipo": "Federal Tax", "explicacao": "De 10% a 37% conforme a faixa de renda."},
         {"tipo": "Social Security", "explicacao": "6.2% até US$ 168.600 anuais."},
         {"tipo": "Medicare", "explicacao": "1.45% sobre todo o rendimento."},
         {"tipo": "State Tax", "explicacao": "0–10% conforme o estado."}
@@ -46,8 +46,8 @@
     "pt": {
       "titulo": "🇲🇽 México — Tabelas e Cálculo",
       "regras": [
-        {"tipo": "IMSS", "explicacao": "Aproximadamente 6% para seguridade social."},
-        {"tipo": "ISR", "explicacao": "Imposto progressivo de 1.9% a 35% conforme tabela SAT."},
+        {"tipo": "IMSS", "explicacao": "6% para seguridade social."},
+        {"tipo": "ISR", "explicacao": "De 1.9% a 35% conforme tabela SAT."},
         {"tipo": "INFONAVIT", "explicacao": "5% obrigatório para habitação."}
       ]
     }
@@ -56,7 +56,7 @@
     "pt": {
       "titulo": "🇨🇱 Chile — Tabelas e Cálculo",
       "regras": [
-        {"tipo": "AFP", "explicacao": "10% para aposentadoria obrigatória."},
+        {"tipo": "AFP", "explicacao": "10% para aposentadoria."},
         {"tipo": "Saúde", "explicacao": "7% para sistema público ou privado."},
         {"tipo": "Seguro Desemprego", "explicacao": "0.6% pago pelo trabalhador."}
       ]
@@ -89,7 +89,7 @@
         {"tipo": "Jubilación", "explicacao": "11% para aposentadoria."},
         {"tipo": "Obra Social", "explicacao": "3% para saúde."},
         {"tipo": "PAMI", "explicacao": "3% para assistência médica aos aposentados."},
-        {"tipo": "Ganancias", "explicacao": "Imposto de renda progressivo de 5% a 35%."}
+        {"tipo": "Ganancias", "explicacao": "Imposto progressivo de 5% a 35%."}
       ]
     }
   }
