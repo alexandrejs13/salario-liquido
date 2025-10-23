@@ -1,11 +1,5 @@
 # -------------------------------------------------------------
-# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.29)
-# Ajustes desta versão:
-# 1) Idioma e País exibidos claramente na sidebar (sem campos extras).
-# 2) Gráfico de pizza com rótulos em % fora do donut (sem sobreposição).
-# 3) Custo do empregador reflete nº de meses do país e oculta colunas
-#    de Férias/13º quando o país não possui esses benefícios.
-# 4) Mantém JSONs externos (BR INSS/IRRF, estados EUA, tabelas) + fallback.
+# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.30)
 # -------------------------------------------------------------
 import streamlit as st
 import pandas as pd
@@ -18,13 +12,14 @@ st.set_page_config(
     layout="wide"
 )
 
+# ======================== ENDPOINTS REMOTOS =========================
 RAW_BASE = "https://raw.githubusercontent.com/alexandrejs13/salario-liquido/main"
 URL_US_STATES        = f"{RAW_BASE}/us_state_tax_rates.json"
 URL_COUNTRY_TABLES   = f"{RAW_BASE}/country_tables.json"
 URL_BR_INSS          = f"{RAW_BASE}/br_inss.json"
 URL_BR_IRRF          = f"{RAW_BASE}/br_irrf.json"
 
-# ========================= CSS ==============================
+# ============================== CSS ================================
 st.markdown("""
 <style>
 body { font-family: 'Segoe UI', Helvetica, Arial, sans-serif; background:#f7f9fb; color:#1a1a1a;}
@@ -36,6 +31,8 @@ section[data-testid="stSidebar"] { background:#0a3d62 !important; }
 section[data-testid="stSidebar"] * { color:#ffffff !important; }
 .sidebar-label { font-size:12px; color:#cfe3ff; margin:8px 0 0; }
 .sidebar-selected { font-size:13px; color:#ffffff; margin:0 0 12px; }
+
+/* Para inputs reais na sidebar (país), manter cara branca legível */
 section[data-testid="stSidebar"] .stSelectbox > div,
 section[data-testid="stSidebar"] .stNumberInput > div,
 section[data-testid="stSidebar"] .stButton>button {
@@ -60,7 +57,7 @@ section[data-testid="stSidebar"] .stButton>button {
 </style>
 """, unsafe_allow_html=True)
 
-# ========================= I18N =============================
+# ============================== I18N ================================
 I18N = {
     "Português": {
         "app_title": "Simulador de Salário Líquido e Custo do Empregador",
@@ -175,7 +172,7 @@ I18N = {
     }
 }
 
-# ================== Países, moedas, bandeiras ================
+# ====================== PAÍSES / MOEDAS / BANDEIRAS =====================
 COUNTRIES = {
     "Brasil":   {"symbol": "R$",   "flag": "🇧🇷", "valid_from": "2025-01-01"},
     "México":   {"symbol": "MX$",  "flag": "🇲🇽", "valid_from": "2025-01-01"},
@@ -186,7 +183,7 @@ COUNTRIES = {
     "Canadá":   {"symbol": "CAD$", "flag": "🇨🇦", "valid_from": "2025-01-01"},
 }
 
-# Quais países exibem colunas Férias / 13º no custo
+# Quais países exibem colunas Férias/13º no custo
 COUNTRY_BENEFITS = {
     "Brasil": {"ferias": True, "decimo": True},
     "México": {"ferias": True, "decimo": True},
@@ -203,7 +200,7 @@ REMUN_MONTHS_DEFAULT = {
     "Colômbia":13.00, "Estados Unidos":12.00, "Canadá":12.00
 }
 
-# ================== Fallbacks locais =========================
+# ========================== FALLBACKS LOCAIS ============================
 US_STATE_RATES_DEFAULT = {
     "No State Tax": 0.00, "AK": 0.00, "FL": 0.00, "NV": 0.00, "SD": 0.00, "TN": 0.00, "TX": 0.00, "WA": 0.00, "WY": 0.00, "NH": 0.00,
     "AL": 0.05, "AR": 0.049, "AZ": 0.025, "CA": 0.06,  "CO": 0.044, "CT": 0.05, "DC": 0.06,  "DE": 0.055, "GA": 0.054, "HI": 0.08,
@@ -272,49 +269,63 @@ BR_IRRF_DEFAULT = {
     ]
 }
 
-# =================== Fetch remoto com cache ==================
-@st.cache_data(ttl=3600, show_spinner=False)
-def fetch_json(url: str) -> Dict[str, Any]:
-    r = requests.get(url, timeout=8)
-    r.raise_for_status()
-    return r.json()
+# ============== STI RANGES (Sales / Non Sales) ==============
+STI_RANGES = {
+    "Non Sales": {
+        "CEO": (1.00, 1.00),
+        "Members of the GEB": (0.50, 0.80),
+        "Executive Manager": (0.45, 0.70),
+        "Senior Group Manager": (0.40, 0.60),
+        "Group Manager": (0.30, 0.50),
+        "Lead Expert / Program Manager": (0.25, 0.40),
+        "Senior Manager": (0.20, 0.40),
+        "Senior Expert / Senior Project Manager": (0.15, 0.35),
+        "Manager / Selected Expert / Project Manager": (0.10, 0.30),
+        "Others": (0.10, None)  # mínimo 10%
+    },
+    "Sales": {
+        "Executive Manager / Senior Group Manager": (0.45, 0.70),
+        "Group Manager / Lead Sales Manager": (0.35, 0.50),
+        "Senior Manager / Senior Sales Manager": (0.25, 0.45),
+        "Manager / Selected Sales Manager": (0.20, 0.35),
+        "Others": (0.15, None)  # mínimo 15%
+    }
+}
+STI_LEVEL_OPTIONS = {
+    "Non Sales": [
+        "CEO",
+        "Members of the GEB",
+        "Executive Manager",
+        "Senior Group Manager",
+        "Group Manager",
+        "Lead Expert / Program Manager",
+        "Senior Manager",
+        "Senior Expert / Senior Project Manager",
+        "Manager / Selected Expert / Project Manager",
+        "Others"
+    ],
+    "Sales": [
+        "Executive Manager / Senior Group Manager",
+        "Group Manager / Lead Sales Manager",
+        "Senior Manager / Senior Sales Manager",
+        "Manager / Selected Sales Manager",
+        "Others"
+    ]
+}
 
-def load_tables(force=False):
-    ok_remote = {"us": False, "country": False, "br_inss": False, "br_irrf": False}
-    if force:
-        fetch_json.clear()
-    try:
-        us_states = fetch_json(URL_US_STATES)
-        ok_remote["us"] = True
-    except Exception:
-        us_states = US_STATE_RATES_DEFAULT
-    try:
-        country_tables = fetch_json(URL_COUNTRY_TABLES)
-        ok_remote["country"] = True
-    except Exception:
-        country_tables = {
-            "TABLES": TABLES_DEFAULT,
-            "EMPLOYER_COST": EMPLOYER_COST_DEFAULT,
-            "REMUN_MONTHS": REMUN_MONTHS_DEFAULT,
-        }
-    try:
-        br_inss = fetch_json(URL_BR_INSS)
-        ok_remote["br_inss"] = True
-    except Exception:
-        br_inss = BR_INSS_DEFAULT
-    try:
-        br_irrf = fetch_json(URL_BR_IRRF)
-        ok_remote["br_irrf"] = True
-    except Exception:
-        br_irrf = BR_IRRF_DEFAULT
-    return us_states, country_tables, br_inss, br_irrf, ok_remote
-
-# ========================== Helpers ==========================
+# ============================== HELPERS ===============================
 def fmt_money(v, sym): 
     return f"{sym} {v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 def money_or_blank(v, sym):
     return "" if abs(v) < 1e-9 else fmt_money(v, sym)
+
+def get_sti_range(area: str, level: str):
+    area_tbl = STI_RANGES.get(area, {})
+    rng = area_tbl.get(level)
+    if not rng:
+        return (0.0, None)
+    return rng
 
 # -------- INSS/IRRF data-driven (Brasil) ----------
 def calc_inss_progressivo(salario: float, inss_tbl: Dict[str, Any]) -> float:
@@ -404,7 +415,6 @@ def calc_employer_cost(country, salary, tables_ext=None):
     benefits = COUNTRY_BENEFITS.get(country, {"ferias": False, "decimo": False})
     df = pd.DataFrame(enc_list)
 
-    # Monta colunas conforme as regras do país (oculta se não aplicável)
     if not df.empty:
         df.rename(columns={"nome":"Encargo","percentual":"Percentual (%)","obs":"Observação","base":"Base"}, inplace=True)
         df["Incide Bônus"] = ["✅" if b else "❌" for b in df["bonus"]]
@@ -414,18 +424,209 @@ def calc_employer_cost(country, salary, tables_ext=None):
             cols.insert(3, "Incide Férias")
         if benefits.get("decimo", False):
             df["Incide 13º"] = ["✅" if b else "❌" for b in df["decimo"]]
-            # inserimos logo após Férias, se existir, senão após Base
             insert_pos = 4 if benefits.get("ferias", False) else 3
             cols.insert(insert_pos, "Incide 13º")
         df = df[cols]
 
-    # Anualiza com base no nº de meses do país
     perc_total = sum(e.get("percentual", 0.0) for e in enc_list)
     anual = salary * months * (1 + perc_total/100.0)
     mult = (anual / (salary * 12.0)) if salary > 0 else 0.0
     return anual, mult, df, months
 
-def render_rules(country, T):
+# ======================== FETCH REMOTO COM CACHE =======================
+@st.cache_data(ttl=3600, show_spinner=False)
+def fetch_json(url: str) -> Dict[str, Any]:
+    r = requests.get(url, timeout=8)
+    r.raise_for_status()
+    return r.json()
+
+def load_tables(force=False):
+    ok_remote = {"us": False, "country": False, "br_inss": False, "br_irrf": False}
+    if force:
+        fetch_json.clear()
+    try:
+        us_states = fetch_json(URL_US_STATES)
+        ok_remote["us"] = True
+    except Exception:
+        us_states = US_STATE_RATES_DEFAULT
+    try:
+        country_tables = fetch_json(URL_COUNTRY_TABLES)
+        ok_remote["country"] = True
+    except Exception:
+        country_tables = {
+            "TABLES": TABLES_DEFAULT,
+            "EMPLOYER_COST": EMPLOYER_COST_DEFAULT,
+            "REMUN_MONTHS": REMUN_MONTHS_DEFAULT,
+        }
+    try:
+        br_inss = fetch_json(URL_BR_INSS)
+        ok_remote["br_inss"] = True
+    except Exception:
+        br_inss = BR_INSS_DEFAULT
+    try:
+        br_irrf = fetch_json(URL_BR_IRRF)
+        ok_remote["br_irrf"] = True
+    except Exception:
+        br_irrf = BR_IRRF_DEFAULT
+    return us_states, country_tables, br_inss, br_irrf, ok_remote
+
+# ============================== SIDEBAR ===============================
+idioma = st.sidebar.selectbox("🌐 Idioma / Language / Idioma", list(I18N.keys()), index=0, key="lang_select")
+T = I18N[idioma]
+st.sidebar.markdown(f"<div class='sidebar-label'>Idioma selecionado</div>", unsafe_allow_html=True)
+st.sidebar.markdown(f"<div class='sidebar-selected'><strong>{idioma}</strong></div>", unsafe_allow_html=True)
+
+reload_clicked = st.sidebar.button(f"🔄 {T['reload']}")
+US_STATE_RATES, COUNTRY_TABLES, BR_INSS_TBL, BR_IRRF_TBL, OK_REMOTE = load_tables(force=reload_clicked)
+
+if all(OK_REMOTE.values()):
+    st.markdown(f"<span class='badge-ok'>✓ {T['source_remote']}</span>", unsafe_allow_html=True)
+else:
+    st.markdown(f"<span class='badge-fallback'>⚠ {T['source_local']}</span>", unsafe_allow_html=True)
+
+st.sidebar.markdown(f"### {T['country']}")
+country = st.sidebar.selectbox(T["choose_country"], list(COUNTRIES.keys()), index=0, key="country_select")
+symbol = COUNTRIES[country]["symbol"]; flag = COUNTRIES[country]["flag"]; valid_from = COUNTRIES[country]["valid_from"]
+st.sidebar.markdown(f"<div class='sidebar-label'>{T['country']} selecionado</div>", unsafe_allow_html=True)
+st.sidebar.markdown(f"<div class='sidebar-selected'><strong>{country} {flag}</strong></div>", unsafe_allow_html=True)
+
+st.sidebar.markdown(f"### {T['menu']}")
+menu = st.sidebar.radio(T["choose_menu"], [T["menu_calc"], T["menu_rules"], T["menu_cost"]], index=0, key="menu_radio")
+
+# ======================= TÍTULO DINÂMICO ==============================
+if menu == T["menu_calc"]:
+    title = T["title_calc"].format(pais=country)
+elif menu == T["menu_rules"]:
+    title = T["title_rules"].format(pais=country)
+else:
+    title = T["title_cost"].format(pais=country)
+
+st.markdown(f"<div class='country-header'><div class='country-flag'>{flag}</div><div class='country-title'>{title}</div></div>", unsafe_allow_html=True)
+st.write(f"**{T['valid_from']}:** {valid_from}")
+st.write("---")
+
+# ========================= CÁLCULO DE SALÁRIO ==========================
+if menu == T["menu_calc"]:
+    if country == "Brasil":
+        c1, c2, c3, c4, c5 = st.columns([2,1,1,1.6,2.4])
+        salario = c1.number_input(f"{T['salary']} ({symbol})", min_value=0.0, value=10000.0, step=100.0, key="salary_input")
+        dependentes = c2.number_input(f"{T['dependents']}", min_value=0, value=0, step=1, key="dep_input")
+        bonus_anual = c3.number_input(f"{T['bonus']} ({symbol})", min_value=0.0, value=0.0, step=100.0, key="bonus_input")
+        area = c4.selectbox("Área (STI)", ["Non Sales","Sales"], index=0, key="sti_area")
+        level = c5.selectbox("Career Level (STI)", STI_LEVEL_OPTIONS[area], index=len(STI_LEVEL_OPTIONS[area])-1, key="sti_level")
+        state_code, state_rate = None, None
+
+    elif country == "Estados Unidos":
+        c1, c2, c3, c4 = st.columns([2,1.4,1.2,1.4])
+        salario = c1.number_input(f"{T['salary']} ({symbol})", min_value=0.0, value=10000.0, step=100.0, key="salary_input")
+        state_code = c2.selectbox(f"{T['state']}", list(US_STATE_RATES.keys()), index=0, key="state_select_main")
+        default_rate = float(US_STATE_RATES.get(state_code, 0.0))
+        state_rate = c3.number_input(f"{T['state_rate']}", min_value=0.0, max_value=0.20, value=default_rate, step=0.001, format="%.3f", key="state_rate_input")
+        bonus_anual = c4.number_input(f"{T['bonus']} ({symbol})", min_value=0.0, value=0.0, step=100.0, key="bonus_input")
+        r1, r2 = st.columns([1.2, 2.2])
+        area = r1.selectbox("Área (STI)", ["Non Sales","Sales"], index=0, key="sti_area")
+        level = r2.selectbox("Career Level (STI)", STI_LEVEL_OPTIONS[area], index=len(STI_LEVEL_OPTIONS[area])-1, key="sti_level")
+        dependentes = 0
+
+    else:
+        c1, c2 = st.columns([2,1])
+        salario = c1.number_input(f"{T['salary']} ({symbol})", min_value=0.0, value=10000.0, step=100.0, key="salary_input")
+        bonus_anual = c2.number_input(f"{T['bonus']} ({symbol})", min_value=0.0, value=0.0, step=100.0, key="bonus_input")
+        r1, r2 = st.columns([1.2, 2.2])
+        area = r1.selectbox("Área (STI)", ["Non Sales","Sales"], index=0, key="sti_area")
+        level = r2.selectbox("Career Level (STI)", STI_LEVEL_OPTIONS[area], index=len(STI_LEVEL_OPTIONS[area])-1, key="sti_level")
+        dependentes = 0
+        state_code, state_rate = None, None
+
+    calc = calc_country_net(
+        country, salario,
+        state_code=state_code, state_rate=state_rate, dependentes=dependentes,
+        tables_ext=COUNTRY_TABLES, br_inss_tbl=BR_INSS_TBL, br_irrf_tbl=BR_IRRF_TBL
+    )
+
+    df = pd.DataFrame(calc["lines"], columns=["Descrição", T["earnings"], T["deductions"]])
+    df[T["earnings"]] = df[T["earnings"]].apply(lambda v: money_or_blank(v, symbol))
+    df[T["deductions"]] = df[T["deductions"]].apply(lambda v: money_or_blank(v, symbol))
+    st.markdown("<div class='table-wrap'>", unsafe_allow_html=True)
+    st.table(df)
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    cc1, cc2, cc3 = st.columns(3)
+    cc1.markdown(f"<div class='metric-card'><h4>🟩 {T['tot_earnings']}</h4><h3>{fmt_money(calc['total_earn'], symbol)}</h3></div>", unsafe_allow_html=True)
+    cc2.markdown(f"<div class='metric-card'><h4>🟥 {T['tot_deductions']}</h4><h3>{fmt_money(calc['total_ded'], symbol)}</h3></div>", unsafe_allow_html=True)
+    cc3.markdown(f"<div class='metric-card'><h4>🟦 {T['net']}</h4><h3>{fmt_money(calc['net'], symbol)}</h3></div>", unsafe_allow_html=True)
+
+    if country == "Brasil":
+        st.write("")
+        st.markdown(f"**💼 {T['fgts_deposit']}:** {fmt_money(calc['fgts'], symbol)}")
+
+    # ---------- Composição da Remuneração Total Anual ----------
+    st.write("---")
+    st.subheader(T["annual_comp_title"])
+
+    months = COUNTRY_TABLES.get("REMUN_MONTHS", {}).get(country, REMUN_MONTHS_DEFAULT.get(country, 12.0))
+    salario_anual = salario * months
+    total_anual = salario_anual + bonus_anual
+
+    # Validação do bônus vs STI range
+    min_pct, max_pct = get_sti_range(area, level)
+    bonus_pct = (bonus_anual / salario_anual) if salario_anual > 0 else 0.0
+    pct_txt = f"{bonus_pct*100:.1f}%"
+    if max_pct is None:
+        dentro = bonus_pct >= min_pct
+        faixa_txt = f"≥ {min_pct*100:.0f}%"
+    else:
+        dentro = (bonus_pct >= min_pct) and (bonus_pct <= max_pct)
+        faixa_txt = f"{min_pct*100:.0f}% – {max_pct*100:.0f}%"
+    cor = "#1976d2" if dentro else "#d32f2f"
+    status_txt = "Dentro do range" if dentro else "Fora do range"
+
+    left, right = st.columns([1,1])
+    with left:
+        st.markdown(f"<div class='metric-card'><h4>📅 {T['annual_salary']} — ({T['months_factor']}: {months})</h4><h3>{fmt_money(salario_anual, symbol)}</h3></div>", unsafe_allow_html=True)
+
+        st.markdown(
+            f"""
+            <div class='metric-card'>
+                <h4>🎯 {T['annual_bonus']}</h4>
+                <h3>{fmt_money(bonus_anual, symbol)}</h3>
+                <div style="margin-top:6px;font-size:12px;color:{cor}">
+                    STI ratio do bônus: <strong>{pct_txt}</strong> — <strong>{status_txt}</strong> ({faixa_txt}) — <em>{area} • {level}</em>
+                </div>
+            </div>
+            """, unsafe_allow_html=True
+        )
+
+        st.markdown(f"<div class='metric-card'><h4>💼 {T['annual_total']}</h4><h3>{fmt_money(total_anual, symbol)}</h3></div>", unsafe_allow_html=True)
+
+    with right:
+        chart_df = pd.DataFrame({
+            "Componente": [T["annual_salary"], T["annual_bonus"]],
+            "Valor": [salario_anual, bonus_anual]
+        })
+        pie_base = alt.Chart(chart_df).transform_joinaggregate(
+            Total='sum(Valor)'
+        ).transform_calculate(
+            Percent='datum.Valor / datum.Total'
+        )
+        pie = pie_base.mark_arc(innerRadius=60).encode(
+            theta=alt.Theta(field="Valor", type="quantitative"),
+            color=alt.Color(field="Componente", type="nominal", legend=alt.Legend(title="Componente")),
+            tooltip=[
+                alt.Tooltip("Componente:N"),
+                alt.Tooltip("Valor:Q", format=",.2f"),
+                alt.Tooltip("Percent:Q", format=".1%")
+            ]
+        ).properties(title=T["pie_title"], width=420, height=320)
+        labels = pie_base.transform_filter(
+            alt.datum.Percent > 0.001
+        ).mark_text(radius=135, size=13).encode(
+            text=alt.Text('Percent:Q', format='.1%')
+        )
+        st.altair_chart(pie + labels, use_container_width=True)
+
+# =========================== REGRAS DE CÁLCULO ========================
+elif menu == T["menu_rules"]:
     st.markdown(f"### {T['rules_emp']}")
     if country == "Brasil":
         st.markdown("""
@@ -504,135 +705,7 @@ def render_rules(country, T):
 - **CPP (ER)** ~5,95% y **EI (ER)** ~2,28%. Meses **12**.
         """)
 
-# ========================= Sidebar ===========================
-idioma = st.sidebar.selectbox("🌐 Idioma / Language / Idioma", list(I18N.keys()), index=0, key="lang_select")
-T = I18N[idioma]
-
-# Mostra seleção (texto simples, sem widgets extras)
-st.sidebar.markdown(f"<div class='sidebar-label'>Idioma selecionado</div>", unsafe_allow_html=True)
-st.sidebar.markdown(f"<div class='sidebar-selected'><strong>{idioma}</strong></div>", unsafe_allow_html=True)
-
-reload_clicked = st.sidebar.button(f"🔄 {T['reload']}")
-US_STATE_RATES, COUNTRY_TABLES, BR_INSS_TBL, BR_IRRF_TBL, OK_REMOTE = load_tables(force=reload_clicked)
-
-if all(OK_REMOTE.values()):
-    st.markdown(f"<span class='badge-ok'>✓ {T['source_remote']}</span>", unsafe_allow_html=True)
-else:
-    st.markdown(f"<span class='badge-fallback'>⚠ {T['source_local']}</span>", unsafe_allow_html=True)
-
-st.sidebar.markdown(f"### {T['country']}")
-country = st.sidebar.selectbox(T["choose_country"], list(COUNTRIES.keys()), index=0, key="country_select")
-symbol = COUNTRIES[country]["symbol"]; flag = COUNTRIES[country]["flag"]; valid_from = COUNTRIES[country]["valid_from"]
-st.sidebar.markdown(f"<div class='sidebar-label'>{T['country']} selecionado</div>", unsafe_allow_html=True)
-st.sidebar.markdown(f"<div class='sidebar-selected'><strong>{country} {flag}</strong></div>", unsafe_allow_html=True)
-
-st.sidebar.markdown(f"### {T['menu']}")
-menu = st.sidebar.radio(T["choose_menu"], [T["menu_calc"], T["menu_rules"], T["menu_cost"]], index=0, key="menu_radio")
-
-# ================== Título dinâmico ==========================
-if menu == T["menu_calc"]:
-    title = T["title_calc"].format(pais=country)
-elif menu == T["menu_rules"]:
-    title = T["title_rules"].format(pais=country)
-else:
-    title = T["title_cost"].format(pais=country)
-
-st.markdown(f"<div class='country-header'><div class='country-flag'>{flag}</div><div class='country-title'>{title}</div></div>", unsafe_allow_html=True)
-st.write(f"**{T['valid_from']}:** {valid_from}")
-st.write("---")
-
-# ================= Seção: Cálculo de Salário =================
-if menu == T["menu_calc"]:
-    if country == "Brasil":
-        c1, c2, c3 = st.columns([2,1,1])
-        salario = c1.number_input(f"{T['salary']} ({symbol})", min_value=0.0, value=10000.0, step=100.0, key="salary_input")
-        dependentes = c2.number_input(f"{T['dependents']}", min_value=0, value=0, step=1, key="dep_input")
-        bonus_anual = c3.number_input(f"{T['bonus']} ({symbol})", min_value=0.0, value=0.0, step=100.0, key="bonus_input")
-        state_code, state_rate = None, None
-    elif country == "Estados Unidos":
-        c1, c2, c3, c4 = st.columns([2,1.4,1.2,1.4])
-        salario = c1.number_input(f"{T['salary']} ({symbol})", min_value=0.0, value=10000.0, step=100.0, key="salary_input")
-        state_code = c2.selectbox(f"{T['state']}", list(US_STATE_RATES.keys()), index=0, key="state_select_main")
-        default_rate = float(US_STATE_RATES.get(state_code, 0.0))
-        state_rate = c3.number_input(f"{T['state_rate']}", min_value=0.0, max_value=0.20, value=default_rate, step=0.001, format="%.3f", key="state_rate_input")
-        bonus_anual = c4.number_input(f"{T['bonus']} ({symbol})", min_value=0.0, value=0.0, step=100.0, key="bonus_input")
-        dependentes = 0
-    else:
-        c1, c2 = st.columns([2,1])
-        salario = c1.number_input(f"{T['salary']} ({symbol})", min_value=0.0, value=10000.0, step=100.0, key="salary_input")
-        bonus_anual = c2.number_input(f"{T['bonus']} ({symbol})", min_value=0.0, value=0.0, step=100.0, key="bonus_input")
-        dependentes = 0
-        state_code, state_rate = None, None
-
-    calc = calc_country_net(
-        country, salario,
-        state_code=state_code, state_rate=state_rate, dependentes=dependentes,
-        tables_ext=COUNTRY_TABLES, br_inss_tbl=BR_INSS_TBL, br_irrf_tbl=BR_IRRF_TBL
-    )
-
-    df = pd.DataFrame(calc["lines"], columns=["Descrição", T["earnings"], T["deductions"]])
-    df[T["earnings"]] = df[T["earnings"]].apply(lambda v: money_or_blank(v, symbol))
-    df[T["deductions"]] = df[T["deductions"]].apply(lambda v: money_or_blank(v, symbol))
-    st.markdown("<div class='table-wrap'>", unsafe_allow_html=True)
-    st.table(df)
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    cc1, cc2, cc3 = st.columns(3)
-    cc1.markdown(f"<div class='metric-card'><h4>🟩 {T['tot_earnings']}</h4><h3>{fmt_money(calc['total_earn'], symbol)}</h3></div>", unsafe_allow_html=True)
-    cc2.markdown(f"<div class='metric-card'><h4>🟥 {T['tot_deductions']}</h4><h3>{fmt_money(calc['total_ded'], symbol)}</h3></div>", unsafe_allow_html=True)
-    cc3.markdown(f"<div class='metric-card'><h4>🟦 {T['net']}</h4><h3>{fmt_money(calc['net'], symbol)}</h3></div>", unsafe_allow_html=True)
-
-    if country == "Brasil":
-        st.write("")
-        st.markdown(f"**💼 {T['fgts_deposit']}:** {fmt_money(calc['fgts'], symbol)}")
-
-    # ---------- Composição da Remuneração Total Anual ----------
-    st.write("---")
-    st.subheader(T["annual_comp_title"])
-    months = COUNTRY_TABLES.get("REMUN_MONTHS", {}).get(country, REMUN_MONTHS_DEFAULT.get(country, 12.0))
-    salario_anual = salario * months
-    total_anual = salario_anual + bonus_anual
-
-    left, right = st.columns([1,1])
-    with left:
-        st.markdown(f"<div class='metric-card'><h4>📅 {T['annual_salary']} — ({T['months_factor']}: {months})</h4><h3>{fmt_money(salario_anual, symbol)}</h3></div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='metric-card'><h4>🎯 {T['annual_bonus']}</h4><h3>{fmt_money(bonus_anual, symbol)}</h3></div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='metric-card'><h4>💼 {T['annual_total']}</h4><h3>{fmt_money(total_anual, symbol)}</h3></div>", unsafe_allow_html=True)
-
-    with right:
-        chart_df = pd.DataFrame({
-            "Componente": [T["annual_salary"], T["annual_bonus"]],
-            "Valor": [salario_anual, bonus_anual]
-        })
-        pie_base = alt.Chart(chart_df).transform_joinaggregate(
-            Total='sum(Valor)'
-        ).transform_calculate(
-            Percent='datum.Valor / datum.Total'
-        )
-        # Donut
-        pie = pie_base.mark_arc(innerRadius=60).encode(
-            theta=alt.Theta(field="Valor", type="quantitative"),
-            color=alt.Color(field="Componente", type="nominal", legend=alt.Legend(title="Componente")),
-            tooltip=[
-                alt.Tooltip("Componente:N"),
-                alt.Tooltip("Valor:Q", format=",.2f"),
-                alt.Tooltip("Percent:Q", format=".1%")
-            ]
-        ).properties(title=T["pie_title"], width=420, height=320)
-
-        # Rótulos externos (sem sobrepor o gráfico)
-        labels = pie_base.transform_filter(
-            alt.datum.Percent > 0.001
-        ).mark_text(radius=135, size=13).encode(
-            text=alt.Text('Percent:Q', format='.1%')
-        )
-        st.altair_chart(pie + labels, use_container_width=True)
-
-# ================= Seção: Regras de Cálculo ==================
-elif menu == T["menu_rules"]:
-    render_rules(country, T)
-
-# =============== Seção: Custo do Empregador ==================
+# ========================= CUSTO DO EMPREGADOR ========================
 else:
     salario = st.number_input(f"{T['salary']} ({symbol})", min_value=0.0, value=10000.0, step=100.0, key="salary_cost")
     anual, mult, df_cost, months = calc_employer_cost(country, salario, tables_ext=COUNTRY_TABLES)
