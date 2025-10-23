@@ -1,2 +1,5 @@
-python-3.12
+# macOS / Linux
+echo "python-3.12" > runtime.txt
 
+# Windows (PowerShell)
+"python-3.12" | Out-File -Encoding ascii runtime.txt
