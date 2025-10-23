@@ -11,7 +11,7 @@
             {"faixa_inicio": 2666.69, "faixa_fim": 4000.03, "aliquota": "12%"},
             {"faixa_inicio": 4000.04, "faixa_fim": 8157.41, "aliquota": "14%"}
           ],
-          "explicacao": "O INSS é progressivo: aplica-se a alíquota correspondente a cada faixa de salário até o teto de R$ 8.157,41 (máximo R$ 908,85)."
+          "explicacao": "O INSS é progressivo e calculado por faixas até o teto de R$ 8.157,41 (máximo de R$ 908,85)."
         },
         {
           "tipo": "IRRF",
@@ -22,11 +22,11 @@
             {"faixa_inicio": 3751.06, "faixa_fim": 4664.68, "aliquota": "22.5%"},
             {"faixa_inicio": 4664.69, "faixa_fim": null, "aliquota": "27.5%"}
           ],
-          "explicacao": "O IRRF incide sobre o salário base após o desconto do INSS e deduções por dependentes."
+          "explicacao": "O IRRF incide sobre a base após o desconto do INSS e deduções legais (dependentes e simplificado)."
         },
         {
           "tipo": "FGTS",
-          "explicacao": "O FGTS corresponde a 8% do salário bruto e é um crédito pago pelo empregador, não um desconto do empregado."
+          "explicacao": "O FGTS corresponde a 8% do salário bruto e é crédito do empregador, não um desconto."
         }
       ]
     },
@@ -35,21 +35,15 @@
       "regras": [
         {
           "tipo": "INSS",
-          "faixas": [
-            {"faixa_inicio": 0, "faixa_fim": 1412.00, "aliquota": "7.5%"},
-            {"faixa_inicio": 1412.01, "faixa_fim": 2666.68, "aliquota": "9%"},
-            {"faixa_inicio": 2666.69, "faixa_fim": 4000.03, "aliquota": "12%"},
-            {"faixa_inicio": 4000.04, "faixa_fim": 8157.41, "aliquota": "14%"}
-          ],
-          "explicacao": "INSS is progressive: each salary band is taxed separately up to the cap (R$ 8,157.41, max R$ 908.85)."
+          "explicacao": "Progressive contribution up to 14%, capped at BRL 8,157.41 (max contribution BRL 908.85)."
         },
         {
           "tipo": "IRRF",
-          "explicacao": "Federal Income Tax (IRRF) is progressive from 7.5% to 27.5%, applied after INSS deductions."
+          "explicacao": "Progressive income tax from 7.5% to 27.5% applied after INSS deduction."
         },
         {
           "tipo": "FGTS",
-          "explicacao": "FGTS is 8% of the gross salary, paid by the employer as a credit — not deducted from net pay."
+          "explicacao": "FGTS equals 8% of the gross salary, paid by the employer as a benefit, not deducted from pay."
         }
       ]
     },
@@ -58,15 +52,15 @@
       "regras": [
         {
           "tipo": "INSS",
-          "explicacao": "El INSS es progresivo, aplicando tasas del 7.5% al 14% según la franja salarial, hasta un tope de R$ 8.157,41."
+          "explicacao": "Contribución progresiva del 7.5% al 14% hasta el límite de R$ 8.157,41 (máximo R$ 908,85)."
         },
         {
           "tipo": "IRRF",
-          "explicacao": "El IRRF es el impuesto a la renta, progresivo del 7.5% al 27.5% sobre el salario neto después del INSS."
+          "explicacao": "Impuesto progresivo del 7.5% al 27.5% después de deducciones de INSS y dependientes."
         },
         {
           "tipo": "FGTS",
-          "explicacao": "El FGTS equivale al 8% del salario bruto y es un crédito del empleador, no un descuento."
+          "explicacao": "El FGTS equivale al 8% del salario bruto y es aportado por el empleador, no descontado."
         }
       ]
     }
@@ -75,27 +69,162 @@
     "pt": {
       "titulo": "🇨🇱 Chile — Tabelas e Cálculo",
       "regras": [
-        {"tipo": "AFP", "explicacao": "10% de contribuição obrigatória para aposentadoria."},
-        {"tipo": "Saúde", "explicacao": "7% para sistema público ou plano privado."},
-        {"tipo": "Seguro de Desemprego", "explicacao": "0.6% pago pelo empregado."}
+        {"tipo": "AFP", "explicacao": "10% para aposentadoria obrigatória."},
+        {"tipo": "Saúde", "explicacao": "7% para o sistema público (FONASA) ou plano privado (ISAPRE)."},
+        {"tipo": "Seguro Desemprego", "explicacao": "0.6% pago pelo trabalhador."}
       ]
     },
-    "en": {"titulo": "🇨🇱 Chile — Tables and Calculation", "regras": [{"tipo": "AFP", "explicacao": "10% pension contribution."}, {"tipo": "Health", "explicacao": "7% for health coverage."}, {"tipo": "Unemployment", "explicacao": "0.6% paid by employee."}]},
-    "es": {"titulo": "🇨🇱 Chile — Tablas y Cálculo", "regras": [{"tipo": "AFP", "explicacao": "10% obligatorio para jubilación."}, {"tipo": "Salud", "explicacao": "7% para el sistema público o privado."}, {"tipo": "Desempleo", "explicacao": "0.6% pagado por el trabajador."}]}
+    "en": {
+      "titulo": "🇨🇱 Chile — Tables and Calculation",
+      "regras": [
+        {"tipo": "AFP", "explicacao": "10% pension contribution."},
+        {"tipo": "Health", "explicacao": "7% for public or private health coverage."},
+        {"tipo": "Unemployment", "explicacao": "0.6% paid by employee."}
+      ]
+    },
+    "es": {
+      "titulo": "🇨🇱 Chile — Tablas y Cálculo",
+      "regras": [
+        {"tipo": "AFP", "explicacao": "10% obligatorio para jubilación."},
+        {"tipo": "Salud", "explicacao": "7% para salud pública o privada."},
+        {"tipo": "Desempleo", "explicacao": "0.6% pagado por el trabajador."}
+      ]
+    }
   },
   "México": {
     "pt": {
       "titulo": "🇲🇽 México — Tabelas e Cálculo",
       "regras": [
-        {"tipo": "IMSS", "explicacao": "Contribuição média de 6% para seguridade social."},
-        {"tipo": "ISR", "explicacao": "Imposto progressivo de 1.9% a 35% conforme faixas da SAT."},
-        {"tipo": "INFONAVIT", "explicacao": "5% obrigatório para habitação."}
+        {"tipo": "IMSS", "explicacao": "Aproximadamente 6% para seguridade social."},
+        {"tipo": "ISR", "explicacao": "Imposto de 1.9% a 35% conforme tabela SAT."},
+        {"tipo": "INFONAVIT", "explicacao": "5% para fundo de habitação."}
       ]
     },
-    "en": {"titulo": "🇲🇽 Mexico — Tables and Calculation", "regras": [{"tipo": "IMSS", "explicacao": "Around 6% social security contribution."}, {"tipo": "ISR", "explicacao": "Progressive tax 1.9%–35% by SAT table."}, {"tipo": "INFONAVIT", "explicacao": "5% mandatory housing fund."}]},
-    "es": {"titulo": "🇲🇽 México — Tablas y Cálculo", "regras": [{"tipo": "IMSS", "explicacao": "Aproximadamente 6% para seguridad social."}, {"tipo": "ISR", "explicacao": "Impuesto progresivo de 1.9% a 35% según tabla SAT."}, {"tipo": "INFONAVIT", "explicacao": "5% obligatorio para vivienda."}]}
+    "en": {
+      "titulo": "🇲🇽 Mexico — Tables and Calculation",
+      "regras": [
+        {"tipo": "IMSS", "explicacao": "Around 6% for social security."},
+        {"tipo": "ISR", "explicacao": "Progressive income tax 1.9–35% per SAT table."},
+        {"tipo": "INFONAVIT", "explicacao": "5% mandatory housing fund."}
+      ]
+    },
+    "es": {
+      "titulo": "🇲🇽 México — Tablas y Cálculo",
+      "regras": [
+        {"tipo": "IMSS", "explicacao": "Aproximadamente 6% para seguridad social."},
+        {"tipo": "ISR", "explicacao": "Progresivo del 1.9% al 35% según SAT."},
+        {"tipo": "INFONAVIT", "explicacao": "5% obligatorio para vivienda."}
+      ]
+    }
   },
   "Estados Unidos": {
-    "pt": {"titulo": "🇺🇸 EUA — Tabelas e Cálculo", "regras": [{"tipo": "Federal Tax", "explicacao": "Progressivo de 10% a 37% conforme faixa de renda."}, {"tipo": "Social Security", "explicacao": "6.2% até US$ 168,600."}, {"tipo": "Medicare", "explicacao": "1.45% sobre o total."}, {"tipo": "State Tax", "explicacao": "0 a 10% conforme o estado."}]},
-    "en": {"titulo": "🇺🇸 USA — Tables and Calculation", "regras": [{"tipo": "Federal Tax", "explicacao": "Progressive 10%–37% by income band."}, {"tipo": "Social Security", "explicacao": "6.2% up to $168,600."}, {"tipo": "Medicare", "explicacao": "1.45% on total income."}, {"tipo": "State Tax", "explicacao": "0–10% depending on the state."}]},
-    "es": {"titulo": "🇺🇸 EE.UU. — Tablas y Cálculo", "regras": [{"tipo": "Impuesto Federal", "explicacao": "Progresivo de 10% a 37% según ingreso."}, {"tipo": "Seguro Social", "explicacao": "6.2% hasta $168,600."}, {"tipo": "Medicare", "explicacao": "1.45% sobre el total."}, {"tipo": "Impuesto Estatal", "explicacao": "0–10% según el estado."}]}
+    "pt": {
+      "titulo": "🇺🇸 EUA — Tabelas e Cálculo",
+      "regras": [
+        {"tipo": "Federal Tax", "explicacao": "10% a 37% conforme faixa de renda."},
+        {"tipo": "Social Security", "explicacao": "6.2% até US$ 168.600 anuais."},
+        {"tipo": "Medicare", "explicacao": "1.45% sobre todo o rendimento."},
+        {"tipo": "State Tax", "explicacao": "0–10% conforme o estado."}
+      ]
+    },
+    "en": {
+      "titulo": "🇺🇸 USA — Tables and Calculation",
+      "regras": [
+        {"tipo": "Federal Tax", "explicacao": "Progressive 10–37% depending on income bracket."},
+        {"tipo": "Social Security", "explicacao": "6.2% up to $168,600 per year."},
+        {"tipo": "Medicare", "explicacao": "1.45% on all earnings."},
+        {"tipo": "State Tax", "explicacao": "0–10% depending on state."}
+      ]
+    },
+    "es": {
+      "titulo": "🇺🇸 EE.UU. — Tablas y Cálculo",
+      "regras": [
+        {"tipo": "Impuesto Federal", "explicacao": "10–37% progresivo según ingreso."},
+        {"tipo": "Seguro Social", "explicacao": "6.2% hasta $168.600 anuales."},
+        {"tipo": "Medicare", "explicacao": "1.45% sobre todos los ingresos."},
+        {"tipo": "Impuesto Estatal", "explicacao": "0–10% según el estado."}
+      ]
+    }
+  },
+  "Canadá": {
+    "pt": {
+      "titulo": "🇨🇦 Canadá — Tabelas e Cálculo",
+      "regras": [
+        {"tipo": "CPP", "explicacao": "5.95% para aposentadoria (até CAD 68.500)."},
+        {"tipo": "EI", "explicacao": "1.63% para seguro-desemprego."},
+        {"tipo": "Imposto de Renda", "explicacao": "Progressivo de 15% a 33% conforme província."}
+      ]
+    },
+    "en": {
+      "titulo": "🇨🇦 Canada — Tables and Calculation",
+      "regras": [
+        {"tipo": "CPP", "explicacao": "5.95% pension up to CAD 68,500."},
+        {"tipo": "EI", "explicacao": "1.63% employment insurance."},
+        {"tipo": "Income Tax", "explicacao": "Progressive 15–33% by province."}
+      ]
+    },
+    "es": {
+      "titulo": "🇨🇦 Canadá — Tablas y Cálculo",
+      "regras": [
+        {"tipo": "CPP", "explicacao": "5.95% para pensión (hasta CAD 68.500)."},
+        {"tipo": "EI", "explicacao": "1.63% para seguro de empleo."},
+        {"tipo": "Impuesto a la Renta", "explicacao": "Progresivo del 15% al 33% según provincia."}
+      ]
+    }
+  },
+  "Colômbia": {
+    "pt": {
+      "titulo": "🇨🇴 Colômbia — Tabelas e Cálculo",
+      "regras": [
+        {"tipo": "Saúde", "explicacao": "4% sobre o salário bruto."},
+        {"tipo": "Pensão", "explicacao": "4% para aposentadoria."},
+        {"tipo": "Fundo Solidariedade", "explicacao": "1% adicional para altos salários."}
+      ]
+    },
+    "en": {
+      "titulo": "🇨🇴 Colombia — Tables and Calculation",
+      "regras": [
+        {"tipo": "Health", "explicacao": "4% on gross salary."},
+        {"tipo": "Pension", "explicacao": "4% retirement contribution."},
+        {"tipo": "Solidarity Fund", "explicacao": "1% additional for high incomes."}
+      ]
+    },
+    "es": {
+      "titulo": "🇨🇴 Colombia — Tablas y Cálculo",
+      "regras": [
+        {"tipo": "Salud", "explicacao": "4% del salario bruto."},
+        {"tipo": "Pensión", "explicacao": "4% para jubilación."},
+        {"tipo": "Fondo de Solidaridad", "explicacao": "1% adicional para ingresos altos."}
+      ]
+    }
+  },
+  "Argentina": {
+    "pt": {
+      "titulo": "🇦🇷 Argentina — Tabelas e Cálculo",
+      "regras": [
+        {"tipo": "Jubilación", "explicacao": "11% para aposentadoria."},
+        {"tipo": "Obra Social", "explicacao": "3% para saúde."},
+        {"tipo": "PAMI", "explicacao": "3% para assistência médica aos aposentados."},
+        {"tipo": "Ganancias", "explicacao": "Imposto de renda progressivo de 5% a 35%."}
+      ]
+    },
+    "en": {
+      "titulo": "🇦🇷 Argentina — Tables and Calculation",
+      "regras": [
+        {"tipo": "Pension", "explicacao": "11% retirement."},
+        {"tipo": "Health", "explicacao": "3% medical insurance."},
+        {"tipo": "PAMI", "explicacao": "3% retirees’ medical fund."},
+        {"tipo": "Income Tax", "explicacao": "Progressive 5–35% tax."}
+      ]
+    },
+    "es": {
+      "titulo": "🇦🇷 Argentina — Tablas y Cálculo",
+      "regras": [
+        {"tipo": "Jubilación", "explicacao": "11% para retiro."},
+        {"tipo": "Obra Social", "explicacao": "3% para salud."},
+        {"tipo": "PAMI", "explicacao": "3% para atención médica de jubilados."},
+        {"tipo": "Ganancias", "explicacao": "Progresivo del 5% al 35% según ingreso."}
+      ]
+    }
+  }
+}
