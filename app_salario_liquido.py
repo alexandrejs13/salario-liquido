@@ -7,7 +7,7 @@ import json
 # ============================================
 st.set_page_config(page_title="Calculadora Internacional de Salário Líquido", page_icon="💰", layout="centered")
 st.title("💰 Calculadora Internacional de Salário Líquido")
-st.caption("Versão 2025.3 • Dados oficiais com atualizações fiscais automáticas via GitHub")
+st.caption("Versão 2025.4 • Dados oficiais e impostos estaduais completos (EUA)")
 
 # ============================================
 # 🔹 URL DO ARQUIVO JSON NO GITHUB
@@ -62,30 +62,34 @@ if not pais_dados:
     st.stop()
 
 moeda = pais_dados.get("moeda", "")
-
-# ============================================
-# 🔹 EXIBE BANDEIRA E NOME DO PAÍS
-# ============================================
 bandeira = bandeiras.get(pais_selecionado, "🌍")
 st.markdown(f"### {bandeira} {pais_selecionado}")
 
 # ============================================
-# 🔹 SELETOR ADICIONAL PARA ESTADOS (EUA)
+# 🔹 LISTA COMPLETA DE ESTADOS DOS EUA
 # ============================================
+state_tax_rates = {
+    "Alabama": 0.05, "Alaska": 0.00, "Arizona": 0.045, "Arkansas": 0.047,
+    "California": 0.093, "Colorado": 0.045, "Connecticut": 0.0699, "Delaware": 0.052,
+    "Florida": 0.00, "Georgia": 0.0575, "Hawaii": 0.0825, "Idaho": 0.058,
+    "Illinois": 0.0495, "Indiana": 0.0323, "Iowa": 0.055, "Kansas": 0.057,
+    "Kentucky": 0.045, "Louisiana": 0.045, "Maine": 0.0715, "Maryland": 0.0575,
+    "Massachusetts": 0.05, "Michigan": 0.0425, "Minnesota": 0.0785, "Mississippi": 0.05,
+    "Missouri": 0.054, "Montana": 0.0675, "Nebraska": 0.058, "Nevada": 0.00,
+    "New Hampshire": 0.00, "New Jersey": 0.0637, "New Mexico": 0.049, "New York": 0.0645,
+    "North Carolina": 0.0475, "North Dakota": 0.029, "Ohio": 0.038, "Oklahoma": 0.05,
+    "Oregon": 0.0875, "Pennsylvania": 0.0307, "Rhode Island": 0.0599, "South Carolina": 0.07,
+    "South Dakota": 0.00, "Tennessee": 0.00, "Texas": 0.00, "Utah": 0.0485,
+    "Vermont": 0.068, "Virginia": 0.0575, "Washington": 0.00, "West Virginia": 0.065,
+    "Wisconsin": 0.053, "Wyoming": 0.00, "District of Columbia": 0.065
+}
+
 estado_selecionado = None
 state_tax_rate = 0.0
+
 if pais_selecionado == "Estados Unidos":
-    estados = {
-        "California": 0.093,
-        "Florida": 0.00,
-        "New York": 0.0645,
-        "Texas": 0.00,
-        "Illinois": 0.0495,
-        "Massachusetts": 0.05,
-        "Washington": 0.00
-    }
-    estado_selecionado = st.selectbox("🗽 Escolha o Estado", list(estados.keys()))
-    state_tax_rate = estados[estado_selecionado]
+    estado_selecionado = st.selectbox("🗽 Escolha o Estado", list(state_tax_rates.keys()))
+    state_tax_rate = state_tax_rates[estado_selecionado]
 
 # ============================================
 # 🔹 ENTRADA DE SALÁRIO
@@ -110,8 +114,6 @@ def calcular_liquido(pais, salario):
 
     for d in pais["descontos"]:
         aliquota = 0.0
-
-        # Faixas progressivas (ex: IR)
         if isinstance(d.get("parte_empregado"), list):
             for faixa in d["parte_empregado"]:
                 if faixa["faixa_fim"] is None or salario <= faixa["faixa_fim"]:
@@ -182,4 +184,4 @@ st.table(tabela)
 # 🔹 RODAPÉ
 # ============================================
 st.markdown("---")
-st.caption("🔄 Atualização automática via GitHub • Inclui teto INSS 🇧🇷 • State Tax 🇺🇸 • INFONAVIT 🇲🇽 • Bandeiras oficiais 🌍")
+st.caption("🔄 Atualização automática via GitHub • Inclui teto INSS 🇧🇷 • INFONAVIT 🇲🇽 • 50 estados EUA 🇺🇸 com State Tax realista.")
