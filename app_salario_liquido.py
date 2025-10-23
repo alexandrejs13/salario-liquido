@@ -7,17 +7,17 @@ import json
 # ============================================
 st.set_page_config(page_title="Calculadora Internacional de Salário Líquido", page_icon="💰", layout="centered")
 st.title("💰 Calculadora Internacional de Salário Líquido")
-st.caption("Versão 2025.1 • Dados oficiais de cada país com atualização automática via GitHub")
+st.caption("Versão 2025.3 • Dados oficiais com atualizações fiscais automáticas via GitHub")
 
 # ============================================
-# 🔹 URL CORRETA DO JSON NO GITHUB
+# 🔹 URL DO ARQUIVO JSON NO GITHUB
 # ============================================
 URL_JSON_GITHUB = "https://raw.githubusercontent.com/alexandrejs13/salario-liquido/main/tabelas_salarios.json"
 
 # ============================================
 # 🔹 FUNÇÃO PARA CARREGAR AS TABELAS
 # ============================================
-@st.cache_data(ttl=86400)  # Atualiza 1x por dia
+@st.cache_data(ttl=86400)
 def carregar_tabelas():
     try:
         resp = requests.get(URL_JSON_GITHUB, timeout=10)
@@ -31,11 +31,27 @@ def carregar_tabelas():
         st.error(f"Erro ao carregar tabelas: {e}")
         st.stop()
 
-# ✅ Agora chamamos a função DEPOIS de defini-la
 dados = carregar_tabelas()
 
+if not dados or "paises" not in dados:
+    st.error("❌ Não foi possível carregar as tabelas de países. Verifique o arquivo JSON no GitHub.")
+    st.stop()
+
 # ============================================
-# 🔹 INTERFACE DE SELEÇÃO DE PAÍS
+# 🔹 MAPA DE BANDEIRAS POR PAÍS
+# ============================================
+bandeiras = {
+    "Brasil": "🇧🇷",
+    "Chile": "🇨🇱",
+    "Argentina": "🇦🇷",
+    "Colômbia": "🇨🇴",
+    "México": "🇲🇽",
+    "Estados Unidos": "🇺🇸",
+    "Canadá": "🇨🇦"
+}
+
+# ============================================
+# 🔹 SELEÇÃO DE PAÍS
 # ============================================
 paises = [p["pais"] for p in dados["paises"]]
 pais_selecionado = st.selectbox("🌎 Escolha o país", paises)
@@ -48,7 +64,31 @@ if not pais_dados:
 moeda = pais_dados.get("moeda", "")
 
 # ============================================
-# 🔹 ENTRADA DO SALÁRIO
+# 🔹 EXIBE BANDEIRA E NOME DO PAÍS
+# ============================================
+bandeira = bandeiras.get(pais_selecionado, "🌍")
+st.markdown(f"### {bandeira} {pais_selecionado}")
+
+# ============================================
+# 🔹 SELETOR ADICIONAL PARA ESTADOS (EUA)
+# ============================================
+estado_selecionado = None
+state_tax_rate = 0.0
+if pais_selecionado == "Estados Unidos":
+    estados = {
+        "California": 0.093,
+        "Florida": 0.00,
+        "New York": 0.0645,
+        "Texas": 0.00,
+        "Illinois": 0.0495,
+        "Massachusetts": 0.05,
+        "Washington": 0.00
+    }
+    estado_selecionado = st.selectbox("🗽 Escolha o Estado", list(estados.keys()))
+    state_tax_rate = estados[estado_selecionado]
+
+# ============================================
+# 🔹 ENTRADA DE SALÁRIO
 # ============================================
 salario_bruto = st.number_input(
     f"Informe o salário bruto ({moeda})",
@@ -62,7 +102,7 @@ if salario_bruto <= 0:
     st.stop()
 
 # ============================================
-# 🔹 FUNÇÃO DE CÁLCULO DO SALÁRIO LÍQUIDO
+# 🔹 FUNÇÃO DE CÁLCULO
 # ============================================
 def calcular_liquido(pais, salario):
     descontos_aplicados = []
@@ -71,7 +111,7 @@ def calcular_liquido(pais, salario):
     for d in pais["descontos"]:
         aliquota = 0.0
 
-        # Verifica se há faixas progressivas
+        # Faixas progressivas (ex: IR)
         if isinstance(d.get("parte_empregado"), list):
             for faixa in d["parte_empregado"]:
                 if faixa["faixa_fim"] is None or salario <= faixa["faixa_fim"]:
@@ -81,8 +121,25 @@ def calcular_liquido(pais, salario):
             aliquota = d.get("parte_empregado", 0)
 
         valor_desc = salario * aliquota
+
+        # ✅ INSS com teto (Brasil)
+        if pais["pais"] == "Brasil" and "INSS" in d["tipo"].upper():
+            valor_desc = min(valor_desc, pais.get("teto_inss", 908.85))
+
+        # ✅ INFONAVIT México
+        if pais["pais"] == "México" and "INFONAVIT" in d["tipo"].upper():
+            if aliquota == 0:
+                aliquota = 0.05
+                valor_desc = salario * aliquota
+
         total_descontos += valor_desc
         descontos_aplicados.append((d["tipo"], aliquota * 100, valor_desc))
+
+    # ✅ State Tax EUA
+    if pais["pais"] == "Estados Unidos" and state_tax_rate > 0:
+        state_tax = salario * state_tax_rate
+        total_descontos += state_tax
+        descontos_aplicados.append((f"State Tax ({estado_selecionado})", state_tax_rate * 100, state_tax))
 
     salario_liquido = salario - total_descontos
     return salario_liquido, descontos_aplicados
@@ -93,7 +150,7 @@ def calcular_liquido(pais, salario):
 salario_liquido, descontos = calcular_liquido(pais_dados, salario_bruto)
 
 # ============================================
-# 🔹 EXIBE OS RESULTADOS
+# 🔹 EXIBE RESULTADOS
 # ============================================
 st.subheader("📊 Resultado do Cálculo")
 
@@ -102,9 +159,9 @@ col1.metric("Salário Bruto", f"{salario_bruto:,.2f} {moeda}")
 col2.metric("Salário Líquido", f"{salario_liquido:,.2f} {moeda}")
 
 st.markdown("---")
-st.markdown(f"**Data de Vigência:** {pais_dados['vigencia_inicio']}")
-st.markdown(f"**Última atualização:** {pais_dados['ultima_atualizacao']}")
-st.markdown(f"**Fonte oficial:** {pais_dados['fonte']}")
+st.markdown(f"**Data de Vigência:** {pais_dados.get('vigencia_inicio', '-')}")
+st.markdown(f"**Última atualização:** {pais_dados.get('ultima_atualizacao', '-')}")
+st.markdown(f"**Fonte oficial:** {pais_dados.get('fonte', '-')}")
 
 # ============================================
 # 🔹 TABELA DE DESCONTOS
@@ -125,5 +182,4 @@ st.table(tabela)
 # 🔹 RODAPÉ
 # ============================================
 st.markdown("---")
-st.caption("🔄 Atualização automática diária via GitHub. "
-           "Se o GitHub estiver offline, o app usa a cópia local do JSON.")
+st.caption("🔄 Atualização automática via GitHub • Inclui teto INSS 🇧🇷 • State Tax 🇺🇸 • INFONAVIT 🇲🇽 • Bandeiras oficiais 🌍")
