@@ -1,14 +1,15 @@
 # -------------------------------------------------------------
-# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.27)
-# - Tabelas externas (GitHub Raw): US states, países, BR INSS/IRRF
+# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.28)
+# - Data-driven via JSON (US states, países, BR INSS/IRRF)
 # - Fallback local + cache; botão "Recarregar tabelas"
-# - Cards anuais menores e gráfico de pizza ao lado dos cards
+# - Idioma/País com rótulos claros na sidebar (sem "vazio")
+# - Gráfico de pizza com rótulos em %
 # -------------------------------------------------------------
 import streamlit as st
 import pandas as pd
 import altair as alt
 import requests
-from typing import Dict, Any, List
+from typing import Dict, Any
 
 st.set_page_config(
     page_title="Simulador de Salário Líquido e Custo do Empregador",
@@ -91,6 +92,7 @@ I18N = {
         "reload": "Recarregar tabelas",
         "source_remote": "Tabelas remotas",
         "source_local": "Fallback local",
+        "menu": "Menu"
     },
     "English": {
         "app_title": "Net Salary & Employer Cost Simulator",
@@ -125,6 +127,7 @@ I18N = {
         "reload": "Reload tables",
         "source_remote": "Remote tables",
         "source_local": "Local fallback",
+        "menu": "Menu"
     },
     "Español": {
         "app_title": "Simulador de Salario Neto y Costo del Empleador",
@@ -159,6 +162,7 @@ I18N = {
         "reload": "Recargar tablas",
         "source_remote": "Tablas remotas",
         "source_local": "Copia local",
+        "menu": "Menú"
     }
 }
 
@@ -183,7 +187,6 @@ COUNTRY_BENEFITS = {
     "Canadá": {"ferias": False, "decimo": False},
 }
 
-# Fator meses (remuneração anual bruta)
 REMUN_MONTHS_DEFAULT = {
     "Brasil":13.33, "México":12.50, "Chile":12.00, "Argentina":13.00,
     "Colômbia":13.00, "Estados Unidos":12.00, "Canadá":12.00
@@ -236,7 +239,6 @@ EMPLOYER_COST_DEFAULT = {
         {"nome":"EI (ER)","percentual":2.28,"base":"Salário","ferias":False,"decimo":False,"bonus":True,"obs":"—"}
     ]
 }
-# Brasil INSS/IRRF defaults (mesmo schema dos JSONs)
 BR_INSS_DEFAULT = {
     "vigencia": "2025-01-01",
     "teto_contribuicao": 1146.68,
@@ -267,19 +269,14 @@ def fetch_json(url: str) -> Dict[str, Any]:
     return r.json()
 
 def load_tables(force=False):
-    """Carrega tabelas remotas; se falhar, usa defaults locais."""
     ok_remote = {"us": False, "country": False, "br_inss": False, "br_irrf": False}
     if force:
         fetch_json.clear()
-
-    # US states
     try:
         us_states = fetch_json(URL_US_STATES)
         ok_remote["us"] = True
     except Exception:
         us_states = US_STATE_RATES_DEFAULT
-
-    # Country tables (rates/encargos/meses)
     try:
         country_tables = fetch_json(URL_COUNTRY_TABLES)
         ok_remote["country"] = True
@@ -289,21 +286,16 @@ def load_tables(force=False):
             "EMPLOYER_COST": EMPLOYER_COST_DEFAULT,
             "REMUN_MONTHS": REMUN_MONTHS_DEFAULT,
         }
-
-    # BR INSS
     try:
         br_inss = fetch_json(URL_BR_INSS)
         ok_remote["br_inss"] = True
     except Exception:
         br_inss = BR_INSS_DEFAULT
-
-    # BR IRRF
     try:
         br_irrf = fetch_json(URL_BR_IRRF)
         ok_remote["br_irrf"] = True
     except Exception:
         br_irrf = BR_IRRF_DEFAULT
-
     return us_states, country_tables, br_inss, br_irrf, ok_remote
 
 # ========================== Helpers ==========================
@@ -315,13 +307,11 @@ def money_or_blank(v, sym):
 
 # -------- INSS/IRRF data-driven (Brasil) ----------
 def calc_inss_progressivo(salario: float, inss_tbl: Dict[str, Any]) -> float:
-    """Calcula INSS progressivo a partir de faixas e aplica teto de contribuição."""
     contrib = 0.0
-    base_restante = salario
     limite_anterior = 0.0
     for faixa in inss_tbl.get("faixas", []):
-        teto_faixa = faixa["ate"]
-        aliquota = faixa["aliquota"]
+        teto_faixa = float(faixa["ate"])
+        aliquota  = float(faixa["aliquota"])
         if salario > limite_anterior:
             base_faixa = min(salario, teto_faixa) - limite_anterior
             contrib += base_faixa * aliquota
@@ -334,7 +324,6 @@ def calc_inss_progressivo(salario: float, inss_tbl: Dict[str, Any]) -> float:
     return max(contrib, 0.0)
 
 def calc_irrf(base: float, dep: int, irrf_tbl: Dict[str, Any]) -> float:
-    """Calcula IRRF com dedução por dependente e faixas (aliquota/deducao)."""
     ded_dep = float(irrf_tbl.get("deducao_dependente", 0.0))
     base_calc = max(base - ded_dep * max(int(dep), 0), 0.0)
     for faixa in irrf_tbl.get("faixas", []):
@@ -344,7 +333,6 @@ def calc_irrf(base: float, dep: int, irrf_tbl: Dict[str, Any]) -> float:
             return max(base_calc * aliq - ded, 0.0)
     return 0.0
 
-# -------- Nets ----------
 def br_net(salary, dependentes, br_inss_tbl, br_irrf_tbl):
     lines = []
     total_earn = salary
@@ -436,7 +424,6 @@ def render_rules(country, T):
 - **INSS Patronal, RAT e Sistema S** sobre a folha (percentuais variam por CNAE/regra).  
 - **FGTS (8%)** como depósito. Em geral incidem sobre **férias** e **13º**, compondo o custo anual.
         """)
-
     elif country == "Estados Unidos":
         st.markdown("""
 **Empregado (EUA)**  
@@ -450,7 +437,6 @@ def render_rules(country, T):
 - **Social Security (ER)** 6,2%, **Medicare (ER)** 1,45% e **SUTA** ~2% (indicativo).  
 - Meses de remuneração considerados **12** (sem férias/13º mandatórios federais).
         """)
-
     elif country == "México":
         st.markdown("""
 **Empleado (México)**  
@@ -461,7 +447,6 @@ def render_rules(country, T):
 **Empleador (México)**  
 - **IMSS patronal** e **INFONAVIT** patronal; aguinaldo → meses ~**12,5** (indicativo).
         """)
-
     elif country == "Chile":
         st.markdown("""
 **Trabajador (Chile)**  
@@ -472,7 +457,6 @@ def render_rules(country, T):
 **Empleador (Chile)**  
 - **Seguro de cesantía (empleador)** ~2,4%. Meses **12**.
         """)
-
     elif country == "Argentina":
         st.markdown("""
 **Empleado (Argentina)**  
@@ -483,7 +467,6 @@ def render_rules(country, T):
 **Empleador (Argentina)**  
 - Contribuciones patronales ~18% (promedio). **SAC (13º)** → meses **13**.
         """)
-
     elif country == "Colômbia":
         st.markdown("""
 **Trabajador (Colombia)**  
@@ -494,7 +477,6 @@ def render_rules(country, T):
 **Empleador (Colombia)**  
 - **Salud (ER)** ~8,5% y **Pensión (ER)** ~12%. **Prima de servicios** → meses **13**.
         """)
-
     elif country == "Canadá":
         st.markdown("""
 **Employee (Canada)**  
@@ -507,26 +489,30 @@ def render_rules(country, T):
         """)
 
 # ========================= Sidebar ===========================
+# Idioma com rótulo claro e valor visível (nada de label vazio)
 idioma = st.sidebar.selectbox("🌐 Idioma / Language / Idioma", list(I18N.keys()), index=0, key="lang_select")
 T = I18N[idioma]
+st.sidebar.caption(f"**Idioma selecionado:** {idioma}")
 
-# Botão para recarregar tabelas (limpa cache e relê JSON remotos)
+# Botão recarregar (limpa cache dos JSONs)
 reload_clicked = st.sidebar.button(f"🔄 {T['reload']}")
-
 US_STATE_RATES, COUNTRY_TABLES, BR_INSS_TBL, BR_IRRF_TBL, OK_REMOTE = load_tables(force=reload_clicked)
 
-# Mostra badge de origem dos dados
+# Badge origem dos dados
 if all(OK_REMOTE.values()):
     st.markdown(f"<span class='badge-ok'>✓ {T['source_remote']}</span>", unsafe_allow_html=True)
 else:
     st.markdown(f"<span class='badge-fallback'>⚠ {T['source_local']}</span>", unsafe_allow_html=True)
 
+# País com rótulo claro e valor visível
 st.sidebar.markdown(f"### {T['country']}")
-country = st.sidebar.selectbox(" ", list(COUNTRIES.keys()), index=0, key="country_select")
+country = st.sidebar.selectbox("Selecione o país", list(COUNTRIES.keys()), index=0, key="country_select")
 symbol = COUNTRIES[country]["symbol"]; flag = COUNTRIES[country]["flag"]; valid_from = COUNTRIES[country]["valid_from"]
+st.sidebar.caption(f"**{T['country']}:** {country} {flag}")
 
-st.sidebar.markdown("### Menu")
-menu = st.sidebar.radio(" ", [T["menu_calc"], T["menu_rules"], T["menu_cost"]], index=0, key="menu_radio")
+# Menu
+st.sidebar.markdown(f"### {T['menu']}")
+menu = st.sidebar.radio("Escolha uma opção", [T["menu_calc"], T["menu_rules"], T["menu_cost"]], index=0, key="menu_radio")
 
 # ================== Título dinâmico ==========================
 if menu == T["menu_calc"]:
@@ -553,6 +539,7 @@ if menu == T["menu_calc"]:
     elif country == "Estados Unidos":
         c1, c2, c3, c4 = st.columns([2,1.4,1.2,1.4])
         salario = c1.number_input(f"{T['salary']} ({symbol})", min_value=0.0, value=10000.0, step=100.0, key="salary_input")
+        # lista completa de estados (proveniente do JSON remoto ou fallback)
         state_code = c2.selectbox(f"{T['state']}", list(US_STATE_RATES.keys()), index=0, key="state_select_main")
         default_rate = float(US_STATE_RATES.get(state_code, 0.0))
         state_rate = c3.number_input(f"{T['state_rate']}", min_value=0.0, max_value=0.20, value=default_rate, step=0.001, format="%.3f", key="state_rate_input")
@@ -605,13 +592,30 @@ if menu == T["menu_calc"]:
         st.markdown(f"<div class='metric-card'><h4>💼 {T['annual_total']}</h4><h3>{fmt_money(total_anual, symbol)}</h3></div>", unsafe_allow_html=True)
 
     with right:
-        chart_df = pd.DataFrame({"Componente": [T["annual_salary"], T["annual_bonus"]], "Valor": [salario_anual, bonus_anual]})
-        pie = alt.Chart(chart_df).mark_arc(innerRadius=60).encode(
+        chart_df = pd.DataFrame({
+            "Componente": [T["annual_salary"], T["annual_bonus"]],
+            "Valor": [salario_anual, bonus_anual]
+        })
+        # Pizza com rótulos de porcentagem
+        pie_base = alt.Chart(chart_df).transform_joinaggregate(
+            Total='sum(Valor)'
+        ).transform_calculate(
+            Percent='datum.Valor / datum.Total'
+        )
+        pie = pie_base.mark_arc(innerRadius=60).encode(
             theta=alt.Theta(field="Valor", type="quantitative"),
             color=alt.Color(field="Componente", type="nominal"),
-            tooltip=[alt.Tooltip("Componente:N"), alt.Tooltip("Valor:Q", format=",.2f")]
+            tooltip=[
+                alt.Tooltip("Componente:N"),
+                alt.Tooltip("Valor:Q", format=",.2f"),
+                alt.Tooltip("Percent:Q", format=".1%")
+            ]
         ).properties(title=T["pie_title"], width=420, height=320)
-        st.altair_chart(pie, use_container_width=True)
+
+        labels = pie_base.mark_text(radius=100, fontSize=13).encode(
+            text=alt.Text('Percent:Q', format='.1%')
+        )
+        st.altair_chart(pie + labels, use_container_width=True)
 
 # ================= Seção: Regras de Cálculo ==================
 elif menu == T["menu_rules"]:
