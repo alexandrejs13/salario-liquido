@@ -31,14 +31,8 @@ def carregar_tabelas():
         st.error(f"Erro ao carregar tabelas: {e}")
         st.stop()
 
-# ============================================
-# 🔹 CARREGAMENTO E VALIDAÇÃO DOS DADOS
-# ============================================
+# ✅ Agora chamamos a função DEPOIS de defini-la
 dados = carregar_tabelas()
-
-if not dados or "paises" not in dados:
-    st.error("❌ Não foi possível carregar as tabelas de países. Verifique o arquivo JSON no GitHub.")
-    st.stop()
 
 # ============================================
 # 🔹 INTERFACE DE SELEÇÃO DE PAÍS
