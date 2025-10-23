@@ -8,32 +8,39 @@ from datetime import datetime
 # ============================================
 
 st.set_page_config(page_title="Calculadora Internacional de Salário Líquido", page_icon="💰", layout="centered")
-
 st.title("💰 Calculadora Internacional de Salário Líquido")
-st.caption("Versão 2025.1 • Dados oficiais de cada país com atualização automática")
+st.caption("Versão 2025.1 • Dados oficiais de cada país com atualização automática via GitHub")
 
 # ============================================
-# 🔹 FUNÇÃO PARA CARREGAR OS DADOS (LOCAL OU API)
+# 🔹 URL DO ARQUIVO JSON NO GITHUB
 # ============================================
 
-@st.cache_data(ttl=86400)  # atualiza a cada 24h
+URL_JSON_GITHUB = "https://raw.githubusercontent.com/alexandresavoy/salario-liquido/main/tabelas_salarios.json"
+
+# ============================================
+# 🔹 FUNÇÃO PARA CARREGAR OS DADOS
+# ============================================
+
+@st.cache_data(ttl=86400)  # atualiza uma vez por dia
 def carregar_tabelas():
     try:
-        # 🔄 Aqui você pode trocar por um endpoint remoto (ex: GitHub RAW, S3, API interna)
-        with open("tabelas_salarios.json", "r", encoding="utf-8") as f:
-            dados = json.load(f)
-        return dados
+        resp = requests.get(URL_JSON_GITHUB, timeout=10)
+        if resp.status_code == 200:
+            dados = resp.json()
+            return dados
+        else:
+            st.warning(f"⚠️ Não foi possível atualizar do GitHub (HTTP {resp.status_code}).")
+            # tenta local como fallback
+            with open("tabelas_salarios.json", "r", encoding="utf-8") as f:
+                return json.load(f)
     except Exception as e:
         st.error(f"Erro ao carregar tabelas: {e}")
-        return None
+        st.stop()
 
 dados = carregar_tabelas()
 
-if not dados:
-    st.stop()
-
 # ============================================
-# 🔹 INTERFACE DE SELEÇÃO
+# 🔹 SELEÇÃO DE PAÍS E ENTRADA DE SALÁRIO
 # ============================================
 
 paises = [p["pais"] for p in dados["paises"]]
@@ -57,8 +64,9 @@ def calcular_liquido(pais, salario):
     total_descontos = 0.0
 
     for d in pais["descontos"]:
+        aliquota = 0.0
+
         if isinstance(d.get("parte_empregado"), list):
-            # caso seja faixa progressiva
             for faixa in d["parte_empregado"]:
                 if faixa["faixa_fim"] is None or salario <= faixa["faixa_fim"]:
                     aliquota = faixa["aliquota"]
@@ -102,9 +110,9 @@ for tipo, aliquota, valor in descontos:
 st.table(tabela)
 
 # ============================================
-# 🔹 ATUALIZAÇÃO AUTOMÁTICA (DEMONSTRATIVA)
+# 🔹 INFORMAÇÕES ADICIONAIS
 # ============================================
 
 st.markdown("---")
-st.caption("🔄 O aplicativo verifica novas versões da tabela a cada 24h. "
-           "Você pode integrar esta função a um endpoint remoto (GitHub, S3, ou planilha pública Google Sheets).")
+st.caption("🔄 O aplicativo busca automaticamente o arquivo JSON hospedado no GitHub a cada 24h. "
+           "Caso o servidor esteja offline, ele usa a cópia local como backup.")
