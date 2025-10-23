@@ -1,0 +1,49 @@
+{
+  "TABLES": {
+    "México":   { "rates": { "ISR": 0.15, "IMSS": 0.05, "INFONAVIT": 0.05 } },
+    "Chile":    { "rates": { "AFP": 0.10, "Saúde": 0.07 } },
+    "Argentina":{ "rates": { "Jubilación": 0.11, "Obra Social": 0.03, "PAMI": 0.03 } },
+    "Colômbia": { "rates": { "Saúde": 0.04, "Pensão": 0.04 } },
+    "Canadá":   { "rates": { "CPP": 0.0595, "EI": 0.0163, "Income Tax": 0.15 } }
+  },
+  "EMPLOYER_COST": {
+    "Brasil": [
+      { "nome":"INSS Patronal", "percentual":20.0, "base":"Salário Bruto", "ferias":true, "decimo":true, "bonus":true, "obs":"Previdência" },
+      { "nome":"RAT", "percentual":2.0, "base":"Salário Bruto", "ferias":true, "decimo":true, "bonus":true, "obs":"Risco" },
+      { "nome":"Sistema S", "percentual":5.8, "base":"Salário Bruto", "ferias":true, "decimo":true, "bonus":true, "obs":"Terceiros" },
+      { "nome":"FGTS", "percentual":8.0, "base":"Salário Bruto", "ferias":true, "decimo":true, "bonus":true, "obs":"Crédito empregado" }
+    ],
+    "México": [
+      { "nome":"IMSS Patronal","percentual":7.0,"base":"Salário","ferias":true,"decimo":true,"bonus":true,"obs":"Seguro social" },
+      { "nome":"INFONAVIT Empregador","percentual":5.0,"base":"Salário","ferias":true,"decimo":true,"bonus":true,"obs":"Habitação" }
+    ],
+    "Chile": [
+      { "nome":"Seguro Desemprego","percentual":2.4,"base":"Salário","ferias":true,"decimo":false,"bonus":true,"obs":"Empregador" }
+    ],
+    "Argentina": [
+      { "nome":"Contribuições Patronais","percentual":18.0,"base":"Salário","ferias":true,"decimo":true,"bonus":true,"obs":"Média setores" }
+    ],
+    "Colômbia": [
+      { "nome":"Saúde Empregador","percentual":8.5,"base":"Salário","ferias":true,"decimo":true,"bonus":true,"obs":"—" },
+      { "nome":"Pensão Empregador","percentual":12.0,"base":"Salário","ferias":true,"decimo":true,"bonus":true,"obs":"—" }
+    ],
+    "Estados Unidos": [
+      { "nome":"Social Security (ER)","percentual":6.2,"base":"Salário","ferias":false,"decimo":false,"bonus":true,"obs":"Até wage base" },
+      { "nome":"Medicare (ER)","percentual":1.45,"base":"Salário","ferias":false,"decimo":false,"bonus":true,"obs":"Sem teto" },
+      { "nome":"SUTA (avg)","percentual":2.0,"base":"Salário","ferias":false,"decimo":false,"bonus":true,"obs":"Média estado" }
+    ],
+    "Canadá": [
+      { "nome":"CPP (ER)","percentual":5.95,"base":"Salário","ferias":false,"decimo":false,"bonus":true,"obs":"Até limite" },
+      { "nome":"EI (ER)","percentual":2.28,"base":"Salário","ferias":false,"decimo":false,"bonus":true,"obs":"—" }
+    ]
+  },
+  "REMUN_MONTHS": {
+    "Brasil": 13.33,
+    "México": 12.50,
+    "Chile": 12.00,
+    "Argentina": 13.00,
+    "Colômbia": 13.00,
+    "Estados Unidos": 12.00,
+    "Canadá": 12.00
+  }
+}
