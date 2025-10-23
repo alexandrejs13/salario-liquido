@@ -1,0 +1,36 @@
+{
+  "Brasil": {
+    "pt": {
+      "titulo": "🇧🇷 Brasil — Tabelas e Cálculo",
+      "regras": [
+        {
+          "tipo": "INSS",
+          "faixas": [
+            {"faixa_inicio": 0, "faixa_fim": 1412.00, "aliquota": "7.5%"},
+            {"faixa_inicio": 1412.01, "faixa_fim": 2666.68, "aliquota": "9%"},
+            {"faixa_inicio": 2666.69, "faixa_fim": 4000.03, "aliquota": "12%"},
+            {"faixa_inicio": 4000.04, "faixa_fim": 8157.41, "aliquota": "14%"}
+          ],
+          "explicacao": "O INSS é calculado de forma progressiva por faixa salarial até o teto de R$ 8.157,41. O valor máximo de contribuição é de R$ 908,85."
+        },
+        {
+          "tipo": "IRRF",
+          "faixas": [
+            {"faixa_inicio": 0, "faixa_fim": 2259.20, "aliquota": "Isento"},
+            {"faixa_inicio": 2259.21, "faixa_fim": 2826.65, "aliquota": "7.5%"},
+            {"faixa_inicio": 2826.66, "faixa_fim": 3751.05, "aliquota": "15%"},
+            {"faixa_inicio": 3751.06, "faixa_fim": 4664.68, "aliquota": "22.5%"},
+            {"faixa_inicio": 4664.69, "faixa_fim": null, "aliquota": "27.5%"}
+          ],
+          "explicacao": "O IRRF é calculado sobre o salário após desconto do INSS e deduções legais."
+        },
+        {
+          "tipo": "FGTS",
+          "explicacao": "O FGTS corresponde a 8% do salário bruto e é um crédito depositado pelo empregador, não descontado do salário líquido."
+        }
+      ]
+    },
+    "en": { ... mesma estrutura traduzida ... },
+    "es": { ... mesma estrutura traduzida ... }
+  }
+}
