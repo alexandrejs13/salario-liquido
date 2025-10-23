@@ -1,4 +1,6 @@
 streamlit>=1.39
 requests>=2.32
 matplotlib>=3.9
+pandas>=2.2
 forex-python>=1.8
+fpdf2>=2.7
