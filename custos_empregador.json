@@ -1,0 +1,19 @@
+{
+  "Brasil": {
+    "fator_salarios_ano": 13.33,
+    "encargos": [
+      {"nome": "INSS Patronal", "percentual": 20, "base": "Salário Bruto", "ferias": true, "decimo": true, "bonus": true, "obs": "Contribuição previdenciária"},
+      {"nome": "FGTS", "percentual": 8, "base": "Salário Bruto", "ferias": true, "decimo": true, "bonus": true, "obs": "Crédito do empregador"},
+      {"nome": "RAT", "percentual": 2, "base": "Salário Bruto", "ferias": true, "decimo": true, "bonus": true, "obs": "Risco acidentário"},
+      {"nome": "Sistema S", "percentual": 5.8, "base": "Salário Bruto", "ferias": true, "decimo": true, "bonus": true, "obs": "SESI/SENAI/SEBRAE"}
+    ]
+  },
+  "México": {
+    "fator_salarios_ano": 12.5,
+    "encargos": [
+      {"nome": "IMSS", "percentual": 6, "base": "Salário Bruto", "ferias": true, "decimo": true, "bonus": true, "obs": "Seguro social"},
+      {"nome": "INFONAVIT", "percentual": 5, "base": "Salário Bruto", "ferias": true, "decimo": true, "bonus": true, "obs": "Fundo habitacional"},
+      {"nome": "ISR Patronal", "percentual": 3, "base": "Salário Bruto", "ferias": true, "decimo": true, "bonus": true, "obs": "Imposto sobre renda patronal"}
+    ]
+  }
+}
