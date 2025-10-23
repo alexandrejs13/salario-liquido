@@ -12,7 +12,7 @@ st.caption("Versão 2025.1 • Dados oficiais de cada país com atualização au
 # ============================================
 # 🔹 URL DO ARQUIVO JSON NO GITHUB
 # ============================================
-URL_JSON_GITHUB = "https://raw.githubusercontent.com/alexandresavoy/salario-liquido/main/tabelas_salarios.json"
+URL_JSON_GITHUB = "https://raw.githubusercontent.com/alexandrejs13/salario-liquido/main/tabelas_salarios.json"
 
 # ============================================
 # 🔹 FUNÇÃO PARA CARREGAR OS DADOS
