@@ -1,0 +1,244 @@
+{
+  "versao": "2025.1",
+  "atualizado_em": "2025-10-23",
+  "paises": [
+    {
+      "pais": "Brasil",
+      "moeda": "BRL",
+      "vigencia_inicio": "2024-01-24",
+      "descontos": [
+        {
+          "tipo": "INSS (Contribuição Previdenciária)",
+          "parte_empregado": [
+            {"faixa_inicio": 0, "faixa_fim": 1412.00, "aliquota": 0.075},
+            {"faixa_inicio": 1412.01, "faixa_fim": 2666.68, "aliquota": 0.09},
+            {"faixa_inicio": 2666.69, "faixa_fim": 4000.03, "aliquota": 0.12},
+            {"faixa_inicio": 4000.04, "faixa_fim": 7786.02, "aliquota": 0.14}
+          ],
+          "parte_empregador": 0.20,
+          "observacoes": "Teto de contribuição de R$7.786,02; alíquota progressiva. Fonte: Previdência Social."
+        },
+        {
+          "tipo": "IRPF (Imposto de Renda Pessoa Física)",
+          "parte_empregado": [
+            {"faixa_inicio": 0, "faixa_fim": 2259.20, "aliquota": 0.0},
+            {"faixa_inicio": 2259.21, "faixa_fim": 2826.65, "aliquota": 0.075},
+            {"faixa_inicio": 2826.66, "faixa_fim": 3751.05, "aliquota": 0.15},
+            {"faixa_inicio": 3751.06, "faixa_fim": 4664.68, "aliquota": 0.225},
+            {"faixa_inicio": 4664.69, "faixa_fim": null, "aliquota": 0.275}
+          ],
+          "parte_empregador": null,
+          "observacoes": "Tabelas 2025. Fonte: Receita Federal do Brasil."
+        },
+        {
+          "tipo": "FGTS",
+          "parte_empregado": 0.0,
+          "parte_empregador": 0.08,
+          "observacoes": "Depósito mensal de 8% sobre salário. Fonte: CLT."
+        }
+      ],
+      "fonte": "gov.br, receita.economia.gov.br",
+      "ultima_atualizacao": "2025-01-15"
+    },
+    {
+      "pais": "Chile",
+      "moeda": "CLP",
+      "vigencia_inicio": "2025-01-01",
+      "descontos": [
+        {
+          "tipo": "AFP (Pensão/Previdência)",
+          "parte_empregado": 0.10,
+          "parte_empregador": 0.0285,
+          "observacoes": "Base imponible até 87,8 UF (~CLP 3.470.000)."
+        },
+        {
+          "tipo": "Saúde (FONASA/Isapre)",
+          "parte_empregado": 0.07,
+          "parte_empregador": 0.0,
+          "observacoes": "Mínimo 7% do salário; pode ser maior em planos privados."
+        },
+        {
+          "tipo": "Seguro Desemprego",
+          "parte_empregado": 0.006,
+          "parte_empregador": 0.024,
+          "observacoes": "Aplica-se a contratos indefinidos."
+        },
+        {
+          "tipo": "Imposto de Renda",
+          "parte_empregado": [
+            {"faixa_inicio": 0, "faixa_fim": 13.5, "aliquota": 0.0},
+            {"faixa_inicio": 13.5, "faixa_fim": 30, "aliquota": 0.04},
+            {"faixa_inicio": 30, "faixa_fim": 50, "aliquota": 0.08},
+            {"faixa_inicio": 50, "faixa_fim": 70, "aliquota": 0.135},
+            {"faixa_inicio": 70, "faixa_fim": null, "aliquota": 0.40}
+          ],
+          "observacoes": "Faixas expressas em UTA (Unidades Tributárias Anuais)."
+        }
+      ],
+      "fonte": "Servicio de Impuestos Internos (SII), Superintendencia de Pensiones",
+      "ultima_atualizacao": "2025-01-10"
+    },
+    {
+      "pais": "Argentina",
+      "moeda": "ARS",
+      "vigencia_inicio": "2025-06-01",
+      "descontos": [
+        {
+          "tipo": "Aporte Jubilatorio (Previdência)",
+          "parte_empregado": 0.11,
+          "parte_empregador": 0.23,
+          "observacoes": "Base máxima ARS 3.335.458,18."
+        },
+        {
+          "tipo": "Obra Social (Saúde)",
+          "parte_empregado": 0.03,
+          "parte_empregador": 0.06,
+          "observacoes": "Vinculada a sindicato; varia conforme categoria."
+        },
+        {
+          "tipo": "PAMI (Serviços Sociais)",
+          "parte_empregado": 0.03,
+          "parte_empregador": 0.02,
+          "observacoes": "Desconto obrigatório a aposentadoria e assistência social."
+        },
+        {
+          "tipo": "Impuesto a las Ganancias (IRPF)",
+          "parte_empregado": [
+            {"faixa_inicio": 0, "faixa_fim": 2500000, "aliquota": 0.05},
+            {"faixa_inicio": 2500001, "faixa_fim": 5000000, "aliquota": 0.09},
+            {"faixa_inicio": 5000001, "faixa_fim": 10000000, "aliquota": 0.15},
+            {"faixa_inicio": 10000001, "faixa_fim": null, "aliquota": 0.35}
+          ]
+        }
+      ],
+      "fonte": "AFIP, Ministerio de Trabajo",
+      "ultima_atualizacao": "2025-06-01"
+    },
+    {
+      "pais": "Colômbia",
+      "moeda": "COP",
+      "vigencia_inicio": "2025-01-01",
+      "descontos": [
+        {
+          "tipo": "Saúde (EPS)",
+          "parte_empregado": 0.04,
+          "parte_empregador": 0.085
+        },
+        {
+          "tipo": "Pensão",
+          "parte_empregado": 0.04,
+          "parte_empregador": 0.12
+        },
+        {
+          "tipo": "Risco Laboral (ARL)",
+          "parte_empregado": 0.0,
+          "parte_empregador": 0.005,
+          "observacoes": "Varia de 0,348% a 8,7% conforme nível de risco."
+        },
+        {
+          "tipo": "Fundo de Solidariedade",
+          "parte_empregado": 0.01,
+          "parte_empregador": 0.0,
+          "observacoes": "Aplica-se se salário > 4 SMMLV."
+        }
+      ],
+      "fonte": "Ministerio de Trabajo, UGPP",
+      "ultima_atualizacao": "2025-01-15"
+    },
+    {
+      "pais": "México",
+      "moeda": "MXN",
+      "vigencia_inicio": "2025-01-01",
+      "descontos": [
+        {
+          "tipo": "IMSS (Seguro Social)",
+          "parte_empregado": 0.02125,
+          "parte_empregador": 0.0775,
+          "observacoes": "Inclui saúde, maternidade e invalidez."
+        },
+        {
+          "tipo": "INFONAVIT (Habitação)",
+          "parte_empregado": 0.0,
+          "parte_empregador": 0.05
+        },
+        {
+          "tipo": "ISR (Imposto de Renda)",
+          "parte_empregado": [
+            {"faixa_inicio": 0, "faixa_fim": 746.04, "aliquota": 0.0192},
+            {"faixa_inicio": 746.05, "faixa_fim": 6332.05, "aliquota": 0.064},
+            {"faixa_inicio": 6332.06, "faixa_fim": 11128.01, "aliquota": 0.1088},
+            {"faixa_inicio": 11128.02, "faixa_fim": 12935.82, "aliquota": 0.16},
+            {"faixa_inicio": 12935.83, "faixa_fim": null, "aliquota": 0.35}
+          ]
+        }
+      ],
+      "fonte": "SAT, IMSS, Infonavit",
+      "ultima_atualizacao": "2025-01-10"
+    },
+    {
+      "pais": "Estados Unidos",
+      "moeda": "USD",
+      "vigencia_inicio": "2025-01-01",
+      "descontos": [
+        {
+          "tipo": "Social Security",
+          "parte_empregado": 0.062,
+          "parte_empregador": 0.062,
+          "observacoes": "Aplica-se até US$176.100 anuais. Fonte: SSA."
+        },
+        {
+          "tipo": "Medicare",
+          "parte_empregado": 0.0145,
+          "parte_empregador": 0.0145,
+          "observacoes": "Sem teto. Adicional 0,9% acima de US$200.000."
+        },
+        {
+          "tipo": "Federal Income Tax",
+          "parte_empregado": [
+            {"faixa_inicio": 0, "faixa_fim": 11600, "aliquota": 0.10},
+            {"faixa_inicio": 11601, "faixa_fim": 47150, "aliquota": 0.12},
+            {"faixa_inicio": 47151, "faixa_fim": 100525, "aliquota": 0.22},
+            {"faixa_inicio": 100526, "faixa_fim": 191950, "aliquota": 0.24},
+            {"faixa_inicio": 191951, "faixa_fim": null, "aliquota": 0.32}
+          ],
+          "observacoes": "Tabelas 2025 IRS. Pode haver imposto estadual adicional."
+        }
+      ],
+      "fonte": "IRS, SSA",
+      "ultima_atualizacao": "2025-01-05"
+    },
+    {
+      "pais": "Canadá",
+      "moeda": "CAD",
+      "vigencia_inicio": "2025-01-01",
+      "descontos": [
+        {
+          "tipo": "Canada Pension Plan (CPP)",
+          "parte_empregado": 0.0595,
+          "parte_empregador": 0.0595,
+          "observacoes": "Teto de contribuição CAD 68.500. Fonte: CRA."
+        },
+        {
+          "tipo": "Employment Insurance (EI)",
+          "parte_empregado": 0.0163,
+          "parte_empregador": 0.0228,
+          "observacoes": "Teto de CAD 63.200."
+        },
+        {
+          "tipo": "Federal Income Tax",
+          "parte_empregado": [
+            {"faixa_inicio": 0, "faixa_fim": 55867, "aliquota": 0.15},
+            {"faixa_inicio": 55868, "faixa_fim": 111733, "aliquota": 0.205},
+            {"faixa_inicio": 111734, "faixa_fim": 173205, "aliquota": 0.26},
+            {"faixa_inicio": 173206, "faixa_fim": null, "aliquota": 0.33}
+          ],
+          "observacoes": "Tabelas CRA 2025; adicionar imposto provincial conforme província."
+        }
+      ],
+      "fonte": "Canada Revenue Agency (CRA)",
+      "ultima_atualizacao": "2025-01-05"
+    }
+  ]
+}
+
+          
