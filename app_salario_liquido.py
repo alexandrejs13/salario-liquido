@@ -10,7 +10,7 @@ st.title("💰 Calculadora Internacional de Salário Líquido")
 st.caption("Versão 2025.1 • Dados oficiais de cada país com atualização automática via GitHub")
 
 # ============================================
-# 🔹 URL DO ARQUIVO JSON NO GITHUB
+# 🔹 URL CORRIGIDA DO ARQUIVO JSON NO GITHUB
 # ============================================
 URL_JSON_GITHUB = "https://raw.githubusercontent.com/alexandrejs13/salario-liquido/main/tabelas_salarios.json"
 
@@ -30,8 +30,6 @@ def carregar_tabelas():
     except Exception as e:
         st.error(f"Erro ao carregar tabelas: {e}")
         st.stop()
-
-dados = carregar_tabelas()
 
 # ============================================
 # 🔹 INTERFACE DE SELEÇÃO
