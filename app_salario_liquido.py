@@ -20,82 +20,83 @@ URL_BR_INSS          = f"{RAW_BASE}/br_inss.json"
 URL_BR_IRRF          = f"{RAW_BASE}/br_irrf.json"
 
 # ============================== CSS ================================
-# Ajustes: não pintar todo texto da sidebar de branco; inputs/selects com texto escuro.
 st.markdown("""
 <style>
-body { font-family: 'Segoe UI', Helvetica, Arial, sans-serif; background:#f7f9fb; color:#1a1a1a;}
+/* ===== Base ===== */
+html, body {
+  font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+  background:#f7f9fb;
+  color:#1a1a1a;
+}
 h1,h2,h3 { color:#0a3d62; }
 hr { border:0; height:1px; background:#e2e6ea; margin:16px 0; }
 
-/* Sidebar */
-section[data-testid="stSidebar"] { background:#0a3d62 !important; }
+/* ===== Sidebar (fundo escuro) ===== */
+section[data-testid="stSidebar"] {
+  background:#0a3d62 !important;
+  padding-top:8px;
+}
 
-/* Apenas textos/headers/markdown da sidebar em branco */
+/* Títulos e labels da sidebar em branco (apenas textos, não inputs) */
 section[data-testid="stSidebar"] h1,
 section[data-testid="stSidebar"] h2,
 section[data-testid="stSidebar"] h3,
 section[data-testid="stSidebar"] p,
-section[data-testid="stSidebar"] .stMarkdown {
+section[data-testid="stSidebar"] .stMarkdown,
+section[data-testid="stSidebar"] label {
   color:#ffffff !important;
 }
 
-/* Labels auxiliares da sidebar */
-.sidebar-label { font-size:12px; color:#cfe3ff; margin:8px 0 0; }
-.sidebar-selected { font-size:13px; color:#ffffff; margin:0 0 12px; }
-
-/* Inputs/selects com texto escuro para não "sumir" */
-section[data-testid="stSidebar"] .stSelectbox div[data-baseweb="select"] * { color:#0b1f33 !important; }
+/* Inputs/selects na sidebar: texto PRETO dentro do campo */
 section[data-testid="stSidebar"] .stTextInput input,
 section[data-testid="stSidebar"] .stNumberInput input,
-section[data-testid="stSidebar"] .stSelectbox input {
+section[data-testid="stSidebar"] .stSelectbox input,
+section[data-testid="stSidebar"] .stDateInput input,
+section[data-testid="stSidebar"] .stSelectbox div[role="combobox"] *,
+section[data-testid="stSidebar"] .stMultiSelect div[data-baseweb="select"] input {
   color:#0b1f33 !important;
 }
 
-/* Cards */
+/* Dropdown aberto: itens com texto escuro */
+section[data-testid="stSidebar"] [data-baseweb="menu"] div[role="option"] {
+  color:#0b1f33 !important;
+  background:#ffffff !important;
+}
+
+/* ===== Botão "Recarregar tabelas" ===== */
+/* Força texto PRETO inclusive nos filhos do botão */
+section[data-testid="stSidebar"] .stButton > button,
+section[data-testid="stSidebar"] .stButton > button * {
+  color:#0b1f33 !important;
+}
+section[data-testid="stSidebar"] .stButton > button {
+  background:#ffffff !important;
+  border:1px solid #c9d6e2 !important;
+  border-radius:10px !important;
+  font-weight:600 !important;
+  box-shadow:0 1px 3px rgba(0,0,0,.06);
+}
+section[data-testid="stSidebar"] .stButton > button:hover {
+  background:#f5f8ff !important;
+  border-color:#9bb4d1 !important;
+}
+section[data-testid="stSidebar"] .stButton > button:active {
+  background:#e6eefc !important;
+}
+
+/* ===== Cards / tabela / cabeçalho ===== */
 .metric-card { background:#fff; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.08); padding:12px; text-align:center; }
 .metric-card h4 { margin:0; font-size:13px; color:#0a3d62; }
 .metric-card h3 { margin:4px 0 0; color:#0a3d62; font-size:18px; }
 
-/* Tabela demonstrativo */
 .table-wrap { background:#fff; border:1px solid #d0d7de; border-radius:8px; overflow:hidden; }
 
-/* Bandeira + título dinâmico */
 .country-header { display:flex; align-items:center; gap:10px; }
 .country-flag { font-size:28px; }
 .country-title { font-size:24px; font-weight:700; color:#0a3d62; }
 
 .badge-ok { display:inline-block; padding:2px 8px; border-radius:12px; background:#e6f6ed; color:#137333; font-size:12px; margin-left:8px;}
 .badge-fallback { display:inline-block; padding:2px 8px; border-radius:12px; background:#fdecea; color:#b00020; font-size:12px; margin-left:8px;}
-</style>
-""", unsafe_allow_html=True)
-
-st.markdown("""
-<style>
-/* Botão "Recarregar tabelas" na sidebar — fundo branco, texto azul-escuro */
-section[data-testid="stSidebar"] .stButton > button {
-  background: #ffffff !important;
-  color: #0a3d62 !important;
-  border: 1px solid #c9d6e2 !important;
-  border-radius: 10px !important;
-  font-weight: 600 !important;
-  box-shadow: 0 1px 3px rgba(0,0,0,.06);
-}
-
-/* Hover/active para dar feedback */
-section[data-testid="stSidebar"] .stButton > button:hover {
-  background: #f0f4ff !important;
-  border-color: #9bb4d1 !important;
-}
-section[data-testid="stSidebar"] .stButton > button:active {
-  background: #e6eefc !important;
-}
-
-/* Estado desabilitado (se algum dia ficar disabled) */
-section[data-testid="stSidebar"] .stButton > button:disabled {
-  background: #eef2f7 !important;
-  color: #7a8aa6 !important;
-  border-color: #d5dde6 !important;
-}
 </style>
 """, unsafe_allow_html=True)
 
