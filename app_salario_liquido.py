@@ -525,7 +525,7 @@ with st.sidebar:
     reload_clicked = st.button(f"🔄 {T['reload']}")
 
 US_STATE_RATES, COUNTRY_TABLES, BR_INSS_TBL, BR_IRRF_TBL, OK_REMOTE = load_tables(force=reload_clicked)
-
+# País e menu (limpo – sem chips/selo no rodapé)
 with st.sidebar:
     country = st.selectbox(T["choose_country"], list(COUNTRIES.keys()), index=0, key="country_select")
     menu = st.radio(
@@ -534,12 +534,7 @@ with st.sidebar:
         index=0,
         key="menu_radio"
     )
-    # Chips com idioma e país selecionados (sem duplicar select)
-    st.markdown(f"<span class='sidebar-chip'>🌐 {idioma}</span>  <span class='sidebar-chip'>🏳️ {country}</span>", unsafe_allow_html=True)
-    # Status das tabelas
-    src = []
-    src.append(f"<span class='{'badge-ok' if OK_REMOTE['country'] else 'badge-fallback'}'>{T['source_remote'] if OK_REMOTE['country'] else T['source_local']}</span>")
-    st.markdown(" ".join(src), unsafe_allow_html=True)
+
 
 # ======================= TÍTULO DINÂMICO (HEADER) =====================
 if menu == T["menu_calc"]:
