@@ -575,55 +575,66 @@ st.write("---")
 
 # ========================= CÁLCULO DE SALÁRIO ==========================
 if menu == T["menu_calc"]:
+    # ---- Inputs por país (campos ao lado do salário) ----
     if country == "Brasil":
-        c1, c2, c3, c4, c5 = st.columns([2,1,1.6,1.6,2.4])
+        c1, c2, c3, c4, c5 = st.columns([2, 1, 1.6, 1.6, 2.4])
         salario = c1.number_input(f"{T['salary']} ({symbol})", min_value=0.0, value=10000.0, step=100.0, key="salary_input")
         dependentes = c2.number_input(f"{T['dependents']}", min_value=0, value=0, step=1, key="dep_input")
         bonus_anual = c3.number_input(f"{T['bonus']} ({symbol})", min_value=0.0, value=0.0, step=100.0, key="bonus_input")
-        area = c4.selectbox("Área (STI)", ["Non Sales","Sales"], index=0, key="sti_area")
-        level = c5.selectbox("Career Level (STI)", STI_LEVEL_OPTIONS[area], index=len(STI_LEVEL_OPTIONS[area])-1, key="sti_level")
+        area = c4.selectbox("Área (STI)", ["Non Sales", "Sales"], index=0, key="sti_area")
+        level = c5.selectbox("Career Level (STI)", STI_LEVEL_OPTIONS[area], index=len(STI_LEVEL_OPTIONS[area]) - 1, key="sti_level")
         state_code, state_rate = None, None
 
     elif country == "Estados Unidos":
-        c1, c2, c3, c4 = st.columns([2,1.4,1.2,1.4])
+        c1, c2, c3, c4 = st.columns([2, 1.4, 1.2, 1.4])
         salario = c1.number_input(f"{T['salary']} ({symbol})", min_value=0.0, value=10000.0, step=100.0, key="salary_input")
         state_code = c2.selectbox(f"{T['state']}", list(US_STATE_RATES.keys()), index=0, key="state_select_main")
         default_rate = float(US_STATE_RATES.get(state_code, 0.0))
         state_rate = c3.number_input(f"{T['state_rate']}", min_value=0.0, max_value=0.20, value=default_rate, step=0.001, format="%.3f", key="state_rate_input")
         bonus_anual = c4.number_input(f"{T['bonus']} ({symbol})", min_value=0.0, value=0.0, step=100.0, key="bonus_input")
         r1, r2 = st.columns([1.2, 2.2])
-        area = r1.selectbox("Área (STI)", ["Non Sales","Sales"], index=0, key="sti_area")
-        level = r2.selectbox("Career Level (STI)", STI_LEVEL_OPTIONS[area], index=len(STI_LEVEL_OPTIONS[area])-1, key="sti_level")
+        area = r1.selectbox("Área (STI)", ["Non Sales", "Sales"], index=0, key="sti_area")
+        level = r2.selectbox("Career Level (STI)", STI_LEVEL_OPTIONS[area], index=len(STI_LEVEL_OPTIONS[area]) - 1, key="sti_level")
         dependentes = 0
 
     else:
-        c1, c2 = st.columns([2,1.6])
+        c1, c2 = st.columns([2, 1.6])
         salario = c1.number_input(f"{T['salary']} ({symbol})", min_value=0.0, value=10000.0, step=100.0, key="salary_input")
         bonus_anual = c2.number_input(f"{T['bonus']} ({symbol})", min_value=0.0, value=0.0, step=100.0, key="bonus_input")
         r1, r2 = st.columns([1.2, 2.2])
-        area = r1.selectbox("Área (STI)", ["Non Sales","Sales"], index=0, key="sti_area")
-        level = r2.selectbox("Career Level (STI)", STI_LEVEL_OPTIONS[area], index=len(STI_LEVEL_OPTIONS[area])-1, key="sti_level")
+        area = r1.selectbox("Área (STI)", ["Non Sales", "Sales"], index=0, key="sti_area")
+        level = r2.selectbox("Career Level (STI)", STI_LEVEL_OPTIONS[area], index=len(STI_LEVEL_OPTIONS[area]) - 1, key="sti_level")
         dependentes = 0
         state_code, state_rate = None, None
 
+    # ---- Cálculo do líquido por país ----
     calc = calc_country_net(
-        country, salario,
-        state_code=state_code, state_rate=state_rate, dependentes=dependentes,
-        tables_ext=COUNTRY_TABLES, br_inss_tbl=BR_INSS_TBL, br_irrf_tbl=BR_IRRF_TBL
+        country,
+        salario,
+        state_code=state_code,
+        state_rate=state_rate,
+        dependentes=dependentes,
+        tables_ext=COUNTRY_TABLES,
+        br_inss_tbl=BR_INSS_TBL,
+        br_irrf_tbl=BR_IRRF_TBL,
     )
 
+    # ---- Demonstrativo (tabela) ----
     df = pd.DataFrame(calc["lines"], columns=["Descrição", T["earnings"], T["deductions"]])
     df[T["earnings"]] = df[T["earnings"]].apply(lambda v: money_or_blank(v, symbol))
     df[T["deductions"]] = df[T["deductions"]].apply(lambda v: money_or_blank(v, symbol))
+
     st.markdown("<div class='table-wrap'>", unsafe_allow_html=True)
     st.table(df)
     st.markdown("</div>", unsafe_allow_html=True)
 
+    # ---- Cards Totais ----
     cc1, cc2, cc3 = st.columns(3)
     cc1.markdown(f"<div class='metric-card'><h4>🟩 {T['tot_earnings']}</h4><h3>{fmt_money(calc['total_earn'], symbol)}</h3></div>", unsafe_allow_html=True)
     cc2.markdown(f"<div class='metric-card'><h4>🟥 {T['tot_deductions']}</h4><h3>{fmt_money(calc['total_ded'], symbol)}</h3></div>", unsafe_allow_html=True)
     cc3.markdown(f"<div class='metric-card'><h4>🟦 {T['net']}</h4><h3>{fmt_money(calc['net'], symbol)}</h3></div>", unsafe_allow_html=True)
 
+    # FGTS (crédito, Brasil)
     if country == "Brasil":
         st.write("")
         st.markdown(f"**💼 {T['fgts_deposit']}:** {fmt_money(calc['fgts'], symbol)}")
@@ -649,29 +660,89 @@ if menu == T["menu_calc"]:
     cor = "#1976d2" if dentro else "#d32f2f"
     status_txt = "Dentro do range" if dentro else "Fora do range"
 
-    left, right = st.columns([1,1])
-    with left:
-        st.markdown(f"<div class='metric-card'><h4>📅 {T['annual_salary']} — ({T['months_factor']}: {months})</h4><h3>{fmt_money(salario_anual, symbol)}</h3></div>", unsafe_allow_html=True)
+    left, right = st.columns([1, 1])
 
+    # Cards (mesmo tamanho/estética dos três de cima)
+    with left:
+        st.markdown(
+            f"<div class='metric-card'><h4>📅 {T['annual_salary']} — ({T['months_factor']}: {months})</h4><h3>{fmt_money(salario_anual, symbol)}</h3></div>",
+            unsafe_allow_html=True
+        )
         st.markdown(
             f"""
             <div class='metric-card'>
                 <h4>🎯 {T['annual_bonus']}</h4>
                 <h3>{fmt_money(bonus_anual, symbol)}</h3>
                 <div style="margin-top:6px;font-size:12px;color:{cor}">
-                    STI ratio do bônus: <strong>{pct_txt}</strong> — <strong>{status_txt}</strong> ({faixa_txt}) — <em>{area} • {level}</em>
+                    STI ratio do bônus: <strong>{pct_txt}</strong> — <strong>{status_txt}</strong>
+                    ({faixa_txt}) — <em>{area} • {level}</em>
                 </div>
             </div>
-            """, unsafe_allow_html=True
+            """,
+            unsafe_allow_html=True
+        )
+        st.markdown(
+            f"<div class='metric-card'><h4>💼 {T['annual_total']}</h4><h3>{fmt_money(total_anual, symbol)}</h3></div>",
+            unsafe_allow_html=True
         )
 
-        st.markdown(f"<div class='metric-card'><h4>💼 {T['annual_total']}</h4><h3>{fmt_money(total_anual, symbol)}</h3></div>", unsafe_allow_html=True)
-
     with right:
+        # ---------- Gráfico pizza (donut) — legenda embaixo e % dentro ----------
         chart_df = pd.DataFrame({
             "Componente": [T["annual_salary"], T["annual_bonus"]],
             "Valor": [salario_anual, bonus_anual]
         })
+
+        pie_base = (
+            alt.Chart(chart_df)
+            .transform_joinaggregate(Total='sum(Valor)')
+            .transform_calculate(Percent='datum.Valor / datum.Total')
+            .properties(width=420, height=340)
+        )
+
+        arc = (
+            pie_base
+            .mark_arc(innerRadius=70, outerRadius=116)
+            .encode(
+                theta=alt.Theta('Valor:Q', stack=True),
+                color=alt.Color(
+                    'Componente:N',
+                    legend=alt.Legend(
+                        title=T["pie_title"],
+                        orient='bottom',
+                        direction='horizontal',
+                        symbolType='circle',
+                        labelLimit=240
+                    )
+                ),
+                tooltip=[
+                    alt.Tooltip('Componente:N'),
+                    alt.Tooltip('Valor:Q', format=",.2f"),
+                    alt.Tooltip('Percent:Q', format=".1%")
+                ]
+            )
+        )
+
+        labels = (
+            pie_base
+            .transform_filter(alt.datum.Percent >= 0.01)
+            .mark_text(fontWeight='600', color='white')
+            .encode(
+                theta=alt.Theta('Valor:Q', stack=True),
+                text=alt.Text('Percent:Q', format='.1%'),
+                radius=alt.value(92)  # raio deve ir no encode
+            )
+        )
+
+        chart = (
+            alt.layer(arc, labels)
+            .configure_view(stroke=None)
+            .properties(padding={"top": 24, "left": 10, "right": 10, "bottom": 60})
+        )
+
+        st.altair_chart(chart, use_container_width=True)
+
+# ======================= FIM CÁLCULO DE SALÁRIO =======================
 
        # ---------- Gráfico pizza (donut) — legenda embaixo e % dentro ----------
 chart_df = pd.DataFrame({
