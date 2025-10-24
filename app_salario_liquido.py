@@ -557,21 +557,23 @@ valid_from = COUNTRIES[country]["valid_from"]
 
 # ======================= TÍTULO DINÂMICO ==============================
 if menu == T["menu_calc"]:
-    title = T["title_calc"].format(pais=country)
+    page_title = T["title_calc"].format(pais=country)
 elif menu == T["menu_rules"]:
-    title = T["title_rules"].format(pais=country)
+    page_title = T["title_rules"].format(pais=country)
 elif menu == T["menu_sti"]:
-    title = T["title_sti"].format(pais=country)
+    page_title = T["title_sti"].format(pais=country)
 else:
-    title = T["title_cost"].format(pais=country)
+    page_title = T["title_cost"].format(pais=country)
 
 st.markdown(
-    f"<div class='country-header'><div class='country-flag'>{flag}</div>"
-    f"<div class='country-title'>{title}</div></div>",
+    f"<div class='country-header'><div class='country-flag'>{COUNTRIES[country]['flag']}</div>"
+    f"<div class='country-title'>{page_title}</div></div>",
     unsafe_allow_html=True
 )
-st.write(f"**{T['valid_from']}:** {valid_from}")
+st.write(f"**{T['valid_from']}:** {COUNTRIES[country]['valid_from']}")
 st.write("---")
+
+symbol = COUNTRIES[country]["symbol"]
 
 # ========================= CÁLCULO DE SALÁRIO ==========================
 if menu == T["menu_calc"]:
@@ -730,7 +732,7 @@ if menu == T["menu_calc"]:
             .encode(
                 theta=alt.Theta('Valor:Q', stack=True),
                 text=alt.Text('Percent:Q', format='.1%'),
-                radius=alt.value(92)  # raio deve ir no encode
+                radius=alt.value(92)  # raio no encode (Altair v5)
             )
         )
 
@@ -741,68 +743,6 @@ if menu == T["menu_calc"]:
         )
 
         st.altair_chart(chart, use_container_width=True)
-
-# ======================= FIM CÁLCULO DE SALÁRIO =======================
-
-       # ---------- Gráfico pizza (donut) — legenda embaixo e % dentro ----------
-chart_df = pd.DataFrame({
-    "Componente": [T["annual_salary"], T["annual_bonus"]],
-    "Valor": [salario_anual, bonus_anual]
-})
-
-# Base com percentuais calculados
-pie_base = (
-    alt.Chart(chart_df)
-    .transform_joinaggregate(Total='sum(Valor)')
-    .transform_calculate(Percent='datum.Valor / datum.Total')
-    .properties(width=420, height=340)
-)
-
-# Arco (donut) com legenda abaixo
-arc = (
-    pie_base
-    .mark_arc(innerRadius=70, outerRadius=116)
-    .encode(
-        theta=alt.Theta('Valor:Q', stack=True),
-        color=alt.Color(
-            'Componente:N',
-            legend=alt.Legend(
-                title=T["pie_title"],
-                orient='bottom',            # legenda embaixo
-                direction='horizontal',
-                symbolType='circle',
-                labelLimit=240
-            )
-        ),
-        tooltip=[
-            alt.Tooltip('Componente:N'),
-            alt.Tooltip('Valor:Q', format=",.2f"),
-            alt.Tooltip('Percent:Q', format=".1%")
-        ]
-    )
-)
-
-# Rótulos internos: percentuais dentro da fatia (canal radius no encode)
-labels = (
-    pie_base
-    .transform_filter(alt.datum.Percent >= 0.01)
-    .mark_text(fontWeight='600', color='white')
-    .encode(
-        theta=alt.Theta('Valor:Q', stack=True),
-        text=alt.Text('Percent:Q', format='.1%'),
-        radius=alt.value(92)  # distância a partir do centro
-    )
-)
-
-# Camadas + padding para evitar corte do topo/rodapé
-chart = (
-    alt.layer(arc, labels)
-    .configure_view(stroke=None)
-    .properties(padding={"top": 24, "left": 10, "right": 10, "bottom": 60})
-)
-
-st.altair_chart(chart, use_container_width=True)
-
 
 # ======================= REGRAS DE CONTRIBUIÇÕES ======================
 elif menu == T["menu_rules"]:
@@ -887,23 +827,28 @@ elif menu == T["menu_rules"]:
 # ============================ REGRAS DO STI ============================
 elif menu == T["menu_sti"]:
     st.markdown("#### Non Sales — STI ratio (% do salário anual)")
-    ns = []
+    ns_rows = []
     for k, (mn, mx) in STI_RANGES["Non Sales"].items():
-        ns.append([k, f"{mn*100:.0f}%", f"{'—' if mx is None else str(int(mx*100))+'%'}"])
-    st.table(pd.DataFrame(ns, columns=["Career Level", "Mín", "Máx"]))
+        ns_rows.append([k, f"{mn*100:.0f}%", f"{'—' if mx is None else str(int(mx*100))+'%'}"])
+    st.table(pd.DataFrame(ns_rows, columns=["Career Level", "Mín", "Máx"]))
 
     st.markdown("#### Sales — STI ratio (% do salário anual)")
-    sl = []
+    sl_rows = []
     for k, (mn, mx) in STI_RANGES["Sales"].items():
-        sl.append([k, f"{mn*100:.0f}%", f"{'—' if mx is None else str(int(mx*100))+'%'}"])
-    st.table(pd.DataFrame(sl, columns=["Career Level", "Mín", "Máx"]))
+        sl_rows.append([k, f"{mn*100:.0f}%", f"{'—' if mx is None else str(int(mx*100))+'%'}"])
+    st.table(pd.DataFrame(sl_rows, columns=["Career Level", "Mín", "Máx"]))
 
 # ========================= CUSTO DO EMPREGADOR ========================
 else:
-    salario = st.number_input(f"{T['salary']} ({symbol})", min_value=0.0, value=10000.0, step=100.0, key="salary_cost")
-    anual, mult, df_cost, months = calc_employer_cost(country, salario, tables_ext=COUNTRY_TABLES)
-    st.markdown(f"**{T['employer_cost_total']}:** {fmt_money(anual, symbol)}  \n**Equivalente:** {mult:.3f} × (12 meses)  \n**{T['months_factor']}:** {months}")
+    salario_base = st.number_input(f"{T['salary']} ({symbol})", min_value=0.0, value=10000.0, step=100.0, key="salary_cost")
+    anual, mult, df_cost, months = calc_employer_cost(country, salario_base, tables_ext=COUNTRY_TABLES)
+    st.markdown(
+        f"**{T['employer_cost_total']}:** {fmt_money(anual, symbol)}  \n"
+        f"**Equivalente:** {mult:.3f} × (12 meses)  \n"
+        f"**{T['months_factor']}:** {months}"
+    )
     if not df_cost.empty:
         st.dataframe(df_cost, use_container_width=True)
     else:
         st.info("Sem encargos configurados para este país (no JSON).")
+# =============================== FIM ===================================
