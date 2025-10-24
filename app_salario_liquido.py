@@ -1064,7 +1064,7 @@ elif menu == T["menu_rules_sti"]:
             {"Career Level": "Senior Manager", "STI ratio (% do salário anual)": "20–40%"},
             {"Career Level": "Senior Expert / Senior Project Manager", "STI ratio (% do salário anual)": "15–35%"},
             {"Career Level": "Manager / Selected Expert / Project Manager", "STI ratio (% do salário anual)": "10–30%"},
-            {"Career Level": "Others", "STI ratio (% do salário anual)": "≥10%"},
+            {"Career Level": "Others", "STI ratio (% do salário anual)": "<=10%"},
         ]
     )
     st.dataframe(df_ns, use_container_width=True)
@@ -1076,7 +1076,7 @@ elif menu == T["menu_rules_sti"]:
             {"Career Level": "Group Manager / Lead Sales Manager", "STI ratio (% do salário anual)": "35–50%"},
             {"Career Level": "Senior Manager / Senior Sales Manager", "STI ratio (% do salário anual)": "25–45%"},
             {"Career Level": "Manager / Selected Sales Manager", "STI ratio (% do salário anual)": "20–35%"},
-            {"Career Level": "Others", "STI ratio (% do salário anual)": "≥15%"},
+            {"Career Level": "Others", "STI ratio (% do salário anual)": "<=15%"},
         ]
     )
     st.dataframe(df_s, use_container_width=True)
