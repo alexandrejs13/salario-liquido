@@ -480,32 +480,31 @@ def load_tables(force=False):
         br_irrf = BR_IRRF_DEFAULT
     return us_states, country_tables, br_inss, br_irrf, ok_remote
 
-# ============================== SIDEBAR ===============================
-idioma = st.sidebar.selectbox("🌐 Idioma / Language / Idioma", list(I18N.keys()), index=0, key="lang_select")
-T = I18N[idioma]
+# ============================== SIDEBAR (limpo) ===============================
+with st.sidebar:
+    # Idioma
+    idioma = st.selectbox("🌐 Idioma / Language / Idioma",
+                          list(I18N.keys()), index=0, key="lang_select")
+    T = I18N[idioma]
 
-# Exibição estável do idioma selecionado
-st.sidebar.markdown(f"<div class='sidebar-label'>Idioma selecionado</div>", unsafe_allow_html=True)
-st.sidebar.markdown(f"<div class='sidebar-selected'><strong>{idioma}</strong></div>", unsafe_allow_html=True)
+    # Botão para recarregar tabelas remotas
+    reload_clicked = st.button(f"🔄 {T['reload']}")
 
-reload_clicked = st.sidebar.button(f"🔄 {T['reload']}")
+# Carrega tabelas (fora do with para não “colar” no tema escuro)
 US_STATE_RATES, COUNTRY_TABLES, BR_INSS_TBL, BR_IRRF_TBL, OK_REMOTE = load_tables(force=reload_clicked)
 
-if all(OK_REMOTE.values()):
-    st.markdown(f"<span class='badge-ok'>✓ {T['source_remote']}</span>", unsafe_allow_html=True)
-else:
-    st.markdown(f"<span class='badge-fallback'>⚠ {T['source_local']}</span>", unsafe_allow_html=True)
+# País
+with st.sidebar:
+    st.markdown(f"### {T['country']}")
+    country = st.selectbox(T["choose_country"],
+                           list(COUNTRIES.keys()), index=0, key="country_select")
 
-st.sidebar.markdown(f"### {T['country']}")
-country = st.sidebar.selectbox(T["choose_country"], list(COUNTRIES.keys()), index=0, key="country_select")
-symbol = COUNTRIES[country]["symbol"]; flag = COUNTRIES[country]["flag"]; valid_from = COUNTRIES[country]["valid_from"]
+    # Menu
+    st.markdown(f"### {T['menu']}")
+    menu = st.radio(T["choose_menu"],
+                    [T["menu_calc"], T["menu_rules"], T["menu_cost"]],
+                    index=0, key="menu_radio")
 
-# Exibição estável do país selecionado
-st.sidebar.markdown(f"<div class='sidebar-label'>{T['country']} selecionado</div>", unsafe_allow_html=True)
-st.sidebar.markdown(f"<div class='sidebar-selected'><strong>{country} {flag}</strong></div>", unsafe_allow_html=True)
-
-st.sidebar.markdown(f"### {T['menu']}")
-menu = st.sidebar.radio(T["choose_menu"], [T["menu_calc"], T["menu_rules"], T["menu_cost"]], index=0, key="menu_radio")
 
 # ======================= TÍTULO DINÂMICO ==============================
 if menu == T["menu_calc"]:
