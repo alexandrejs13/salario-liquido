@@ -724,18 +724,17 @@ if menu == T["menu_calc"]:
             )
         )
 
-        labels = (
-            pie_base
-            .transform_filter(alt.datum.Percent >= 0.01)
-            .mark_text()
-            .encode(
-                theta=alt.Theta('Valor:Q', stack=True),
-                text=alt.Text('Percent:Q', format='.1%'),
-                radius=alt.value(92),
-                color=alt.value('white'),
-                fontWeight=alt.value('bold')
-            )
-        )
+       labels = (
+    pie_base
+    .transform_filter(alt.datum.Percent >= 0.01)
+    .mark_text(color='white', fontWeight='bold', baseline='middle')
+    .encode(
+        theta=alt.Theta('Valor:Q', stack=True),
+        text=alt.Text('Percent:Q', format='.1%'),
+        radius=alt.value(92)   # distância a partir do centro
+    )
+)
+
 
         chart = (
             alt.layer(arc, labels)
