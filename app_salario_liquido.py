@@ -689,60 +689,64 @@ if menu == T["menu_calc"]:
         )
 
     with right:
-        # ---------- Gráfico pizza (donut) — legenda embaixo e % dentro ----------
-        chart_df = pd.DataFrame({
-            "Componente": [T["annual_salary"], T["annual_bonus"]],
-            "Valor": [salario_anual, bonus_anual]
-        })
+       # ---------- Gráfico pizza (donut) — legenda embaixo e % dentro ----------
+chart_df = pd.DataFrame({
+    "Componente": [T["annual_salary"], T["annual_bonus"]],
+    "Valor": [salario_anual, bonus_anual]
+})
 
-        pie_base = (
-            alt.Chart(chart_df)
-            .transform_joinaggregate(Total='sum(Valor)')
-            .transform_calculate(Percent='datum.Valor / datum.Total')
-            .properties(width=420, height=340)
-        )
+pie_base = (
+    alt.Chart(chart_df)
+    .transform_joinaggregate(Total='sum(Valor)')
+    .transform_calculate(Percent='datum.Valor / datum.Total')
+    .properties(width=420, height=340)
+)
 
-        arc = (
-            pie_base
-            .mark_arc(innerRadius=70, outerRadius=116)
-            .encode(
-                theta=alt.Theta('Valor:Q', stack=True),
-                color=alt.Color(
-                    'Componente:N',
-                    legend=alt.Legend(
-                        title=T["pie_title"],
-                        orient='bottom',
-                        direction='horizontal',
-                        symbolType='circle',
-                        labelLimit=240
-                    )
-                ),
-                tooltip=[
-                    alt.Tooltip('Componente:N'),
-                    alt.Tooltip('Valor:Q', format=",.2f"),
-                    alt.Tooltip('Percent:Q', format=".1%")
-                ]
+# Arco do donut com legenda embaixo
+arc = (
+    pie_base
+    .mark_arc(innerRadius=70, outerRadius=116)
+    .encode(
+        theta=alt.Theta('Valor:Q', stack=True),
+        color=alt.Color(
+            'Componente:N',
+            legend=alt.Legend(
+                title=T["pie_title"],
+                orient='bottom',
+                direction='horizontal',
+                symbolType='circle',
+                labelLimit=240
             )
-        )
+        ),
+        tooltip=[
+            alt.Tooltip('Componente:N'),
+            alt.Tooltip('Valor:Q', format=",.2f"),
+            alt.Tooltip('Percent:Q', format=".1%")
+        ]
+    )
+)
 
-        labels = (
-            pie_base
-            .transform_filter(alt.datum.Percent >= 0.01)
-            .mark_text(fontWeight='600', color='white')
-            .encode(
-                theta=alt.Theta('Valor:Q', stack=True),
-                text=alt.Text('Percent:Q', format='.1%'),
-                radius=alt.value(92)  # raio no encode (Altair v5)
-            )
-        )
+# Rótulos internos — tudo via encode (sem kwargs no mark_text)
+labels = (
+    pie_base
+    .transform_filter(alt.datum.Percent >= 0.01)
+    .mark_text()
+    .encode(
+        theta=alt.Theta('Valor:Q', stack=True),
+        text=alt.Text('Percent:Q', format='.1%'),
+        radius=alt.value(92),              # distância a partir do centro
+        color=alt.value('white'),          # cor do texto
+        fontWeight=alt.value('bold')       # peso da fonte
+    )
+)
 
-        chart = (
-            alt.layer(arc, labels)
-            .configure_view(stroke=None)
-            .properties(padding={"top": 24, "left": 10, "right": 10, "bottom": 60})
-        )
+chart = (
+    alt.layer(arc, labels)
+    .configure_view(stroke=None)
+    .properties(padding={"top": 24, "left": 10, "right": 10, "bottom": 60})
+)
 
-        st.altair_chart(chart, use_container_width=True)
+st.altair_chart(chart, use_container_width=True)
 
 # ======================= REGRAS DE CONTRIBUIÇÕES ======================
 elif menu == T["menu_rules"]:
