@@ -1,5 +1,5 @@
 # -------------------------------------------------------------
-# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.30)
+# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.31)
 # -------------------------------------------------------------
 import streamlit as st
 import pandas as pd
@@ -31,13 +31,6 @@ section[data-testid="stSidebar"] { background:#0a3d62 !important; }
 section[data-testid="stSidebar"] * { color:#ffffff !important; }
 .sidebar-label { font-size:12px; color:#cfe3ff; margin:8px 0 0; }
 .sidebar-selected { font-size:13px; color:#ffffff; margin:0 0 12px; }
-
-/* Para inputs reais na sidebar (país), manter cara branca legível */
-section[data-testid="stSidebar"] .stSelectbox > div,
-section[data-testid="stSidebar"] .stNumberInput > div,
-section[data-testid="stSidebar"] .stButton>button {
-    background:#ffffff !important; border-radius:8px; padding:2px 6px; color:#0a0a0a !important;
-}
 
 /* Cards */
 .metric-card { background:#fff; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.08); padding:12px; text-align:center; }
@@ -183,7 +176,6 @@ COUNTRIES = {
     "Canadá":   {"symbol": "CAD$", "flag": "🇨🇦", "valid_from": "2025-01-01"},
 }
 
-# Quais países exibem colunas Férias/13º no custo
 COUNTRY_BENEFITS = {
     "Brasil": {"ferias": True, "decimo": True},
     "México": {"ferias": True, "decimo": True},
@@ -194,7 +186,6 @@ COUNTRY_BENEFITS = {
     "Canadá": {"ferias": False, "decimo": False},
 }
 
-# Nº de "meses" que compõem a remuneração anual bruta (ex.: BR=13,33)
 REMUN_MONTHS_DEFAULT = {
     "Brasil":13.33, "México":12.50, "Chile":12.00, "Argentina":13.00,
     "Colômbia":13.00, "Estados Unidos":12.00, "Canadá":12.00
@@ -281,14 +272,14 @@ STI_RANGES = {
         "Senior Manager": (0.20, 0.40),
         "Senior Expert / Senior Project Manager": (0.15, 0.35),
         "Manager / Selected Expert / Project Manager": (0.10, 0.30),
-        "Others": (0.10, None)  # mínimo 10%
+        "Others": (0.10, None)
     },
     "Sales": {
         "Executive Manager / Senior Group Manager": (0.45, 0.70),
         "Group Manager / Lead Sales Manager": (0.35, 0.50),
         "Senior Manager / Senior Sales Manager": (0.25, 0.45),
         "Manager / Selected Sales Manager": (0.20, 0.35),
-        "Others": (0.15, None)  # mínimo 15%
+        "Others": (0.15, None)
     }
 }
 STI_LEVEL_OPTIONS = {
@@ -473,6 +464,8 @@ def load_tables(force=False):
 # ============================== SIDEBAR ===============================
 idioma = st.sidebar.selectbox("🌐 Idioma / Language / Idioma", list(I18N.keys()), index=0, key="lang_select")
 T = I18N[idioma]
+
+# **Exibição estável do idioma selecionado (sem widgets extras)**
 st.sidebar.markdown(f"<div class='sidebar-label'>Idioma selecionado</div>", unsafe_allow_html=True)
 st.sidebar.markdown(f"<div class='sidebar-selected'><strong>{idioma}</strong></div>", unsafe_allow_html=True)
 
@@ -487,6 +480,8 @@ else:
 st.sidebar.markdown(f"### {T['country']}")
 country = st.sidebar.selectbox(T["choose_country"], list(COUNTRIES.keys()), index=0, key="country_select")
 symbol = COUNTRIES[country]["symbol"]; flag = COUNTRIES[country]["flag"]; valid_from = COUNTRIES[country]["valid_from"]
+
+# **Exibição estável do país selecionado**
 st.sidebar.markdown(f"<div class='sidebar-label'>{T['country']} selecionado</div>", unsafe_allow_html=True)
 st.sidebar.markdown(f"<div class='sidebar-selected'><strong>{country} {flag}</strong></div>", unsafe_allow_html=True)
 
@@ -604,13 +599,14 @@ if menu == T["menu_calc"]:
             "Componente": [T["annual_salary"], T["annual_bonus"]],
             "Valor": [salario_anual, bonus_anual]
         })
+        # Usa o mesmo ângulo (theta stack=True) e mostra rótulos somente ≥ 8%
         pie_base = alt.Chart(chart_df).transform_joinaggregate(
             Total='sum(Valor)'
         ).transform_calculate(
             Percent='datum.Valor / datum.Total'
         )
         pie = pie_base.mark_arc(innerRadius=60).encode(
-            theta=alt.Theta(field="Valor", type="quantitative"),
+            theta=alt.Theta(field="Valor", type="quantitative", stack=True),
             color=alt.Color(field="Componente", type="nominal", legend=alt.Legend(title="Componente")),
             tooltip=[
                 alt.Tooltip("Componente:N"),
@@ -618,9 +614,11 @@ if menu == T["menu_calc"]:
                 alt.Tooltip("Percent:Q", format=".1%")
             ]
         ).properties(title=T["pie_title"], width=420, height=320)
+
         labels = pie_base.transform_filter(
-            alt.datum.Percent > 0.001
+            alt.datum.Percent >= 0.08
         ).mark_text(radius=135, size=13).encode(
+            theta=alt.Theta(field="Valor", type="quantitative", stack=True),
             text=alt.Text('Percent:Q', format='.1%')
         )
         st.altair_chart(pie + labels, use_container_width=True)
@@ -714,3 +712,4 @@ else:
         st.dataframe(df_cost, use_container_width=True)
     else:
         st.info("Sem encargos configurados para este país (no JSON).")
+
