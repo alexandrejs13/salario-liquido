@@ -69,6 +69,36 @@ section[data-testid="stSidebar"] .stSelectbox input {
 </style>
 """, unsafe_allow_html=True)
 
+st.markdown("""
+<style>
+/* Botão "Recarregar tabelas" na sidebar — fundo branco, texto azul-escuro */
+section[data-testid="stSidebar"] .stButton > button {
+  background: #ffffff !important;
+  color: #0a3d62 !important;
+  border: 1px solid #c9d6e2 !important;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+
+/* Hover/active para dar feedback */
+section[data-testid="stSidebar"] .stButton > button:hover {
+  background: #f0f4ff !important;
+  border-color: #9bb4d1 !important;
+}
+section[data-testid="stSidebar"] .stButton > button:active {
+  background: #e6eefc !important;
+}
+
+/* Estado desabilitado (se algum dia ficar disabled) */
+section[data-testid="stSidebar"] .stButton > button:disabled {
+  background: #eef2f7 !important;
+  color: #7a8aa6 !important;
+  border-color: #d5dde6 !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
 # ============================== I18N ================================
 I18N = {
     "Português": {
