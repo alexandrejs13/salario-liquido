@@ -100,6 +100,37 @@ section[data-testid="stSidebar"] .stButton > button:active {
 </style>
 """, unsafe_allow_html=True)
 
+st.markdown("""
+<style>
+/* ===== Responsividade (desktop vs mobile) ===== */
+
+/* Desktop largo: aumenta a largura útil e dá respiro */
+@media (min-width: 1024px) {
+  .block-container { padding-left: 2rem; padding-right: 2rem; }
+  .country-title { font-size: 26px; }
+  .metric-card h3 { font-size: 20px; }
+}
+
+/* Tablets / celulares grandes */
+@media (max-width: 1023px) {
+  .country-title { font-size: 22px; }
+  .metric-card { padding: 10px; }
+  .metric-card h3 { font-size: 18px; }
+}
+
+/* Celulares (≤ 640px): empilha melhor, fontes menores, gráfico mais baixo */
+@media (max-width: 640px) {
+  .block-container { padding-left: 0.8rem; padding-right: 0.8rem; }
+  .country-title { font-size: 20px; }
+  .metric-card { padding: 8px; }
+  .metric-card h4 { font-size: 12px; }
+  .metric-card h3 { font-size: 16px; }
+  /* Altura menor para o gráfico no mobile */
+  .vega-embed, .vega-embed details, .vega-embed .chart-wrapper { max-height: 260px !important; }
+}
+</style>
+""", unsafe_allow_html=True)
+
 # ============================== I18N ================================
 I18N = {
     "Português": {
@@ -666,30 +697,44 @@ if menu == T["menu_calc"]:
             "Componente": [T["annual_salary"], T["annual_bonus"]],
             "Valor": [salario_anual, bonus_anual]
         })
-        # Donut com labels DENTRO da fatia (no meio do anel)
+
+        # Base com percentuais
         pie_base = alt.Chart(chart_df).transform_joinaggregate(
             Total='sum(Valor)'
         ).transform_calculate(
             Percent='datum.Valor / datum.Total'
         )
+
+        # Donut
         pie = pie_base.mark_arc(innerRadius=70, outerRadius=120).encode(
             theta=alt.Theta(field="Valor", type="quantitative", stack=True),
-            color=alt.Color(field="Componente", type="nominal",
-                            legend=alt.Legend(title="Componente")),
+            color=alt.Color(
+                field="Componente",
+                type="nominal",
+                legend=alt.Legend(
+                    title=T["pie_title"],
+                    orient='bottom',          # << legenda EMBAIXO
+                    direction='horizontal',   # << horizontal
+                    symbolType='circle',
+                    labelLimit=180
+                )
+            ),
             tooltip=[
                 alt.Tooltip("Componente:N"),
                 alt.Tooltip("Valor:Q", format=",.2f"),
                 alt.Tooltip("Percent:Q", format=".1%")
             ]
-        ).properties(title=T["pie_title"], width=420, height=320)
+        ).properties(width=420, height=300)
 
-        # rótulos internos no "meio" do anel (radius ~ média entre inner e outer)
+        # Rótulos internos (percentuais) dentro das fatias
         labels = pie_base.transform_filter(
             alt.datum.Percent >= 0.01
         ).mark_text(radius=95, size=13, color='white').encode(
             theta=alt.Theta(field="Valor", type="quantitative", stack=True),
             text=alt.Text('Percent:Q', format='.1%')
         )
+
+        # Render: legenda vai naturalmente para baixo com orient='bottom'
         st.altair_chart(pie + labels, use_container_width=True)
 
 # =========================== REGRAS DE CÁLCULO ========================
