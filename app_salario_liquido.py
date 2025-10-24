@@ -687,60 +687,64 @@ if menu == T["menu_calc"]:
             unsafe_allow_html=True
         )
 
-    with right:
-        # ---------- Donut: legenda embaixo, % dentro ----------
-        chart_df = pd.DataFrame({
-            "Componente": [T["annual_salary"], T["annual_bonus"]],
-            "Valor": [salario_anual, bonus_anual]
-        })
+   with right:
+    # ---------- Gráfico pizza (donut) — legenda embaixo e % dentro ----------
+    chart_df = pd.DataFrame({
+        "Componente": [T["annual_salary"], T["annual_bonus"]],
+        "Valor": [salario_anual, bonus_anual]
+    })
 
-        pie_base = (
-            alt.Chart(chart_df)
-            .transform_joinaggregate(Total='sum(Valor)')
-            .transform_calculate(Percent='datum.Valor / datum.Total')
-            .properties(width=420, height=340)
-        )
-
-        arc = (
-            pie_base
-            .mark_arc(innerRadius=70, outerRadius=116)
-            .encode(
-                theta=alt.Theta('Valor:Q', stack=True),
-                color=alt.Color(
-                    'Componente:N',
-                    legend=alt.Legend(
-                        title=T["pie_title"],
-                        orient='bottom',
-                        direction='horizontal',
-                        symbolType='circle',
-                        labelLimit=240
-                    )
-                ),
-                tooltip=[
-                    alt.Tooltip('Componente:N'),
-                    alt.Tooltip('Valor:Q', format=",.2f"),
-                    alt.Tooltip('Percent:Q', format=".1%")
-                ]
-            )
-        )
-
-       labels = (
-    pie_base
-    .transform_filter(alt.datum.Percent >= 0.01)
-    .mark_text(color='white', fontWeight='bold', baseline='middle')
-    .encode(
-        theta=alt.Theta('Valor:Q', stack=True),
-        text=alt.Text('Percent:Q', format='.1%'),
-        radius=alt.value(92)   # distância a partir do centro
+    pie_base = (
+        alt.Chart(chart_df)
+        .transform_joinaggregate(Total='sum(Valor)')
+        .transform_calculate(Percent='datum.Valor / datum.Total')
+        .properties(width=420, height=340)
     )
-)
-        chart = (
-            alt.layer(arc, labels)
-            .configure_view(stroke=None)
-            .properties(padding={"top": 24, "left": 10, "right": 10, "bottom": 60})
-        )
 
-        st.altair_chart(chart, use_container_width=True)
+    # Arco do donut com legenda embaixo
+    arc = (
+        pie_base
+        .mark_arc(innerRadius=70, outerRadius=116)
+        .encode(
+            theta=alt.Theta('Valor:Q', stack=True),
+            color=alt.Color(
+                'Componente:N',
+                legend=alt.Legend(
+                    title=T["pie_title"],
+                    orient='bottom',
+                    direction='horizontal',
+                    symbolType='circle',
+                    labelLimit=240
+                )
+            ),
+            tooltip=[
+                alt.Tooltip('Componente:N'),
+                alt.Tooltip('Valor:Q', format=",.2f"),
+                alt.Tooltip('Percent:Q', format=".1%")
+            ]
+        )
+    )
+
+    # Rótulos internos — defina cor/peso no mark; radius no encode
+    labels = (
+        pie_base
+        .transform_filter(alt.datum.Percent >= 0.01)
+        .mark_text(color='white', fontWeight='bold', baseline='middle')
+        .encode(
+            theta=alt.Theta('Valor:Q', stack=True),
+            text=alt.Text('Percent:Q', format='.1%'),
+            radius=alt.value(92)  # distância a partir do centro
+        )
+    )
+
+    chart = (
+        alt.layer(arc, labels)
+        .configure_view(stroke=None)
+        .properties(padding={"top": 24, "left": 10, "right": 10, "bottom": 60})
+    )
+
+    st.altair_chart(chart, use_container_width=True)
+
 
 # ======================= REGRAS DE CÁLCULO =============================
 elif menu == T["menu_rules"]:
