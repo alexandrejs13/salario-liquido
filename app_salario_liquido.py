@@ -735,41 +735,48 @@ if menu == T["menu_calc"]:
             "Componente": [T["annual_salary"], T["annual_bonus"]],
             "Valor": [salario_anual, bonus_anual]
         })
-        pie_base = alt.Chart(chart_df).transform_joinaggregate(
-            Total='sum(Valor)'
-        ).transform_calculate(
-            Percent='datum.Valor / datum.Total'
-        )
-        pie = pie_base.mark_arc(innerRadius=70, outerRadius=120).encode(
-            theta=alt.Theta(field="Valor", type="quantitative", stack=True),
-            color=alt.Color(
-                field="Componente",
-                type="nominal",
-                legend=alt.Legend(
-                    title=T["pie_title"],
-                    orient='bottom',
-                    direction='horizontal',
-                    symbolType='circle',
-                    labelLimit=220
-                )
-            ),
-            tooltip=[
-                alt.Tooltip("Componente:N"),
-                alt.Tooltip("Valor:Q", format=",.2f"),
-                alt.Tooltip("Percent:Q", format=".1%")
-            ]
-        ).properties(
-            width=420, height=320,
-            padding={"top": 20, "left": 10, "right": 10, "bottom": 50}
-        ).configure_view(stroke=None)
+       # --- gráfico donut com legenda EMBAIXO e percentuais dentro ---
+pie_base = alt.Chart(chart_df).transform_joinaggregate(
+    Total='sum(Valor)'
+).transform_calculate(
+    Percent='datum.Valor / datum.Total'
+).properties(width=420, height=340)
 
-        labels = pie_base.transform_filter(
-            alt.datum.Percent >= 0.01
-        ).mark_text(radius=95, size=13, color='white').encode(
-            theta=alt.Theta(field="Valor", type="quantitative", stack=True),
-            text=alt.Text('Percent:Q', format='.1%')
+# arco
+arc = pie_base.mark_arc(innerRadius=70, outerRadius=118).encode(
+    theta=alt.Theta('Valor:Q', stack=True),
+    color=alt.Color(
+        'Componente:N',
+        legend=alt.Legend(
+            title=T["pie_title"],
+            orient='bottom',              # legenda abaixo
+            direction='horizontal',
+            symbolType='circle',
+            labelLimit=240
         )
-        st.altair_chart(pie + labels, use_container_width=True)
+    ),
+    tooltip=[
+        alt.Tooltip('Componente:N'),
+        alt.Tooltip('Valor:Q', format=",.2f"),
+        alt.Tooltip('Percent:Q', format=".1%")
+    ]
+)
+
+# rótulos internos (mesma base + mesmo theta)
+labels = pie_base.transform_filter(
+    alt.datum.Percent >= 0.01
+).mark_text(radius=95, fontWeight='600').encode(
+    theta=alt.Theta('Valor:Q', stack=True),
+    text=alt.Text('Percent:Q', format='.1%'),
+    color=alt.value('white')
+)
+
+# camada explícita evita o TypeError de mistura de specs
+chart = alt.layer(arc, labels).configure_view(stroke=None).properties(
+    padding={"top": 24, "left": 10, "right": 10, "bottom": 60}
+)
+
+st.altair_chart(chart, use_container_width=True)
 
 # ===================== REGRAS DE CONTRIBUIÇÕES ========================
 elif menu == T["menu_rules"]:
