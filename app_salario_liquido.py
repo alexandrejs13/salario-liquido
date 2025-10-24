@@ -734,8 +734,6 @@ if menu == T["menu_calc"]:
         radius=alt.value(92)   # distância a partir do centro
     )
 )
-
-
         chart = (
             alt.layer(arc, labels)
             .configure_view(stroke=None)
