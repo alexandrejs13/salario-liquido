@@ -560,24 +560,24 @@ if menu == T["menu_calc"]:
     page_title = T["title_calc"].format(pais=country)
 elif menu == T["menu_rules"]:
     page_title = T["title_rules"].format(pais=country)
-elif menu == T["menu_sti"]:
-    page_title = T["title_sti"].format(pais=country)
 else:
     page_title = T["title_cost"].format(pais=country)
 
+flag = COUNTRIES[country]["flag"]
+valid_from = COUNTRIES[country]["valid_from"]
+symbol = COUNTRIES[country]["symbol"]
+
 st.markdown(
-    f"<div class='country-header'><div class='country-flag'>{COUNTRIES[country]['flag']}</div>"
+    f"<div class='country-header'><div class='country-flag'>{flag}</div>"
     f"<div class='country-title'>{page_title}</div></div>",
     unsafe_allow_html=True
 )
-st.write(f"**{T['valid_from']}:** {COUNTRIES[country]['valid_from']}")
+st.write(f"**{T['valid_from']}:** {valid_from}")
 st.write("---")
-
-symbol = COUNTRIES[country]["symbol"]
 
 # ========================= CÁLCULO DE SALÁRIO ==========================
 if menu == T["menu_calc"]:
-    # ---- Inputs por país (campos ao lado do salário) ----
+    # ---- Inputs por país ----
     if country == "Brasil":
         c1, c2, c3, c4, c5 = st.columns([2, 1, 1.6, 1.6, 2.4])
         salario = c1.number_input(f"{T['salary']} ({symbol})", min_value=0.0, value=10000.0, step=100.0, key="salary_input")
@@ -586,7 +586,6 @@ if menu == T["menu_calc"]:
         area = c4.selectbox("Área (STI)", ["Non Sales", "Sales"], index=0, key="sti_area")
         level = c5.selectbox("Career Level (STI)", STI_LEVEL_OPTIONS[area], index=len(STI_LEVEL_OPTIONS[area]) - 1, key="sti_level")
         state_code, state_rate = None, None
-
     elif country == "Estados Unidos":
         c1, c2, c3, c4 = st.columns([2, 1.4, 1.2, 1.4])
         salario = c1.number_input(f"{T['salary']} ({symbol})", min_value=0.0, value=10000.0, step=100.0, key="salary_input")
@@ -598,7 +597,6 @@ if menu == T["menu_calc"]:
         area = r1.selectbox("Área (STI)", ["Non Sales", "Sales"], index=0, key="sti_area")
         level = r2.selectbox("Career Level (STI)", STI_LEVEL_OPTIONS[area], index=len(STI_LEVEL_OPTIONS[area]) - 1, key="sti_level")
         dependentes = 0
-
     else:
         c1, c2 = st.columns([2, 1.6])
         salario = c1.number_input(f"{T['salary']} ({symbol})", min_value=0.0, value=10000.0, step=100.0, key="salary_input")
@@ -609,7 +607,7 @@ if menu == T["menu_calc"]:
         dependentes = 0
         state_code, state_rate = None, None
 
-    # ---- Cálculo do líquido por país ----
+    # ---- Cálculo líquido ----
     calc = calc_country_net(
         country,
         salario,
@@ -618,10 +616,10 @@ if menu == T["menu_calc"]:
         dependentes=dependentes,
         tables_ext=COUNTRY_TABLES,
         br_inss_tbl=BR_INSS_TBL,
-        br_irrf_tbl=BR_IRRF_TBL,
+        br_irrf_tbl=BR_IRRF_TBL
     )
 
-    # ---- Demonstrativo (tabela) ----
+    # ---- Demonstrativo ----
     df = pd.DataFrame(calc["lines"], columns=["Descrição", T["earnings"], T["deductions"]])
     df[T["earnings"]] = df[T["earnings"]].apply(lambda v: money_or_blank(v, symbol))
     df[T["deductions"]] = df[T["deductions"]].apply(lambda v: money_or_blank(v, symbol))
@@ -636,210 +634,159 @@ if menu == T["menu_calc"]:
     cc2.markdown(f"<div class='metric-card'><h4>🟥 {T['tot_deductions']}</h4><h3>{fmt_money(calc['total_ded'], symbol)}</h3></div>", unsafe_allow_html=True)
     cc3.markdown(f"<div class='metric-card'><h4>🟦 {T['net']}</h4><h3>{fmt_money(calc['net'], symbol)}</h3></div>", unsafe_allow_html=True)
 
-    # FGTS (crédito, Brasil)
+    # FGTS (Brasil)
     if country == "Brasil":
         st.write("")
         st.markdown(f"**💼 {T['fgts_deposit']}:** {fmt_money(calc['fgts'], symbol)}")
 
-# ---------- Composição da Remuneração Total Anual ----------
-st.write("---")
-st.subheader(T["annual_comp_title"])
+    # ---------- Composição da Remuneração Total Anual ----------
+    st.write("---")
+    st.subheader(T["annual_comp_title"])
 
-months = COUNTRY_TABLES.get("REMUN_MONTHS", {}).get(country, REMUN_MONTHS_DEFAULT.get(country, 12.0))
-salario_anual = salario * months
-total_anual = salario_anual + bonus_anual
+    months = COUNTRY_TABLES.get("REMUN_MONTHS", {}).get(country, REMUN_MONTHS_DEFAULT.get(country, 12.0))
+    salario_anual = salario * months
+    total_anual = salario_anual + bonus_anual
 
-# Validação do bônus vs STI range
-min_pct, max_pct = get_sti_range(area, level)
-bonus_pct = (bonus_anual / salario_anual) if salario_anual > 0 else 0.0
-pct_txt = f"{bonus_pct*100:.1f}%"
-if max_pct is None:
-    dentro = bonus_pct >= min_pct
-    faixa_txt = f"≥ {min_pct*100:.0f}%"
-else:
-    dentro = (bonus_pct >= min_pct) and (bonus_pct <= max_pct)
-    faixa_txt = f"{min_pct*100:.0f}% – {max_pct*100:.0f}%"
-cor = "#1976d2" if dentro else "#d32f2f"
-status_txt = "Dentro do range" if dentro else "Fora do range"
+    # Validação STI
+    min_pct, max_pct = get_sti_range(area, level)
+    bonus_pct = (bonus_anual / salario_anual) if salario_anual > 0 else 0.0
+    pct_txt = f"{bonus_pct*100:.1f}%"
+    if max_pct is None:
+        dentro = bonus_pct >= min_pct
+        faixa_txt = f"≥ {min_pct*100:.0f}%"
+    else:
+        dentro = (bonus_pct >= min_pct) and (bonus_pct <= max_pct)
+        faixa_txt = f"{min_pct*100:.0f}% – {max_pct*100:.0f}%"
+    cor = "#1976d2" if dentro else "#d32f2f"
+    status_txt = "Dentro do range" if dentro else "Fora do range"
 
-left, right = st.columns([1, 1])
+    left, right = st.columns([1, 1])
 
-with left:
-    st.markdown(
-        f"<div class='metric-card'><h4>📅 {T['annual_salary']} — ({T['months_factor']}: {months})</h4>"
-        f"<h3>{fmt_money(salario_anual, symbol)}</h3></div>",
-        unsafe_allow_html=True
-    )
-    st.markdown(
-        f"""
-        <div class='metric-card'>
-            <h4>🎯 {T['annual_bonus']}</h4>
-            <h3>{fmt_money(bonus_anual, symbol)}</h3>
-            <div style="margin-top:6px;font-size:12px;color:{cor}">
-                STI ratio do bônus: <strong>{pct_txt}</strong> — <strong>{status_txt}</strong>
-                ({faixa_txt}) — <em>{area} • {level}</em>
+    with left:
+        st.markdown(
+            f"<div class='metric-card'><h4>📅 {T['annual_salary']} — ({T['months_factor']}: {months})</h4>"
+            f"<h3>{fmt_money(salario_anual, symbol)}</h3></div>",
+            unsafe_allow_html=True
+        )
+        st.markdown(
+            f"""
+            <div class='metric-card'>
+                <h4>🎯 {T['annual_bonus']}</h4>
+                <h3>{fmt_money(bonus_anual, symbol)}</h3>
+                <div style="margin-top:6px;font-size:12px;color:{cor}">
+                    STI ratio do bônus: <strong>{pct_txt}</strong> — <strong>{status_txt}</strong>
+                    ({faixa_txt}) — <em>{area} • {level}</em>
+                </div>
             </div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-    st.markdown(
-        f"<div class='metric-card'><h4>💼 {T['annual_total']}</h4>"
-        f"<h3>{fmt_money(total_anual, symbol)}</h3></div>",
-        unsafe_allow_html=True
-    )
-
-with right:
-    # ---------- Gráfico pizza (donut) — legenda embaixo e % dentro ----------
-    chart_df = pd.DataFrame({
-        "Componente": [T["annual_salary"], T["annual_bonus"]],
-        "Valor": [salario_anual, bonus_anual]
-    })
-
-    pie_base = (
-        alt.Chart(chart_df)
-        .transform_joinaggregate(Total='sum(Valor)')
-        .transform_calculate(Percent='datum.Valor / datum.Total')
-        .properties(width=420, height=340)
-    )
-
-    arc = (
-        pie_base
-        .mark_arc(innerRadius=70, outerRadius=116)
-        .encode(
-            theta=alt.Theta('Valor:Q', stack=True),
-            color=alt.Color(
-                'Componente:N',
-                legend=alt.Legend(
-                    title=T["pie_title"],
-                    orient='bottom',
-                    direction='horizontal',
-                    symbolType='circle',
-                    labelLimit=240
-                )
-            ),
-            tooltip=[
-                alt.Tooltip('Componente:N'),
-                alt.Tooltip('Valor:Q', format=",.2f"),
-                alt.Tooltip('Percent:Q', format=".1%")
-            ]
+            """,
+            unsafe_allow_html=True
         )
-    )
-
-    labels = (
-        pie_base
-        .transform_filter(alt.datum.Percent >= 0.01)
-        .mark_text()
-        .encode(
-            theta=alt.Theta('Valor:Q', stack=True),
-            text=alt.Text('Percent:Q', format='.1%'),
-            radius=alt.value(92),         # distância a partir do centro
-            color=alt.value('white'),     # cor do texto
-            fontWeight=alt.value('bold')  # peso da fonte
+        st.markdown(
+            f"<div class='metric-card'><h4>💼 {T['annual_total']}</h4>"
+            f"<h3>{fmt_money(total_anual, symbol)}</h3></div>",
+            unsafe_allow_html=True
         )
-    )
 
-    chart = (
-        alt.layer(arc, labels)
-        .configure_view(stroke=None)
-        .properties(padding={"top": 24, "left": 10, "right": 10, "bottom": 60})
-    )
+    with right:
+        # ---------- Donut: legenda embaixo, % dentro ----------
+        chart_df = pd.DataFrame({
+            "Componente": [T["annual_salary"], T["annual_bonus"]],
+            "Valor": [salario_anual, bonus_anual]
+        })
 
-    st.altair_chart(chart, use_container_width=True)
+        pie_base = (
+            alt.Chart(chart_df)
+            .transform_joinaggregate(Total='sum(Valor)')
+            .transform_calculate(Percent='datum.Valor / datum.Total')
+            .properties(width=420, height=340)
+        )
 
-# ======================= REGRAS DE CONTRIBUIÇÕES ======================
+        arc = (
+            pie_base
+            .mark_arc(innerRadius=70, outerRadius=116)
+            .encode(
+                theta=alt.Theta('Valor:Q', stack=True),
+                color=alt.Color(
+                    'Componente:N',
+                    legend=alt.Legend(
+                        title=T["pie_title"],
+                        orient='bottom',
+                        direction='horizontal',
+                        symbolType='circle',
+                        labelLimit=240
+                    )
+                ),
+                tooltip=[
+                    alt.Tooltip('Componente:N'),
+                    alt.Tooltip('Valor:Q', format=",.2f"),
+                    alt.Tooltip('Percent:Q', format=".1%")
+                ]
+            )
+        )
+
+        labels = (
+            pie_base
+            .transform_filter(alt.datum.Percent >= 0.01)
+            .mark_text()
+            .encode(
+                theta=alt.Theta('Valor:Q', stack=True),
+                text=alt.Text('Percent:Q', format='.1%'),
+                radius=alt.value(92),
+                color=alt.value('white'),
+                fontWeight=alt.value('bold')
+            )
+        )
+
+        chart = (
+            alt.layer(arc, labels)
+            .configure_view(stroke=None)
+            .properties(padding={"top": 24, "left": 10, "right": 10, "bottom": 60})
+        )
+
+        st.altair_chart(chart, use_container_width=True)
+
+# ======================= REGRAS DE CÁLCULO =============================
 elif menu == T["menu_rules"]:
     st.markdown(f"### {T['rules_emp']}")
     if country == "Brasil":
-        st.markdown("""
-**Empregado (Brasil)**  
-- **INSS (progressivo)**: somatório por faixas até o salário, limitado ao **teto de contribuição**.  
-- **IRRF**: base = **salário − INSS − dedução por dependentes**; aplica-se **alíquota da faixa** e **dedução fixa**.  
-- **FGTS**: depósito do empregador (8%); **não** é desconto do empregado.
-        """)
+        st.markdown(
+            "**INSS (progressivo)** por faixas com teto; "
+            "**IRRF** sobre base (salário − INSS − dependentes) com alíquota e dedução fixa; "
+            "**FGTS 8%** é depósito do empregador (não desconta do empregado)."
+        )
         st.markdown(f"### {T['rules_er']}")
-        st.markdown("""
-**Empregador (Brasil)**  
-- **INSS Patronal**, **RAT**, **Sistema S** sobre a folha (percentuais variam por CNAE).  
-- **FGTS (8%)** como crédito do empregado. Normalmente incidem sobre **férias** e **13º**; meses considerados **13,33**.
-        """)
+        st.markdown(
+            "INSS Patronal, RAT e Sistema S sobre a folha; FGTS 8% como crédito ao empregado. "
+            "Em geral incidem sobre férias e 13º; meses considerados no ano: 13,33."
+        )
     elif country == "Estados Unidos":
-        st.markdown("""
-**Empregado (EUA)**  
-- **FICA**: 6,2% (Social Security) até o **wage base** anual.  
-- **Medicare**: 1,45% (sem teto).  
-- **State Tax**: conforme estado selecionado.
-        """)
+        st.markdown(
+            "**FICA** 6,2% (até wage base) + **Medicare** 1,45%; **State Tax** conforme estado."
+        )
         st.markdown(f"### {T['rules_er']}")
-        st.markdown("""
-**Empregador (EUA)**  
-- **Social Security (ER)** 6,2%, **Medicare (ER)** 1,45%, **SUTA** ~2% (média/indicativo).  
-- Meses considerados **12** (sem férias/13º mandatórios).
-        """)
+        st.markdown(
+            "Empregador: Social Security 6,2% + Medicare 1,45% + SUTA (~2% indicativo). Meses: 12."
+        )
     elif country == "México":
-        st.markdown("""
-**Empleado (México)**  
-- **ISR** (progresivo), **IMSS** e **INFONAVIT** (retenciones).  
-        """)
+        st.markdown("Empleado: **ISR**, **IMSS**, **INFONAVIT** (retenciones).")
         st.markdown(f"### {T['rules_er']}")
-        st.markdown("""
-**Empleador (México)**  
-- **IMSS patronal** e **INFONAVIT** patronal; **aguinaldo** → meses ~**12,5**.
-        """)
+        st.markdown("Empleador: **IMSS** e **INFONAVIT**; aguinaldo ⇒ meses ~12,5.")
     elif country == "Chile":
-        st.markdown("""
-**Trabajador (Chile)**  
-- **AFP** ~10%, **Salud** ~7%.  
-        """)
+        st.markdown("Trabajador: **AFP** ~10%, **Salud** ~7%.")
         st.markdown(f"### {T['rules_er']}")
-        st.markdown("""
-**Empleador (Chile)**  
-- **Seguro de cesantía (empleador)** ~2,4%. Meses **12**.
-        """)
+        st.markdown("Empleador: **Seguro de cesantía** ~2,4%. Meses: 12.")
     elif country == "Argentina":
-        st.markdown("""
-**Empleado (Argentina)**  
-- **Jubilación** 11%, **Obra Social** 3%, **PAMI** 3%.  
-        """)
+        st.markdown("Empleado: **Jubilación** 11%, **Obra Social** 3%, **PAMI** 3%.")
         st.markdown(f"### {T['rules_er']}")
-        st.markdown("""
-**Empleador (Argentina)**  
-- Contribuciones patronales ~18% (promedio). **SAC (13º)** → meses **13**.
-        """)
+        st.markdown("Empleador: contribuciones ~18%. **SAC (13º)** ⇒ meses 13.")
     elif country == "Colômbia":
-        st.markdown("""
-**Trabajador (Colombia)**  
-- **Salud** 4% y **Pensión** 4%.  
-        """)
+        st.markdown("Trabajador: **Salud** 4% y **Pensión** 4%.")
         st.markdown(f"### {T['rules_er']}")
-        st.markdown("""
-**Empleador (Colombia)**  
-- **Salud (ER)** ~8,5% y **Pensión (ER)** ~12%. **Prima de servicios** → meses **13**.
-        """)
+        st.markdown("Empleador: Salud ~8,5% y Pensión ~12%. **Prima** ⇒ meses 13.")
     elif country == "Canadá":
-        st.markdown("""
-**Employee (Canada)**  
-- **CPP** ~5,95%, **EI** ~1,63%, **Income Tax** progressivo.
-        """)
+        st.markdown("Employee: **CPP** ~5,95%, **EI** ~1,63%, **Income Tax** progressivo.")
         st.markdown(f"### {T['rules_er']}")
-        st.markdown("""
-**Employer (Canada)**  
-- **CPP (ER)** ~5,95% y **EI (ER)** ~2,28%. Meses **12**.
-        """)
-
-# ============================ REGRAS DO STI ============================
-elif menu == T["menu_sti"]:
-    st.markdown("#### Non Sales — STI ratio (% do salário anual)")
-    ns_rows = []
-    for k, (mn, mx) in STI_RANGES["Non Sales"].items():
-        ns_rows.append([k, f"{mn*100:.0f}%", f"{'—' if mx is None else str(int(mx*100))+'%'}"])
-    st.table(pd.DataFrame(ns_rows, columns=["Career Level", "Mín", "Máx"]))
-
-    st.markdown("#### Sales — STI ratio (% do salário anual)")
-    sl_rows = []
-    for k, (mn, mx) in STI_RANGES["Sales"].items():
-        sl_rows.append([k, f"{mn*100:.0f}%", f"{'—' if mx is None else str(int(mx*100))+'%'}"])
-    st.table(pd.DataFrame(sl_rows, columns=["Career Level", "Mín", "Máx"]))
+        st.markdown("Employer: **CPP** ~5,95% y **EI** ~2,28%. Meses: 12.")
 
 # ========================= CUSTO DO EMPREGADOR ========================
 else:
@@ -854,4 +801,4 @@ else:
         st.dataframe(df_cost, use_container_width=True)
     else:
         st.info("Sem encargos configurados para este país (no JSON).")
-# =============================== FIM ===================================
+# ================================ FIM =================================
