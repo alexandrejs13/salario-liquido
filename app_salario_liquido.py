@@ -652,33 +652,58 @@ if menu == T["menu_calc"]:
         st.markdown("</div>", unsafe_allow_html=True)
 
     with right:
-        chart_df = pd.DataFrame({
-            "Componente": [T["annual_salary"], T["annual_bonus"]],
-            "Valor": [salario_anual, bonus_anual]
-        })
+    chart_df = pd.DataFrame({
+        "Componente": [T["annual_salary"], T["annual_bonus"]],
+        "Valor": [salario_anual, bonus_anual]
+    })
 
-        pie_base = alt.Chart(chart_df).transform_joinaggregate(
-            Total='sum(Valor)'
-        ).transform_calculate(
-            Percent='datum.Valor / datum.Total'
+    base = (
+        alt.Chart(chart_df)
+        .transform_joinaggregate(Total="sum(Valor)")
+        .transform_calculate(Percent="datum.Valor / datum.Total")
+    )
+
+    pie = (
+        base.mark_arc(innerRadius=70, outerRadius=120)
+        .encode(
+            theta=alt.Theta("Valor:Q", stack=True),
+            color=alt.Color(
+                "Componente:N",
+                legend=alt.Legend(
+                    orient="bottom",          # legenda embaixo
+                    direction="horizontal",   # horizontal
+                    title=None,
+                    columns=2,                # divide em duas colunas se couber
+                    labelLimit=300,
+                    symbolLimit=300
+                ),
+            ),
+            tooltip=[
+                alt.Tooltip("Componente:N"),
+                alt.Tooltip("Valor:Q", format=",.2f"),
+                alt.Tooltip("Percent:Q", format=".1%"),
+            ],
         )
+    )
 
-        pie = pie_base.mark_arc(innerRadius=70, outerRadius=120).encode(
-            theta=alt.Theta('Valor:Q', stack=True),
-            color=alt.Color('Componente:N', legend=alt.Legend(orient='bottom', title=None)),
-            tooltip=[alt.Tooltip('Componente:N'),
-                     alt.Tooltip('Valor:Q', format=",.2f"),
-                     alt.Tooltip('Percent:Q', format=".1%")]
-        ).properties(width=420, height=340, title=T["pie_title"])
-
-        labels = pie_base.transform_filter(
-            alt.datum.Percent >= 0.01
-        ).mark_text(radius=95, fontWeight='bold', color='white').encode(
-            theta=alt.Theta('Valor:Q', stack=True),
-            text=alt.Text('Percent:Q', format='.1%')
+    labels = (
+        base.transform_filter(alt.datum.Percent >= 0.01)
+        .mark_text(radius=95, fontWeight="bold", color="white")
+        .encode(
+            theta=alt.Theta("Valor:Q", stack=True),
+            text=alt.Text("Percent:Q", format=".1%"),
         )
+    )
 
-        st.altair_chart(pie + labels, use_container_width=True)
+    chart = (
+        alt.layer(pie, labels)
+        .properties(width=420, height=300, title=T["pie_title"])
+        .configure_legend(orient="bottom", padding=10)
+        .configure(padding={"left": 0, "right": 0, "top": 0, "bottom": 80})  # espaço para a legenda
+    )
+
+    st.altair_chart(chart, use_container_width=True)
+
 
 # =========================== REGRAS DE CONTRIBUIÇÕES ===================
 elif menu == T["menu_rules"]:
