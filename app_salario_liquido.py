@@ -23,122 +23,70 @@ URL_BR_IRRF        = f"{RAW_BASE}/br_irrf.json"
 st.markdown("""
 <style>
 /* ===== Base ===== */
+html, body { font-family:'Segoe UI', Helvetica, Arial, sans-serif; background:#f7f9fb; color:#1a1a1a;}
+h1,h2,h3 { color:#0a3d62; }
+hr { border:0; height:1px; background:#e2e6ea; margin:16px 0; }
 
-html, body {
-  font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
-  background: #f7f9fb;
-  color: #1a1a1a;
-}
-h1, h2, h3 { color: #0a3d62; }
-hr {
-  border: 0;
-  height: 1px;
-  background: #e2e6ea;
-  margin: 16px 0;
-}
+/* ===== Sidebar (fundo escuro) ===== */
+section[data-testid="stSidebar"]{ background:#0a3d62 !important; padding-top:8px; }
 
-/* ===== Sidebar ===== */
-section[data-testid="stSidebar"] {
-  background: #0a3d62 !important;
-  padding-top: 8px;
-}
-
-/* Títulos e textos da sidebar */
+/* Títulos e textos da sidebar em branco */
 section[data-testid="stSidebar"] h1,
 section[data-testid="stSidebar"] h2,
 section[data-testid="stSidebar"] h3,
 section[data-testid="stSidebar"] p,
 section[data-testid="stSidebar"] .stMarkdown,
-section[data-testid="stSidebar"] label {
-  color: #ffffff !important;
-}
+section[data-testid="stSidebar"] label{ color:#ffffff !important; }
 
-/* Inputs na sidebar */
+/* Inputs na sidebar: texto escuro dentro do campo */
 section[data-testid="stSidebar"] .stTextInput input,
 section[data-testid="stSidebar"] .stNumberInput input,
 section[data-testid="stSidebar"] .stSelectbox input,
 section[data-testid="stSidebar"] .stSelectbox div[role="combobox"] *,
-section[data-testid="stSidebar"] [data-baseweb="menu"] div[role="option"] {
-  color: #0b1f33 !important;
-  background: #fff !important;
+section[data-testid="stSidebar"] [data-baseweb="menu"] div[role="option"]{
+  color:#0b1f33 !important; background:#fff !important;
 }
 
-/* Botão na sidebar */
-section[data-testid="stSidebar"] .stButton > button {
-  background: #ffffff !important;
-  border: 1px solid #c9d6e2 !important;
-  border-radius: 10px !important;
-  font-weight: 600 !important;
-  color: #0b1f33 !important;
-  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+/* Botão "Recarregar tabelas" (texto preto) */
+section[data-testid="stSidebar"] .stButton > button,
+section[data-testid="stSidebar"] .stButton > button *{
+  color:#0b1f33 !important;
 }
-section[data-testid="stSidebar"] .stButton > button:hover {
-  background: #f5f8ff !important;
-  border-color: #9bb4d1 !important;
+section[data-testid="stSidebar"] .stButton > button{
+  background:#ffffff !important; border:1px solid #c9d6e2 !important; border-radius:10px !important;
+  font-weight:600 !important; box-shadow:0 1px 3px rgba(0,0,0,.06);
 }
+section[data-testid="stSidebar"] .stButton > button:hover{ background:#f5f8ff !important; border-color:#9bb4d1 !important; }
 
 /* ===== Cards ===== */
-.metric-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 12px; /* Espaçamento entre cards */
-}
+.metric-card{ background:#fff; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.08); padding:12px; text-align:center; }
+.metric-card h4{ margin:0; font-size:13px; color:#0a3d62;}
+.metric-card h3{ margin:4px 0 0; color:#0a3d62; font-size:18px; }
 
-.metric-card {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  padding: 10px 12px;
-  text-align: center;
-  min-height: 90px;
-}
-
-.metric-card h4 {
-  margin: 0;
-  font-size: 13px;
-  color: #0a3d62;
-}
-.metric-card h3 {
-  margin: 4px 0 0;
-  color: #0a3d62;
-  font-size: 18px;
-}
-
-/* Nota STI */
-.sti-note {
-  margin-top: 6px;
-  font-size: 12px;
-}
-
-/* ===== Tabela demonstrativo ===== */
-.table-wrap {
-  background: #fff;
-  border: 1px solid #d0d7de;
-  border-radius: 8px;
-  overflow: hidden;
-}
+/* Tabela demonstrativo */
+.table-wrap{ background:#fff; border:1px solid #d0d7de; border-radius:8px; overflow:hidden; }
 
 /* Bandeira + título dinâmico */
-.country-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.country-flag { font-size: 28px; }
-.country-title {
-  font-size: 24px;
-  font-weight: 700;
-  color: #0a3d62;
-}
+.country-header{ display:flex; align-items:center; gap:10px; }
+.country-flag{ font-size:28px; }
+.country-title{ font-size:24px; font-weight:700; color:#0a3d62; }
 
-/* Chips ocultos */
-.sidebar-chip { display: none; }
+/* Chips (idioma/país carregado) – desativado no rodapé da sidebar */
+.sidebar-chip{ display:none; }
 
-/* ===== Responsivo ===== */
-@media (max-width: 992px) {
-  .metric-stack { margin-bottom: 12px; }
+/* ----- Cards compactos da Composição Anual (igual aos cards de totais) ----- */
+.metric-card.compact{ padding:12px; border-radius:12px; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,.08); min-height:100px; }
+.metric-stack .metric-card{ margin-bottom:16px; }
+.metric-card.compact h4{ margin:0; font-size:13px; color:#0a3d62; }
+.metric-card.compact h3{ margin:4px 0 0; font-size:18px; color:#0a3d62; }
+.sti-note{ margin-top:6px; font-size:12px; }
+
+/* Responsivo: empilha a coluna do gráfico abaixo dos cards no mobile */
+@media (max-width: 992px){
+  .metric-stack{ margin-bottom:12px; }
 }
-
+</style>
+""", unsafe_allow_html=True)
 
 # ============================== I18N ================================
 I18N = {
