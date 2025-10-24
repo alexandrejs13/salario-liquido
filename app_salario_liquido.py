@@ -1,5 +1,5 @@
 # -------------------------------------------------------------
-# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.31)
+# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.32)
 # -------------------------------------------------------------
 import streamlit as st
 import pandas as pd
@@ -20,6 +20,7 @@ URL_BR_INSS          = f"{RAW_BASE}/br_inss.json"
 URL_BR_IRRF          = f"{RAW_BASE}/br_irrf.json"
 
 # ============================== CSS ================================
+# Ajustes: não pintar todo texto da sidebar de branco; inputs/selects com texto escuro.
 st.markdown("""
 <style>
 body { font-family: 'Segoe UI', Helvetica, Arial, sans-serif; background:#f7f9fb; color:#1a1a1a;}
@@ -28,9 +29,27 @@ hr { border:0; height:1px; background:#e2e6ea; margin:16px 0; }
 
 /* Sidebar */
 section[data-testid="stSidebar"] { background:#0a3d62 !important; }
-section[data-testid="stSidebar"] * { color:#ffffff !important; }
+
+/* Apenas textos/headers/markdown da sidebar em branco */
+section[data-testid="stSidebar"] h1,
+section[data-testid="stSidebar"] h2,
+section[data-testid="stSidebar"] h3,
+section[data-testid="stSidebar"] p,
+section[data-testid="stSidebar"] .stMarkdown {
+  color:#ffffff !important;
+}
+
+/* Labels auxiliares da sidebar */
 .sidebar-label { font-size:12px; color:#cfe3ff; margin:8px 0 0; }
 .sidebar-selected { font-size:13px; color:#ffffff; margin:0 0 12px; }
+
+/* Inputs/selects com texto escuro para não "sumir" */
+section[data-testid="stSidebar"] .stSelectbox div[data-baseweb="select"] * { color:#0b1f33 !important; }
+section[data-testid="stSidebar"] .stTextInput input,
+section[data-testid="stSidebar"] .stNumberInput input,
+section[data-testid="stSidebar"] .stSelectbox input {
+  color:#0b1f33 !important;
+}
 
 /* Cards */
 .metric-card { background:#fff; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.08); padding:12px; text-align:center; }
@@ -465,7 +484,7 @@ def load_tables(force=False):
 idioma = st.sidebar.selectbox("🌐 Idioma / Language / Idioma", list(I18N.keys()), index=0, key="lang_select")
 T = I18N[idioma]
 
-# **Exibição estável do idioma selecionado (sem widgets extras)**
+# Exibição estável do idioma selecionado
 st.sidebar.markdown(f"<div class='sidebar-label'>Idioma selecionado</div>", unsafe_allow_html=True)
 st.sidebar.markdown(f"<div class='sidebar-selected'><strong>{idioma}</strong></div>", unsafe_allow_html=True)
 
@@ -481,7 +500,7 @@ st.sidebar.markdown(f"### {T['country']}")
 country = st.sidebar.selectbox(T["choose_country"], list(COUNTRIES.keys()), index=0, key="country_select")
 symbol = COUNTRIES[country]["symbol"]; flag = COUNTRIES[country]["flag"]; valid_from = COUNTRIES[country]["valid_from"]
 
-# **Exibição estável do país selecionado**
+# Exibição estável do país selecionado
 st.sidebar.markdown(f"<div class='sidebar-label'>{T['country']} selecionado</div>", unsafe_allow_html=True)
 st.sidebar.markdown(f"<div class='sidebar-selected'><strong>{country} {flag}</strong></div>", unsafe_allow_html=True)
 
@@ -503,7 +522,7 @@ st.write("---")
 # ========================= CÁLCULO DE SALÁRIO ==========================
 if menu == T["menu_calc"]:
     if country == "Brasil":
-        c1, c2, c3, c4, c5 = st.columns([2,1,1,1.6,2.4])
+        c1, c2, c3, c4, c5 = st.columns([2,1,1.6,1.6,2.4])
         salario = c1.number_input(f"{T['salary']} ({symbol})", min_value=0.0, value=10000.0, step=100.0, key="salary_input")
         dependentes = c2.number_input(f"{T['dependents']}", min_value=0, value=0, step=1, key="dep_input")
         bonus_anual = c3.number_input(f"{T['bonus']} ({symbol})", min_value=0.0, value=0.0, step=100.0, key="bonus_input")
@@ -524,7 +543,7 @@ if menu == T["menu_calc"]:
         dependentes = 0
 
     else:
-        c1, c2 = st.columns([2,1])
+        c1, c2 = st.columns([2,1.6])
         salario = c1.number_input(f"{T['salary']} ({symbol})", min_value=0.0, value=10000.0, step=100.0, key="salary_input")
         bonus_anual = c2.number_input(f"{T['bonus']} ({symbol})", min_value=0.0, value=0.0, step=100.0, key="bonus_input")
         r1, r2 = st.columns([1.2, 2.2])
@@ -599,15 +618,16 @@ if menu == T["menu_calc"]:
             "Componente": [T["annual_salary"], T["annual_bonus"]],
             "Valor": [salario_anual, bonus_anual]
         })
-        # Usa o mesmo ângulo (theta stack=True) e mostra rótulos somente ≥ 8%
+        # Donut com labels DENTRO da fatia (no meio do anel)
         pie_base = alt.Chart(chart_df).transform_joinaggregate(
             Total='sum(Valor)'
         ).transform_calculate(
             Percent='datum.Valor / datum.Total'
         )
-        pie = pie_base.mark_arc(innerRadius=60).encode(
+        pie = pie_base.mark_arc(innerRadius=70, outerRadius=120).encode(
             theta=alt.Theta(field="Valor", type="quantitative", stack=True),
-            color=alt.Color(field="Componente", type="nominal", legend=alt.Legend(title="Componente")),
+            color=alt.Color(field="Componente", type="nominal",
+                            legend=alt.Legend(title="Componente")),
             tooltip=[
                 alt.Tooltip("Componente:N"),
                 alt.Tooltip("Valor:Q", format=",.2f"),
@@ -615,9 +635,10 @@ if menu == T["menu_calc"]:
             ]
         ).properties(title=T["pie_title"], width=420, height=320)
 
+        # rótulos internos no "meio" do anel (radius ~ média entre inner e outer)
         labels = pie_base.transform_filter(
-            alt.datum.Percent >= 0.08
-        ).mark_text(radius=135, size=13).encode(
+            alt.datum.Percent >= 0.01
+        ).mark_text(radius=95, size=13, color='white').encode(
             theta=alt.Theta(field="Valor", type="quantitative", stack=True),
             text=alt.Text('Percent:Q', format='.1%')
         )
@@ -712,4 +733,3 @@ else:
         st.dataframe(df_cost, use_container_width=True)
     else:
         st.info("Sem encargos configurados para este país (no JSON).")
-
