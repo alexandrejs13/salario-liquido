@@ -641,55 +641,56 @@ if menu == T["menu_calc"]:
         st.write("")
         st.markdown(f"**💼 {T['fgts_deposit']}:** {fmt_money(calc['fgts'], symbol)}")
 
-    # ---------- Composição da Remuneração Total Anual ----------
-    st.write("---")
-    st.subheader(T["annual_comp_title"])
+# ---------- Composição da Remuneração Total Anual ----------
+st.write("---")
+st.subheader(T["annual_comp_title"])
 
-    months = COUNTRY_TABLES.get("REMUN_MONTHS", {}).get(country, REMUN_MONTHS_DEFAULT.get(country, 12.0))
-    salario_anual = salario * months
-    total_anual = salario_anual + bonus_anual
+months = COUNTRY_TABLES.get("REMUN_MONTHS", {}).get(country, REMUN_MONTHS_DEFAULT.get(country, 12.0))
+salario_anual = salario * months
+total_anual = salario_anual + bonus_anual
 
-    # Validação do bônus vs STI range
-    min_pct, max_pct = get_sti_range(area, level)
-    bonus_pct = (bonus_anual / salario_anual) if salario_anual > 0 else 0.0
-    pct_txt = f"{bonus_pct*100:.1f}%"
-    if max_pct is None:
-        dentro = bonus_pct >= min_pct
-        faixa_txt = f"≥ {min_pct*100:.0f}%"
-    else:
-        dentro = (bonus_pct >= min_pct) and (bonus_pct <= max_pct)
-        faixa_txt = f"{min_pct*100:.0f}% – {max_pct*100:.0f}%"
-    cor = "#1976d2" if dentro else "#d32f2f"
-    status_txt = "Dentro do range" if dentro else "Fora do range"
+# Validação do bônus vs STI range
+min_pct, max_pct = get_sti_range(area, level)
+bonus_pct = (bonus_anual / salario_anual) if salario_anual > 0 else 0.0
+pct_txt = f"{bonus_pct*100:.1f}%"
+if max_pct is None:
+    dentro = bonus_pct >= min_pct
+    faixa_txt = f"≥ {min_pct*100:.0f}%"
+else:
+    dentro = (bonus_pct >= min_pct) and (bonus_pct <= max_pct)
+    faixa_txt = f"{min_pct*100:.0f}% – {max_pct*100:.0f}%"
+cor = "#1976d2" if dentro else "#d32f2f"
+status_txt = "Dentro do range" if dentro else "Fora do range"
 
-    left, right = st.columns([1, 1])
+left, right = st.columns([1, 1])
 
-    # Cards (mesmo tamanho/estética dos três de cima)
-    with left:
-        st.markdown(
-            f"<div class='metric-card'><h4>📅 {T['annual_salary']} — ({T['months_factor']}: {months})</h4><h3>{fmt_money(salario_anual, symbol)}</h3></div>",
-            unsafe_allow_html=True
-        )
-        st.markdown(
-            f"""
-            <div class='metric-card'>
-                <h4>🎯 {T['annual_bonus']}</h4>
-                <h3>{fmt_money(bonus_anual, symbol)}</h3>
-                <div style="margin-top:6px;font-size:12px;color:{cor}">
-                    STI ratio do bônus: <strong>{pct_txt}</strong> — <strong>{status_txt}</strong>
-                    ({faixa_txt}) — <em>{area} • {level}</em>
-                </div>
+with left:
+    st.markdown(
+        f"<div class='metric-card'><h4>📅 {T['annual_salary']} — ({T['months_factor']}: {months})</h4>"
+        f"<h3>{fmt_money(salario_anual, symbol)}</h3></div>",
+        unsafe_allow_html=True
+    )
+    st.markdown(
+        f"""
+        <div class='metric-card'>
+            <h4>🎯 {T['annual_bonus']}</h4>
+            <h3>{fmt_money(bonus_anual, symbol)}</h3>
+            <div style="margin-top:6px;font-size:12px;color:{cor}">
+                STI ratio do bônus: <strong>{pct_txt}</strong> — <strong>{status_txt}</strong>
+                ({faixa_txt}) — <em>{area} • {level}</em>
             </div>
-            """,
-            unsafe_allow_html=True
-        )
-        st.markdown(
-            f"<div class='metric-card'><h4>💼 {T['annual_total']}</h4><h3>{fmt_money(total_anual, symbol)}</h3></div>",
-            unsafe_allow_html=True
-        )
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    st.markdown(
+        f"<div class='metric-card'><h4>💼 {T['annual_total']}</h4>"
+        f"<h3>{fmt_money(total_anual, symbol)}</h3></div>",
+        unsafe_allow_html=True
+    )
 
-    with right:
-        # ---------- Gráfico pizza (donut) — legenda embaixo e % dentro ----------
+with right:
+    # ---------- Gráfico pizza (donut) — legenda embaixo e % dentro ----------
     chart_df = pd.DataFrame({
         "Componente": [T["annual_salary"], T["annual_bonus"]],
         "Valor": [salario_anual, bonus_anual]
@@ -702,7 +703,6 @@ if menu == T["menu_calc"]:
         .properties(width=420, height=340)
     )
 
-    # Arco do donut com legenda embaixo
     arc = (
         pie_base
         .mark_arc(innerRadius=70, outerRadius=116)
@@ -726,7 +726,6 @@ if menu == T["menu_calc"]:
         )
     )
 
-    # Rótulos internos — tudo via encode (sem kwargs no mark_text)
     labels = (
         pie_base
         .transform_filter(alt.datum.Percent >= 0.01)
@@ -734,9 +733,9 @@ if menu == T["menu_calc"]:
         .encode(
             theta=alt.Theta('Valor:Q', stack=True),
             text=alt.Text('Percent:Q', format='.1%'),
-            radius=alt.value(92),        # distância a partir do centro
-            color=alt.value('white'),    # cor do texto
-            fontWeight=alt.value('bold') # peso da fonte
+            radius=alt.value(92),         # distância a partir do centro
+            color=alt.value('white'),     # cor do texto
+            fontWeight=alt.value('bold')  # peso da fonte
         )
     )
 
@@ -747,6 +746,7 @@ if menu == T["menu_calc"]:
     )
 
     st.altair_chart(chart, use_container_width=True)
+
 # ======================= REGRAS DE CONTRIBUIÇÕES ======================
 elif menu == T["menu_rules"]:
     st.markdown(f"### {T['rules_emp']}")
