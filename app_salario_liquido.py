@@ -505,6 +505,14 @@ with st.sidebar:
                     [T["menu_calc"], T["menu_rules"], T["menu_cost"]],
                     index=0, key="menu_radio")
 
+country = st.selectbox( ... )
+menu = st.radio( ... )
+python
+Copiar código
+# === NOVO: resolva dados do país ANTES do título ===
+symbol    = COUNTRIES[country]["symbol"]
+flag      = COUNTRIES[country]["flag"]
+valid_from= COUNTRIES[country]["valid_from"]
 
 # ======================= TÍTULO DINÂMICO ==============================
 if menu == T["menu_calc"]:
@@ -514,9 +522,12 @@ elif menu == T["menu_rules"]:
 else:
     title = T["title_cost"].format(pais=country)
 
-st.markdown(f"<div class='country-header'><div class='country-flag'>{flag}</div><div class='country-title'>{title}</div></div>", unsafe_allow_html=True)
+st.markdown(
+    f"<div class='country-header'><div class='country-flag'>{flag}</div>"
+    f"<div class='country-title'>{title}</div></div>", unsafe_allow_html=True
+)
 st.write(f"**{T['valid_from']}:** {valid_from}")
-st.write("---")
+st.write('---')
 
 # ========================= CÁLCULO DE SALÁRIO ==========================
 if menu == T["menu_calc"]:
