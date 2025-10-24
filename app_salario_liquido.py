@@ -483,8 +483,12 @@ def load_tables(force=False):
 # ============================== SIDEBAR (limpo) ===============================
 with st.sidebar:
     # Idioma
-    idioma = st.selectbox("🌐 Idioma / Language / Idioma",
-                          list(I18N.keys()), index=0, key="lang_select")
+    idioma = st.selectbox(
+        "🌐 Idioma / Language / Idioma",
+        list(I18N.keys()),
+        index=0,
+        key="lang_select"
+    )
     T = I18N[idioma]
 
     # Botão para recarregar tabelas remotas
@@ -493,21 +497,23 @@ with st.sidebar:
 # Carrega tabelas (fora do with para não “colar” no tema escuro)
 US_STATE_RATES, COUNTRY_TABLES, BR_INSS_TBL, BR_IRRF_TBL, OK_REMOTE = load_tables(force=reload_clicked)
 
-# País
+# País e menu
 with st.sidebar:
     st.markdown(f"### {T['country']}")
-    country = st.selectbox(T["choose_country"],
-                           list(COUNTRIES.keys()), index=0, key="country_select")
+    country = st.selectbox(
+        T["choose_country"],
+        list(COUNTRIES.keys()),
+        index=0,
+        key="country_select"
+    )
 
-    # Menu
     st.markdown(f"### {T['menu']}")
-    menu = st.radio(T["choose_menu"],
-                    [T["menu_calc"], T["menu_rules"], T["menu_cost"]],
-                    index=0, key="menu_radio")
-
-country = st.selectbox( ... )
-menu = st.radio( ... )
-python
+    menu = st.radio(
+        T["choose_menu"],
+        [T["menu_calc"], T["menu_rules"], T["menu_cost"]],
+        index=0,
+        key="menu_radio"
+    )
 
 # === dados do país (precisam vir antes do título) ===
 symbol     = COUNTRIES[country]["symbol"]
