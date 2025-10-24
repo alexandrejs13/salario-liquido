@@ -848,103 +848,98 @@ if menu == T["menu_calc"]:
         st.markdown(f"**💼 {T['fgts_deposit']}:** {fmt_money(calc['fgts'], symbol)}")
 
     # ---------- Composição da Remuneração Total Anual ----------
-    st.write("---")
-    st.subheader(T["annual_comp_title"])
+st.write("---")
+st.subheader(T["annual_comp_title"])
 
-    months = COUNTRY_TABLES.get("REMUN_MONTHS", {}).get(country, REMUN_MONTHS_DEFAULT.get(country, 12.0))
-    salario_anual = salario * months
-    total_anual = salario_anual + bonus_anual
+months = COUNTRY_TABLES.get("REMUN_MONTHS", {}).get(country, REMUN_MONTHS_DEFAULT.get(country, 12.0))
+salario_anual = salario * months
+total_anual = salario_anual + bonus_anual
 
-    # Validação do bônus vs STI range
-    min_pct, max_pct = get_sti_range(area, level)
-    bonus_pct = (bonus_anual / salario_anual) if salario_anual > 0 else 0.0
-    pct_txt = f"{bonus_pct*100:.1f}%"
-    if max_pct is None:
-        dentro = bonus_pct >= min_pct
-        faixa_txt = f"≥ {min_pct*100:.0f}%"
-    else:
-        dentro = (bonus_pct >= min_pct) and (bonus_pct <= max_pct)
-        faixa_txt = f"{min_pct*100:.0f}% – {max_pct*100:.0f}%"
-    cor = "#1976d2" if dentro else "#d32f2f"
-    status_txt = "Dentro do range" if dentro else "Fora do range"
+# Validação do bônus vs STI range
+min_pct, max_pct = get_sti_range(area, level)
+bonus_pct = (bonus_anual / salario_anual) if salario_anual > 0 else 0.0
+pct_txt = f"{bonus_pct*100:.1f}%"
+if max_pct is None:
+    dentro = bonus_pct >= min_pct
+    faixa_txt = f"≥ {min_pct*100:.0f}%"
+else:
+    dentro = (bonus_pct >= min_pct) and (bonus_pct <= max_pct)
+    faixa_txt = f"{min_pct*100:.0f}% – {max_pct*100:.0f}%"
+cor = "#1976d2" if dentro else "#d32f2f"
+status_txt = "Dentro do range" if dentro else "Fora do range"
 
-    left, right = st.columns([1, 1])
+# ---- Cards horizontais, estilo igual aos cards superiores ----
+c1, c2, c3 = st.columns(3)
+c1.markdown(
+    f"<div class='metric-card'><h4>📅 {T['annual_salary']} — ({T['months_factor']}: {months})</h4>"
+    f"<h3>{fmt_money(salario_anual, symbol)}</h3></div>",
+    unsafe_allow_html=True,
+)
 
-    # ---- Coluna esquerda: cards compactos, com espaço entre eles
-    with left:
-        st.markdown("<div class='metric-stack'>", unsafe_allow_html=True)
+c2.markdown(
+    f"<div class='metric-card'><h4>🎯 {T['annual_bonus']}</h4>"
+    f"<h3>{fmt_money(bonus_anual, symbol)}</h3>"
+    f"<div class='sti-note' style='color:{cor}; margin-top:6px;'>"
+    f"STI ratio do bônus: <strong>{pct_txt}</strong> — <strong>{status_txt}</strong> ({faixa_txt}) — "
+    f"<em>{area} • {level}</em></div></div>",
+    unsafe_allow_html=True,
+)
 
-        st.markdown(
-            f"<div class='metric-card compact'>"
-            f"  <h4>📅 {T['annual_salary']} — ({T['months_factor']}: {months})</h4>"
-            f"  <h3>{fmt_money(salario_anual, symbol)}</h3>"
-            f"</div>",
-            unsafe_allow_html=True,
-        )
+c3.markdown(
+    f"<div class='metric-card'><h4>💼 {T['annual_total']}</h4>"
+    f"<h3>{fmt_money(total_anual, symbol)}</h3></div>",
+    unsafe_allow_html=True,
+)
 
-        st.markdown(
-            f"<div class='metric-card compact'>"
-            f"  <h4>🎯 {T['annual_bonus']}</h4>"
-            f"  <h3>{fmt_money(bonus_anual, symbol)}</h3>"
-            f"  <div class='sti-note' style='color:{cor}'>"
-            f"    STI ratio do bônus: <strong>{pct_txt}</strong> — <strong>{status_txt}</strong> ({faixa_txt}) — <em>{area} • {level}</em>"
-            f"  </div>"
-            f"</div>",
-            unsafe_allow_html=True,
-        )
+# ---- Gráfico de pizza abaixo dos cards ----
+st.write("")
+chart_df = pd.DataFrame(
+    {"Componente": [T["annual_salary"], T["annual_bonus"]], "Valor": [salario_anual, bonus_anual]}
+)
 
-        st.markdown(
-            f"<div class='metric-card compact'>"
-            f"  <h4>💼 {T['annual_total']}</h4>"
-            f"  <h3>{fmt_money(total_anual, symbol)}</h3>"
-            f"</div>",
-            unsafe_allow_html=True,
-        )
+base = (
+    alt.Chart(chart_df)
+    .transform_joinaggregate(Total="sum(Valor)")
+    .transform_calculate(Percent="datum.Valor / datum.Total")
+)
 
-        st.markdown("</div>", unsafe_allow_html=True)
+pie = (
+    base.mark_arc(innerRadius=70, outerRadius=120)
+    .encode(
+        theta=alt.Theta("Valor:Q", stack=True),
+        color=alt.Color(
+            "Componente:N",
+            legend=alt.Legend(
+                orient="bottom",
+                direction="horizontal",
+                title=None,
+                columns=2,
+                labelLimit=300,
+            ),
+        ),
+        tooltip=[
+            alt.Tooltip("Componente:N"),
+            alt.Tooltip("Valor:Q", format=",.2f"),
+            alt.Tooltip("Percent:Q", format=".1%"),
+        ],
+    )
+)
 
-    # ---- Coluna direita: gráfico pizza com legenda abaixo e padding
-    with right:
-        chart_df = pd.DataFrame(
-            {"Componente": [T["annual_salary"], T["annual_bonus"]], "Valor": [salario_anual, bonus_anual]}
-        )
+labels = (
+    base.transform_filter(alt.datum.Percent >= 0.01)
+    .mark_text(radius=95, fontWeight="bold", color="white")
+    .encode(theta=alt.Theta("Valor:Q", stack=True), text=alt.Text("Percent:Q", format=".1%"))
+)
 
-        base = (
-            alt.Chart(chart_df)
-            .transform_joinaggregate(Total="sum(Valor)")
-            .transform_calculate(Percent="datum.Valor / datum.Total")
-        )
+chart = (
+    alt.layer(pie, labels)
+    .properties(width=500, height=350, title=T["pie_title"])
+    .configure_legend(orient="bottom", padding=10)
+    .configure(padding={"left": 0, "right": 0, "top": 10, "bottom": 80})
+)
 
-        pie = (
-            base.mark_arc(innerRadius=70, outerRadius=120)
-            .encode(
-                theta=alt.Theta("Valor:Q", stack=True),
-                color=alt.Color(
-                    "Componente:N",
-                    legend=alt.Legend(orient="bottom", direction="horizontal", title=None, columns=2, labelLimit=300),
-                ),
-                tooltip=[
-                    alt.Tooltip("Componente:N"),
-                    alt.Tooltip("Valor:Q", format=",.2f"),
-                    alt.Tooltip("Percent:Q", format=".1%"),
-                ],
-            )
-        )
+st.altair_chart(chart, use_container_width=True)
 
-        labels = (
-            base.transform_filter(alt.datum.Percent >= 0.01)
-            .mark_text(radius=95, fontWeight="bold", color="white")
-            .encode(theta=alt.Theta("Valor:Q", stack=True), text=alt.Text("Percent:Q", format=".1%"))
-        )
-
-        chart = (
-            alt.layer(pie, labels)
-            .properties(width=420, height=300, title=T["pie_title"])
-            .configure_legend(orient="bottom", padding=10)
-            .configure(padding={"left": 0, "right": 0, "top": 0, "bottom": 80})
-        )
-
-        st.altair_chart(chart, use_container_width=True)
 
 # =========================== REGRAS DE CONTRIBUIÇÕES ===================
 elif menu == T["menu_rules"]:
