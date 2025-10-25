@@ -1,7 +1,7 @@
 # -------------------------------------------------------------
-# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.2)
+# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.3)
 # Tema azul plano, multilíngue, responsivo e com STI corrigido
-# (Correção NameError + Ajustes Layout/Menu/Regras)
+# (Ajustes Finais: Layout Cards/Sidebar/Mapa/Botões)
 # -------------------------------------------------------------
 
 import streamlit as st
@@ -42,15 +42,40 @@ section[data-testid="stSidebar"] .stSelectbox input,
 section[data-testid="stSidebar"] .stSelectbox div[role="combobox"] *,
 section[data-testid="stSidebar"] [data-baseweb="menu"] div[role="option"]{ color:#0b1f33 !important; background:#fff !important; }
 
-/* Botões Menu Sidebar */
-section[data-testid="stSidebar"] .stButton > button{ background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.3) !important; border-radius: 8px !important; font-weight: 600 !important; box-shadow: none !important; color: #ffffff !important; width: 100%; margin-bottom: 8px; transition: background 0.2s ease; }
-section[data-testid="stSidebar"] .stButton > button:hover{ background: rgba(255, 255, 255, 0.2) !important; border-color: rgba(255, 255, 255, 0.5) !important; }
-section[data-testid="stSidebar"] .stButton > button.active-menu-button { background: #ffffff !important; color: #0a3d62 !important; border-color: #ffffff !important; }
-section[data-testid="stSidebar"] .stButton > button:focus:not(:active) { border-color: rgba(255, 255, 255, 0.3) !important; box-shadow: none !important; }
-section[data-testid="stSidebar"] .stButton > button.active-menu-button:focus:not(:active) { border-color: #ffffff !important; }
+/* REQ 4: Botões Menu Sidebar (Fundo Branco, Texto Preto/Azul) */
+section[data-testid="stSidebar"] .stButton > button{
+  background: #ffffff !important; /* Fundo Branco */
+  border: 1px solid #d0d7de !important; /* Borda Cinza Clara */
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important; /* Sombra sutil */
+  color: #0a3d62 !important; /* Texto Azul Escuro */
+  width: 100%;
+  margin-bottom: 8px;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+section[data-testid="stSidebar"] .stButton > button:hover{
+  background: #f0f2f6 !important; /* Fundo Cinza Claro no Hover */
+  border-color: #adb5bd !important;
+}
+/* Botão Ativo (sutilmente diferente) */
+section[data-testid="stSidebar"] .stButton > button.active-menu-button {
+  background: #e6f0f8 !important; /* Fundo Azul Muito Claro */
+  border-color: #a3c4e3 !important; /* Borda Azul Clara */
+  color: #0a3d62 !important;
+}
+section[data-testid="stSidebar"] .stButton > button:focus:not(:active) { /* Remover anel de foco padrão */
+    border-color: #d0d7de !important;
+    box-shadow: 0 0 0 2px rgba(10, 61, 98, 0.1) !important; /* Adiciona sombra sutil no foco */
+}
+section[data-testid="stSidebar"] .stButton > button.active-menu-button:focus:not(:active) {
+    border-color: #a3c4e3 !important;
+    box-shadow: 0 0 0 2px rgba(10, 61, 98, 0.2) !important;
+}
 
-/* Cards Mensais */
-.metric-card{ background:#fff; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); padding:16px; text-align:center; transition: all 0.3s ease; }
+
+/* Cards Mensais (REQ 1: Altura reduzida) */
+.metric-card{ background:#fff; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); padding: 14px; text-align:center; transition: all 0.3s ease; } /* Padding reduzido */
 .metric-card:hover{ box-shadow:0 6px 16px rgba(0,0,0,0.15); transform: translateY(-2px); }
 .metric-card h4{ margin:0; font-size:17px; font-weight: 600; color:#0a3d62; }
 .metric-card h3{ margin:2px 0 0; color:#0a3d62; font-size:17px; font-weight: 700; }
@@ -66,245 +91,32 @@ section[data-testid="stSidebar"] .stButton > button.active-menu-button:focus:not
 /* Gráfico */
 .vega-embed{ padding-bottom: 16px; }
 
-/* Cards Anuais */
-.annual-card-base { background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.06); padding: 10px 15px; margin-bottom: 8px; border-left: 5px solid #0a3d62; min-height: 110px; display: flex; flex-direction: column; justify-content: center; box-sizing: border-box; }
+/* Cards Anuais (REQ 1: Altura reduzida; REQ 3: Espaçamento) */
+.annual-card-base { background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.06); padding: 8px 12px; margin-bottom: 1rem; border-left: 5px solid #0a3d62; min-height: 95px; display: flex; flex-direction: column; justify-content: center; box-sizing: border-box; } /* Padding, min-height reduzido, margin-bottom 1rem */
 .annual-card-label { align-items: flex-start; }
 .annual-card-value { align-items: flex-end; }
 .annual-card-label h4,
 .annual-card-value h3 { margin: 0; font-size: 17px; color: #0a3d62; }
 .annual-card-label h4 { font-weight: 600; }
 .annual-card-value h3 { font-weight: 700; }
-.annual-card-label .sti-note { display: block; font-size: 15px; font-weight: 400; line-height: 1.3; margin-top: 4px; }
+.annual-card-label .sti-note { display: block; font-size: 14px; font-weight: 400; line-height: 1.3; margin-top: 4px; } /* Fonte nota pouco menor */
 </style>
 """, unsafe_allow_html=True)
 
 # ============================== I18N ================================
-# (Dicionário I18N completo como na versão anterior)
-I18N = {
-    "Português": {
-        "app_title": "Simulador de Salário Líquido e Custo do Empregador",
-        "menu_calc": "Simulador de Remuneração", # REQ 2
-        "menu_rules": "Regras de Contribuições",
-        "menu_rules_sti": "Regras de Cálculo do STI",
-        "menu_cost": "Custo do Empregador",
-        "title_calc": "Simulador de Remuneração", # REQ 3
-        "title_rules": "Regras de Contribuições",
-        "title_rules_sti": "Regras de Cálculo do STI",
-        "title_cost": "Custo do Empregador",
-        "country": "País",
-        "salary": "Salário Bruto",
-        "state": "Estado (EUA)",
-        "state_rate": "State Tax (%)",
-        "dependents": "Dependentes (IR)",
-        "bonus": "Bônus Anual",
-        "earnings": "Proventos",
-        "deductions": "Descontos",
-        "net": "Salário Líquido",
-        "fgts_deposit": "Depósito FGTS",
-        "tot_earnings": "Total de Proventos",
-        "tot_deductions": "Total de Descontos",
-        "valid_from": "Vigência",
-        "rules_emp": "Contribuições do Empregado", # Título Tabela Regras
-        "rules_er": "Contribuições do Empregador", # Título Tabela Regras
-        "rules_table_desc": "Descrição", # Header Tabela Regras
-        "rules_table_rate": "Alíquota (%)", # Header Tabela Regras
-        "rules_table_base": "Base de Cálculo", # Header Tabela Regras
-        "rules_table_obs": "Observações / Teto", # Header Tabela Regras
-        "official_source": "Fonte Oficial (Exemplo)", # Link Regras
-        "employer_cost_total": "Custo Total do Empregador",
-        "annual_comp_title": "Composição da Remuneração Total Anual Bruta",
-        "calc_params_title": "Parâmetros de Cálculo da Remuneração",
-        "monthly_comp_title": "Remuneração Mensal Bruta e Líquida",
-        "annual_salary": "📅 Salário Anual", # Simplificado
-        "annual_bonus": "🎯 Bônus Anual",
-        "annual_total": "💼 Remuneração Total Anual",
-        "months_factor": "Meses considerados",
-        "pie_title": "Distribuição Anual: Salário vs Bônus",
-        "reload": "Recarregar tabelas",
-        "source_remote": "Tabelas remotas",
-        "source_local": "Fallback local",
-        "choose_country": "Selecione o país",
-        "area": "Área (STI)",
-        "level": "Career Level (STI)",
-        "rules_expanded": "Detalhes das Contribuições Obrigatórias", # Título Regras
-        "sti_area_non_sales": "Não Vendas",
-        "sti_area_sales": "Vendas",
-        "sti_level_ceo": "CEO",
-        "sti_level_members_of_the_geb": "Membros do GEB",
-        "sti_level_executive_manager": "Gerente Executivo",
-        "sti_level_senior_group_manager": "Gerente de Grupo Sênior",
-        "sti_level_group_manager": "Gerente de Grupo",
-        "sti_level_lead_expert_program_manager": "Especialista Líder / Gerente de Programa",
-        "sti_level_senior_manager": "Gerente Sênior",
-        "sti_level_senior_expert_senior_project_manager": "Especialista Sênior / Gerente de Projeto Sênior",
-        "sti_level_manager_selected_expert_project_manager": "Gerente / Especialista Selecionado / Gerente de Projeto",
-        "sti_level_others": "Outros",
-        "sti_level_executive_manager_senior_group_manager": "Gerente Executivo / Gerente de Grupo Sênior",
-        "sti_level_group_manager_lead_sales_manager": "Gerente de Grupo / Gerente de Vendas Líder",
-        "sti_level_senior_manager_senior_sales_manager": "Gerente Sênior / Gerente de Vendas Sênior",
-        "sti_level_manager_selected_sales_manager": "Gerente / Gerente de Vendas Selecionado",
-        "sti_in_range": "Dentro do range",
-        "sti_out_range": "Fora do range",
-        "cost_header_charge": "Encargo",
-        "cost_header_percent": "Percentual (%)",
-        "cost_header_base": "Base",
-        "cost_header_obs": "Observação",
-        "cost_header_bonus": "Incide Bônus",
-        "cost_header_vacation": "Incide Férias",
-        "cost_header_13th": "Incide 13º",
-        "sti_table_header_level": "Nível de Carreira",
-        "sti_table_header_pct": "STI %"
-    },
-    "English": {
-        "app_title": "Net Salary & Employer Cost Simulator",
-        "menu_calc": "Compensation Simulator",
-        "menu_rules": "Contribution Rules",
-        "menu_rules_sti": "STI Calculation Rules",
-        "menu_cost": "Employer Cost",
-        "title_calc": "Compensation Simulator",
-        "title_rules": "Contribution Rules",
-        "title_rules_sti": "STI Calculation Rules",
-        "title_cost": "Employer Cost",
-        "country": "Country",
-        "salary": "Gross Salary",
-        "state": "State (USA)",
-        "state_rate": "State Tax (%)",
-        "dependents": "Dependents (Tax)",
-        "bonus": "Annual Bonus",
-        "earnings": "Earnings",
-        "deductions": "Deductions",
-        "net": "Net Salary",
-        "fgts_deposit": "FGTS Deposit",
-        "tot_earnings": "Total Earnings",
-        "tot_deductions": "Total Deductions",
-        "valid_from": "Effective Date",
-        "rules_emp": "Employee Contributions",
-        "rules_er": "Employer Contributions",
-        "rules_table_desc": "Description",
-        "rules_table_rate": "Rate (%)",
-        "rules_table_base": "Calculation Base",
-        "rules_table_obs": "Notes / Cap",
-        "official_source": "Official Source (Example)",
-        "employer_cost_total": "Total Employer Cost",
-        "annual_comp_title": "Total Annual Gross Compensation",
-        "calc_params_title": "Compensation Calculation Parameters",
-        "monthly_comp_title": "Monthly Gross and Net Compensation",
-        "annual_salary": "📅 Annual Salary",
-        "annual_bonus": "🎯 Annual Bonus",
-        "annual_total": "💼 Total Annual Compensation",
-        "months_factor": "Months considered",
-        "pie_title": "Annual Split: Salary vs Bonus",
-        "reload": "Reload tables",
-        "source_remote": "Remote tables",
-        "source_local": "Local fallback",
-        "choose_country": "Select a country",
-        "area": "Area (STI)",
-        "level": "Career Level (STI)",
-        "rules_expanded": "Details of Mandatory Contributions",
-        "sti_area_non_sales": "Non Sales",
-        "sti_area_sales": "Sales",
-        "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Members of the GEB", "sti_level_executive_manager": "Executive Manager", "sti_level_senior_group_manager": "Senior Group Manager", "sti_level_group_manager": "Group Manager", "sti_level_lead_expert_program_manager": "Lead Expert / Program Manager", "sti_level_senior_manager": "Senior Manager", "sti_level_senior_expert_senior_project_manager": "Senior Expert / Senior Project Manager", "sti_level_manager_selected_expert_project_manager": "Manager / Selected Expert / Project Manager", "sti_level_others": "Others", "sti_level_executive_manager_senior_group_manager": "Executive Manager / Senior Group Manager", "sti_level_group_manager_lead_sales_manager": "Group Manager / Lead Sales Manager", "sti_level_senior_manager_senior_sales_manager": "Senior Manager / Senior Sales Manager", "sti_level_manager_selected_sales_manager": "Manager / Selected Sales Manager",
-        "sti_in_range": "Within range",
-        "sti_out_range": "Outside range",
-        "cost_header_charge": "Charge", "cost_header_percent": "Percent (%)", "cost_header_base": "Base", "cost_header_obs": "Observation", "cost_header_bonus": "Applies to Bonus", "cost_header_vacation": "Applies to Vacation", "cost_header_13th": "Applies to 13th",
-        "sti_table_header_level": "Career Level", "sti_table_header_pct": "STI %"
-    },
-    "Español": {
-        "app_title": "Simulador de Salario Neto y Costo del Empleador",
-        "menu_calc": "Simulador de Remuneración",
-        "menu_rules": "Reglas de Contribuciones",
-        "menu_rules_sti": "Reglas de Cálculo del STI",
-        "menu_cost": "Costo del Empleador",
-        "title_calc": "Simulador de Remuneración",
-        "title_rules": "Reglas de Contribuciones",
-        "title_rules_sti": "Reglas de Cálculo del STI",
-        "title_cost": "Costo del Empleador",
-        "country": "País",
-        "salary": "Salario Bruto",
-        "state": "Estado (EE. UU.)",
-        "state_rate": "Impuesto Estatal (%)",
-        "dependents": "Dependientes (Impuesto)",
-        "bonus": "Bono Anual",
-        "earnings": "Ingresos",
-        "deductions": "Descuentos",
-        "net": "Salario Neto",
-        "fgts_deposit": "Depósito de FGTS",
-        "tot_earnings": "Total Ingresos",
-        "tot_deductions": "Total Descuentos",
-        "valid_from": "Vigencia",
-        "rules_emp": "Contribuciones del Empleado",
-        "rules_er": "Contribuciones del Empleador",
-        "rules_table_desc": "Descripción",
-        "rules_table_rate": "Tasa (%)",
-        "rules_table_base": "Base de Cálculo",
-        "rules_table_obs": "Notas / Tope",
-        "official_source": "Fuente Oficial (Ejemplo)",
-        "employer_cost_total": "Costo Total del Empleador",
-        "annual_comp_title": "Composición de la Remuneración Anual Bruta",
-        "calc_params_title": "Parámetros de Cálculo de Remuneración",
-        "monthly_comp_title": "Remuneración Mensual Bruta y Neta",
-        "annual_salary": "📅 Salario Anual",
-        "annual_bonus": "🎯 Bono Anual",
-        "annual_total": "💼 Remuneración Anual Total",
-        "months_factor": "Meses considerados",
-        "pie_title": "Distribución Anual: Salario vs Bono",
-        "reload": "Recargar tablas",
-        "source_remote": "Tablas remotas",
-        "source_local": "Copia local",
-        "choose_country": "Seleccione un país",
-        "area": "Área (STI)",
-        "level": "Career Level (STI)",
-        "rules_expanded": "Detalles de las Contribuciones Obligatorias",
-        "sti_area_non_sales": "No Ventas",
-        "sti_area_sales": "Ventas",
-        "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Miembros del GEB", "sti_level_executive_manager": "Gerente Ejecutivo", "sti_level_senior_group_manager": "Gerente de Grupo Sénior", "sti_level_group_manager": "Gerente de Grupo", "sti_level_lead_expert_program_manager": "Experto Líder / Gerente de Programa", "sti_level_senior_manager": "Gerente Sénior", "sti_level_senior_expert_senior_project_manager": "Experto Sénior / Gerente de Proyecto Sénior", "sti_level_manager_selected_expert_project_manager": "Gerente / Experto Seleccionado / Gerente de Proyecto", "sti_level_others": "Otros", "sti_level_executive_manager_senior_group_manager": "Gerente Ejecutivo / Gerente de Grupo Sénior", "sti_level_group_manager_lead_sales_manager": "Gerente de Grupo / Gerente de Ventas Líder", "sti_level_senior_manager_senior_sales_manager": "Gerente Sénior / Gerente de Ventas Sénior", "sti_level_manager_selected_sales_manager": "Gerente / Gerente de Ventas Seleccionado",
-        "sti_in_range": "Dentro del rango",
-        "sti_out_range": "Fuera del rango",
-        "cost_header_charge": "Encargo", "cost_header_percent": "Percentual (%)", "cost_header_base": "Base", "cost_header_obs": "Observación", "cost_header_bonus": "Incide Bono", "cost_header_vacation": "Incide Vacaciones", "cost_header_13th": "Incide 13º",
-        "sti_table_header_level": "Nivel de Carrera", "sti_table_header_pct": "STI %"
-    }
+# (Dicionário I18N completo como na versão anterior, com correções de aspas)
+I18N = { "Português": { "app_title": "Simulador de Salário Líquido e Custo do Empregador", "menu_calc": "Simulador de Remuneração", "menu_rules": "Regras de Contribuições", "menu_rules_sti": "Regras de Cálculo do STI", "menu_cost": "Custo do Empregador", "title_calc": "Simulador de Remuneração", "title_rules": "Regras de Contribuições", "title_rules_sti": "Regras de Cálculo do STI", "title_cost": "Custo do Empregador", "country": "País", "salary": "Salário Bruto", "state": "Estado (EUA)", "state_rate": "State Tax (%)", "dependents": "Dependentes (IR)", "bonus": "Bônus Anual", "earnings": "Proventos", "deductions": "Descontos", "net": "Salário Líquido", "fgts_deposit": "Depósito FGTS", "tot_earnings": "Total de Proventos", "tot_deductions": "Total de Descontos", "valid_from": "Vigência", "rules_emp": "Contribuições do Empregado", "rules_er": "Contribuições do Empregador", "rules_table_desc": "Descrição", "rules_table_rate": "Alíquota (%)", "rules_table_base": "Base de Cálculo", "rules_table_obs": "Observações / Teto", "official_source": "Fonte Oficial (Exemplo)", "employer_cost_total": "Custo Total do Empregador", "annual_comp_title": "Composição da Remuneração Total Anual Bruta", "calc_params_title": "Parâmetros de Cálculo da Remuneração", "monthly_comp_title": "Remuneração Mensal Bruta e Líquida", "annual_salary": "📅 Salário Anual", "annual_bonus": "🎯 Bônus Anual", "annual_total": "💼 Remuneração Total Anual", "months_factor": "Meses considerados", "pie_title": "Distribuição Anual: Salário vs Bônus", "reload": "Recarregar tabelas", "source_remote": "Tabelas remotas", "source_local": "Fallback local", "choose_country": "Selecione o país", "area": "Área (STI)", "level": "Career Level (STI)", "rules_expanded": "Detalhes das Contribuições Obrigatórias", "sti_area_non_sales": "Não Vendas", "sti_area_sales": "Vendas", "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Membros do GEB", "sti_level_executive_manager": "Gerente Executivo", "sti_level_senior_group_manager": "Gerente de Grupo Sênior", "sti_level_group_manager": "Gerente de Grupo", "sti_level_lead_expert_program_manager": "Especialista Líder / Gerente de Programa", "sti_level_senior_manager": "Gerente Sênior", "sti_level_senior_expert_senior_project_manager": "Especialista Sênior / Gerente de Projeto Sênior", "sti_level_manager_selected_expert_project_manager": "Gerente / Especialista Selecionado / Gerente de Projeto", "sti_level_others": "Outros", "sti_level_executive_manager_senior_group_manager": "Gerente Executivo / Gerente de Grupo Sênior", "sti_level_group_manager_lead_sales_manager": "Gerente de Grupo / Gerente de Vendas Líder", "sti_level_senior_manager_senior_sales_manager": "Gerente Sênior / Gerente de Vendas Sênior", "sti_level_manager_selected_sales_manager": "Gerente / Gerente de Vendas Selecionado", "sti_in_range": "Dentro do range", "sti_out_range": "Fora do range", "cost_header_charge": "Encargo", "cost_header_percent": "Percentual (%)", "cost_header_base": "Base", "cost_header_obs": "Observação", "cost_header_bonus": "Incide Bônus", "cost_header_vacation": "Incide Férias", "cost_header_13th": "Incide 13º", "sti_table_header_level": "Nível de Carreira", "sti_table_header_pct": "STI %" },
+    "English": { "app_title": "Net Salary & Employer Cost Simulator", "menu_calc": "Compensation Simulator", "menu_rules": "Contribution Rules", "menu_rules_sti": "STI Calculation Rules", "menu_cost": "Employer Cost", "title_calc": "Compensation Simulator", "title_rules": "Contribution Rules", "title_rules_sti": "STI Calculation Rules", "title_cost": "Employer Cost", "country": "Country", "salary": "Gross Salary", "state": "State (USA)", "state_rate": "State Tax (%)", "dependents": "Dependents (Tax)", "bonus": "Annual Bonus", "earnings": "Earnings", "deductions": "Deductions", "net": "Net Salary", "fgts_deposit": "FGTS Deposit", "tot_earnings": "Total Earnings", "tot_deductions": "Total Deductions", "valid_from": "Effective Date", "rules_emp": "Employee Contributions", "rules_er": "Employer Contributions", "rules_table_desc": "Description", "rules_table_rate": "Rate (%)", "rules_table_base": "Calculation Base", "rules_table_obs": "Notes / Cap", "official_source": "Official Source (Example)", "employer_cost_total": "Total Employer Cost", "annual_comp_title": "Total Annual Gross Compensation", "calc_params_title": "Compensation Calculation Parameters", "monthly_comp_title": "Monthly Gross and Net Compensation", "annual_salary": "📅 Annual Salary", "annual_bonus": "🎯 Annual Bonus", "annual_total": "💼 Total Annual Compensation", "months_factor": "Months considered", "pie_title": "Annual Split: Salary vs Bonus", "reload": "Reload tables", "source_remote": "Remote tables", "source_local": "Local fallback", "choose_country": "Select a country", "area": "Area (STI)", "level": "Career Level (STI)", "rules_expanded": "Details of Mandatory Contributions", "sti_area_non_sales": "Non Sales", "sti_area_sales": "Sales", "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Members of the GEB", "sti_level_executive_manager": "Executive Manager", "sti_level_senior_group_manager": "Senior Group Manager", "sti_level_group_manager": "Group Manager", "sti_level_lead_expert_program_manager": "Lead Expert / Program Manager", "sti_level_senior_manager": "Senior Manager", "sti_level_senior_expert_senior_project_manager": "Senior Expert / Senior Project Manager", "sti_level_manager_selected_expert_project_manager": "Manager / Selected Expert / Project Manager", "sti_level_others": "Others", "sti_level_executive_manager_senior_group_manager": "Executive Manager / Senior Group Manager", "sti_level_group_manager_lead_sales_manager": "Group Manager / Lead Sales Manager", "sti_level_senior_manager_senior_sales_manager": "Senior Manager / Senior Sales Manager", "sti_level_manager_selected_sales_manager": "Manager / Selected Sales Manager", "sti_in_range": "Within range", "sti_out_range": "Outside range", "cost_header_charge": "Charge", "cost_header_percent": "Percent (%)", "cost_header_base": "Base", "cost_header_obs": "Observation", "cost_header_bonus": "Applies to Bonus", "cost_header_vacation": "Applies to Vacation", "cost_header_13th": "Applies to 13th", "sti_table_header_level": "Career Level", "sti_table_header_pct": "STI %" },
+    "Español": { "app_title": "Simulador de Salario Neto y Costo del Empleador", "menu_calc": "Simulador de Remuneración", "menu_rules": "Reglas de Contribuciones", "menu_rules_sti": "Reglas de Cálculo del STI", "menu_cost": "Costo del Empleador", "title_calc": "Simulador de Remuneración", "title_rules": "Reglas de Contribuciones", "title_rules_sti": "Reglas de Cálculo del STI", "title_cost": "Costo del Empleador", "country": "País", "salary": "Salario Bruto", "state": "Estado (EE. UU.)", "state_rate": "Impuesto Estatal (%)", "dependents": "Dependientes (Impuesto)", "bonus": "Bono Anual", "earnings": "Ingresos", "deductions": "Descuentos", "net": "Salario Neto", "fgts_deposit": "Depósito de FGTS", "tot_earnings": "Total Ingresos", "tot_deductions": "Total Descuentos", "valid_from": "Vigencia", "rules_emp": "Contribuciones del Empleado", "rules_er": "Contribuciones del Empleador", "rules_table_desc": "Descripción", "rules_table_rate": "Tasa (%)", "rules_table_base": "Base de Cálculo", "rules_table_obs": "Notas / Tope", "official_source": "Fuente Oficial (Ejemplo)", "employer_cost_total": "Costo Total del Empleador", "annual_comp_title": "Composición de la Remuneración Anual Bruta", "calc_params_title": "Parámetros de Cálculo de Remuneración", "monthly_comp_title": "Remuneración Mensual Bruta y Neta", "annual_salary": "📅 Salario Anual", "annual_bonus": "🎯 Bono Anual", "annual_total": "💼 Remuneración Anual Total", "months_factor": "Meses considerados", "pie_title": "Distribución Anual: Salario vs Bono", "reload": "Recargar tablas", "source_remote": "Tablas remotas", "source_local": "Copia local", "choose_country": "Seleccione un país", "area": "Área (STI)", "level": "Career Level (STI)", "rules_expanded": "Detalles de las Contribuciones Obligatorias", "sti_area_non_sales": "No Ventas", "sti_area_sales": "Ventas", "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Miembros del GEB", "sti_level_executive_manager": "Gerente Ejecutivo", "sti_level_senior_group_manager": "Gerente de Grupo Sénior", "sti_level_group_manager": "Gerente de Grupo", "sti_level_lead_expert_program_manager": "Experto Líder / Gerente de Programa", "sti_level_senior_manager": "Gerente Sénior", "sti_level_senior_expert_senior_project_manager": "Experto Sénior / Gerente de Proyecto Sénior", "sti_level_manager_selected_expert_project_manager": "Gerente / Experto Seleccionado / Gerente de Proyecto", "sti_level_others": "Otros", "sti_level_executive_manager_senior_group_manager": "Gerente Ejecutivo / Gerente de Grupo Sénior", "sti_level_group_manager_lead_sales_manager": "Gerente de Grupo / Gerente de Ventas Líder", "sti_level_senior_manager_senior_sales_manager": "Gerente Sénior / Gerente de Ventas Sénior", "sti_level_manager_selected_sales_manager": "Gerente / Gerente de Ventas Seleccionado", "sti_in_range": "Dentro del rango", "sti_out_range": "Fuera del rango", "cost_header_charge": "Encargo", "cost_header_percent": "Percentual (%)", "cost_header_base": "Base", "cost_header_obs": "Observación", "cost_header_bonus": "Incide Bono", "cost_header_vacation": "Incide Vacaciones", "cost_header_13th": "Incide 13º", "sti_table_header_level": "Nivel de Carrera", "sti_table_header_pct": "STI %" }
 }
-
 
 # ====================== PAÍSES / MOEDAS / BANDEIRAS =====================
-COUNTRIES = {
-    "Brasil":   {"symbol": "R$",    "flag": "🇧🇷", "valid_from": "2025-01-01"},
-    "México":   {"symbol": "MX$",   "flag": "🇲🇽", "valid_from": "2025-01-01"},
-    "Chile":    {"symbol": "CLP$", "flag": "🇨🇱", "valid_from": "2025-01-01"},
-    "Argentina": {"symbol": "ARS$", "flag": "🇦🇷", "valid_from": "2025-01-01"},
-    "Colômbia": {"symbol": "COP$", "flag": "🇨🇴", "valid_from": "2025-01-01"},
-    "Estados Unidos": {"symbol": "US$", "flag": "🇺🇸", "valid_from": "2025-01-01"},
-    "Canadá":   {"symbol": "CAD$", "flag": "🇨🇦", "valid_from": "2025-01-01"},
-}
+COUNTRIES = { "Brasil":   {"symbol": "R$",    "flag": "🇧🇷", "valid_from": "2025-01-01"}, "México":   {"symbol": "MX$",   "flag": "🇲🇽", "valid_from": "2025-01-01"}, "Chile":    {"symbol": "CLP$", "flag": "🇨🇱", "valid_from": "2025-01-01"}, "Argentina": {"symbol": "ARS$", "flag": "🇦🇷", "valid_from": "2025-01-01"}, "Colômbia": {"symbol": "COP$", "flag": "🇨🇴", "valid_from": "2025-01-01"}, "Estados Unidos": {"symbol": "US$", "flag": "🇺🇸", "valid_from": "2025-01-01"}, "Canadá":   {"symbol": "CAD$", "flag": "🇨🇦", "valid_from": "2025-01-01"} }
+COUNTRY_BENEFITS = { "Brasil": {"ferias": True, "decimo": True}, "México": {"ferias": True, "decimo": True}, "Chile": {"ferias": True, "decimo": False}, "Argentina": {"ferias": True, "decimo": True}, "Colômbia": {"ferias": True, "decimo": True}, "Estados Unidos": {"ferias": False, "decimo": False}, "Canadá": {"ferias": False, "decimo": False} }
+REMUN_MONTHS_DEFAULT = { "Brasil": 13.33, "México": 12.50, "Chile": 12.00, "Argentina": 13.00, "Colômbia": 14.00, "Estados Unidos": 12.00, "Canadá": 12.00 }
+ANNUAL_CAPS = { "US_FICA": 168600.0, "US_SUTA_BASE": 7000.0, "CA_CPP_YMPEx1": 68500.0, "CA_CPP_YMPEx2": 73200.0, "CA_CPP_EXEMPT": 3500.0, "CA_EI_MIE": 63200.0, "CL_TETO_UF": 84.3, "CL_TETO_CESANTIA_UF": 126.6, }
 
-COUNTRY_BENEFITS = {
-    "Brasil": {"ferias": True, "decimo": True},
-    "México": {"ferias": True, "decimo": True},
-    "Chile": {"ferias": True, "decimo": False},
-    "Argentina": {"ferias": True, "decimo": True},
-    "Colômbia": {"ferias": True, "decimo": True},
-    "Estados Unidos": {"ferias": False, "decimo": False},
-    "Canadá": {"ferias": False, "decimo": False},
-}
-
-REMUN_MONTHS_DEFAULT = {
-    "Brasil": 13.33, "México": 12.50, "Chile": 12.00, "Argentina": 13.00,
-    "Colômbia": 14.00, # 12 sal + 1 Prima + 1 Cesantías
-    "Estados Unidos": 12.00, "Canadá": 12.00
-}
-
-ANNUAL_CAPS = {
-    "US_FICA": 168600.0,
-    "US_SUTA_BASE": 7000.0,
-    "CA_CPP_YMPEx1": 68500.0,
-    "CA_CPP_YMPEx2": 73200.0,
-    "CA_CPP_EXEMPT": 3500.0,
-    "CA_EI_MIE": 63200.0,
-    "CL_TETO_UF": 84.3,
-    "CL_TETO_CESANTIA_UF": 126.6,
-}
-
-# <<< CORREÇÃO NameError: Mover funções helpers para ANTES de onde são usadas >>>
+# <<< Funções Helpers Movidas para Cima >>>
 # ============================== HELPERS ===============================
 
 def fmt_money(v: float, sym: str) -> str:
@@ -317,23 +129,18 @@ def fmt_percent(v: float) -> str:
     if v is None: return ""
     return f"{v:.2f}%"
 
-def fmt_cap(cap_value: Any, sym: str = None, country_code: str = None) -> str: # Adicionado country_code
+def fmt_cap(cap_value: Any, sym: str = None, country_code: str = None) -> str:
     if cap_value is None: return "—"
     if isinstance(cap_value, str): return cap_value
     if isinstance(cap_value, (int, float)):
-        # Check context for UF (Chile)
-        if country_code == "Chile" and cap_value < 200:
-             return f"~{cap_value:.1f} UF"
+        if country_code == "Chile" and cap_value < 200: return f"~{cap_value:.1f} UF"
         return fmt_money(cap_value, sym if sym else "")
     return str(cap_value)
-
-# <<< Fim das funções movidas >>>
-
 
 # ========================== FALLBACKS LOCAIS ============================
 US_STATE_RATES_DEFAULT = { "No State Tax": 0.00, "AK": 0.00, "FL": 0.00, "NV": 0.00, "SD": 0.00, "TN": 0.00, "TX": 0.00, "WA": 0.00, "WY": 0.00, "NH": 0.00, "AL": 0.05, "AR": 0.049, "AZ": 0.025, "CA": 0.06,  "CO": 0.044, "CT": 0.05, "DC": 0.06,  "DE": 0.055, "GA": 0.054, "HI": 0.08, "IA": 0.06,  "ID": 0.06,  "IL": 0.0495, "IN": 0.0323, "KS": 0.046, "KY": 0.05,  "LA": 0.0425, "MA": 0.05,  "MD": 0.0575, "ME": 0.058, "MI": 0.0425, "MN": 0.058, "MO": 0.045, "MS": 0.05, "MT": 0.054, "NC": 0.045, "ND": 0.02,  "NE": 0.05,  "NJ": 0.055, "NM": 0.049, "NY": 0.064, "OH": 0.030, "OK": 0.0475, "OR": 0.08,  "PA": 0.0307, "RI": 0.0475, "SC": 0.052, "UT": 0.0485, "VA": 0.05,  "VT": 0.06, "WI": 0.053, "WV": 0.05 }
 TABLES_DEFAULT = { "México": {"rates": {"ISR": 0.15, "IMSS": 0.05, "INFONAVIT": 0.05}}, "Chile": {"rates": {"AFP": 0.1115, "Saúde": 0.07}}, "Argentina": {"rates": {"Jubilación": 0.11, "Obra Social": 0.03, "PAMI": 0.03}}, "Colômbia": {"rates": {"Saúde": 0.04, "Pensão": 0.04}}, "Canadá": {"rates": {"CPP": 0.0595, "CPP2": 0.04, "EI": 0.0163, "Income Tax": 0.15}} }
-# <<< CORREÇÃO NameError: Usar fmt_money diretamente aqui >>>
+# <<< CORREÇÃO NameError: Usar fmt_money aqui >>>
 EMPLOYER_COST_DEFAULT = {
     "Brasil": [ {"nome": "INSS Patronal", "percentual": 20.0, "base": "Salário Bruto", "ferias": True, "decimo": True, "bonus": True, "obs": "Previdência", "teto": None}, {"nome": "RAT", "percentual": 2.0, "base": "Salário Bruto", "ferias": True, "decimo": True, "bonus": True, "obs": "Risco", "teto": None}, {"nome": "Sistema S", "percentual": 5.8, "base": "Salário Bruto", "ferias": True, "decimo": True, "bonus": True, "obs": "Terceiros", "teto": None}, {"nome": "FGTS", "percentual": 8.0, "base": "Salário Bruto", "ferias": True, "decimo": True, "bonus": True, "obs": "Crédito empregado", "teto": None} ],
     "México": [ {"nome": "IMSS Patronal", "percentual": 7.0, "base": "Salário", "ferias": True, "decimo": True, "bonus": True, "obs": "Seguro social (aprox.)", "teto": "Teto IMSS"}, {"nome": "INFONAVIT Empregador", "percentual": 5.0, "base": "Salário", "ferias": True, "decimo": True, "bonus": True, "obs": "Habitação", "teto": "Teto IMSS"}, {"nome": "SAR (Aposentadoria)", "percentual": 2.0, "base": "Salário", "ferias": True, "decimo": True, "bonus": True, "obs": "REQ 1: Adicionado", "teto": "Teto IMSS"}, {"nome": "ISN (Imposto Estadual)", "percentual": 2.5, "base": "Salário", "ferias": True, "decimo": True, "bonus": True, "obs": "REQ 1: Média (aprox.)", "teto": None} ],
@@ -350,7 +157,9 @@ CA_CPP_EI_DEFAULT = { "cpp_rate": 0.0595, "cpp_exempt_monthly": ANNUAL_CAPS["CA_
 STI_RANGES = { "Non Sales": { "CEO": (1.00, 1.00), "Members of the GEB": (0.50, 0.80), "Executive Manager": (0.45, 0.70), "Senior Group Manager": (0.40, 0.60), "Group Manager": (0.30, 0.50), "Lead Expert / Program Manager": (0.25, 0.40), "Senior Manager": (0.20, 0.40), "Senior Expert / Senior Project Manager": (0.15, 0.35), "Manager / Selected Expert / Project Manager": (0.10, 0.30), "Others": (0.0, 0.10) }, "Sales": { "Executive Manager / Senior Group Manager": (0.45, 0.70), "Group Manager / Lead Sales Manager": (0.35, 0.50), "Senior Manager / Senior Sales Manager": (0.25, 0.45), "Manager / Selected Sales Manager": (0.20, 0.35), "Others": (0.0, 0.15) } }
 STI_LEVEL_OPTIONS = { "Non Sales": [ "CEO", "Members of the GEB", "Executive Manager", "Senior Group Manager", "Group Manager", "Lead Expert / Program Manager", "Senior Manager", "Senior Expert / Senior Project Manager", "Manager / Selected Expert / Project Manager", "Others" ], "Sales": [ "Executive Manager / Senior Group Manager", "Group Manager / Lead Sales Manager", "Senior Manager / Senior Sales Manager", "Manager / Selected Sales Manager", "Others" ] }
 STI_I18N_KEYS = { "CEO": "sti_level_ceo", "Members of the GEB": "sti_level_members_of_the_geb", "Executive Manager": "sti_level_executive_manager", "Senior Group Manager": "sti_level_senior_group_manager", "Group Manager": "sti_level_group_manager", "Lead Expert / Program Manager": "sti_level_lead_expert_program_manager", "Senior Manager": "sti_level_senior_manager", "Senior Expert / Senior Project Manager": "sti_level_senior_expert_senior_project_manager", "Manager / Selected Expert / Project Manager": "sti_level_manager_selected_expert_project_manager", "Others": "sti_level_others", "Executive Manager / Senior Group Manager": "sti_level_executive_manager_senior_group_manager", "Group Manager / Lead Sales Manager": "sti_level_group_manager_lead_sales_manager", "Senior Manager / Senior Sales Manager": "sti_level_senior_manager_senior_sales_manager", "Manager / Selected Sales Manager": "sti_level_manager_selected_sales_manager" }
-MAPA_AMERICAS_B64 = "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTgwIiBzdHlsZT0iYmFja2dyb3VuZDp0cmFuc3BhcmVudDsiPgogIDxwYXRoIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMC44IiBmaWxsPSJub25lIiBkPSJNNDIgMjRMMzggMjEgMzIgMjAgMzEgMjIgMzQgMjggMzggMzEgNDEgMzQgNDQgNDAgNDkgNDIgNTUgNDkgNjAgNTQgNjcgNTggNzUgNTggODIgNTYgODggNTIgOTUgNTAgMTAzIDQ4IDExMCA0OCAxMTcgNTAgMTI1IDUyIDEzMiA1MyAxNDAgNTUgMTQ4IDU4IDE1NSA2MiAxNjIgNjcgMTY4IDcxIDE3MyA3MyAxNzcgNzUgMTc5IDc5IDE4MCA4MyAxNzkgODYgMTc2IDg4IDE3MiA4OSAxNjggOTAgMTYzIDg5IDE1OCA4NyAxNTIgODQgMTQ2IDgwIDEzOSA3NSAxMzIgNzAgMTIzIDY1IDExNSA2MiAxMDcgNjAgOTkgNTkgOTEgNjAgODQgNjMgNzggNjcgNzIgNzAgNjcgNzIgNjIgNzUgNTggNzcgNTMgNzggNDggNzcgNDMgNzQgMzggNjkgMzMgNjMgMjggNTggMjYgNTIgMjUgNDYgMjR6Ii8+Cjwvc3ZnPgo="
+
+# REQ 5: Mapa Américas (SVG mais detalhado)
+MAPA_AMERICAS_B64 = "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MDAgNzAwIiBzdHlsZT0iYmFja2dyb3VuZDp0cmFuc3BhcmVudDsiPgogIDxwYXRoIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBkPSJNMTkwIDIwIEMxNzAgMzAgMTQwIDQwIDEyMCA1MCBDMTAwIDYwIDgwIDcwIDcwIDkwIEM2MCAxMTAgNjAgMTQwIDgwIDE2MCBDMTAwIDE4MCAxMjAgMTkwIDE0MCAyMDAgQzE2MCAyMTAgMTgwIDIxNSAyMDAgMjIwIEMyMjAgMjI1IDI0MCAyMzAgMjYwIDIzMCBDMjgwIDIzMCAzMDAgMjI1IDMxNSAyMTUgQzMzMCAyMDUgMzQwIDE5MCAzNTAgMTcwIEMzNjAgMTUwIDM2NSAxMzAgMzYwIDExMCBDMzU1IDkwIDM0MCA3MCAzMjAgNTUgQzMwMCA0MCAyNzAgMzAgMjQwIDI1IEwyMDAgMjAgQzE5NSAyMCAxOTIgMjAgMTkwIDIwIFogTTI2MCAyNDAgQzI0MCAyNTAgMjMwIDI2NSAyMjAgMjgwIEMyMTAgMjk1IDIwNSAzMTAgMjA1IDMyNSBDMjA1IDM0MCAyMTAgMzU1IDIyMCAzNzAgQzIzMCAzODUgMjQ1IDQwMCAyNjAgNDEwIEMyNzUgNDIwIDI5MCA0MjUgMzA1IDQzMCBDMzIwIDQzNSAzMzUgNDM1IDM0NSA0MzAgQzM1NSA0MjUgMzYwIDQxNSAzNjAgNDAwIEMzNjAgMzg1IDM1NSAzNzAgMzQ1IDM1NSBDMzM1IDM0MCAzMjAgMzI1IDMwNSAzMTAgQzI5MCAyOTUgMjc1IDI4MCAyNjAgMjY1IEwyNjAgMjQwIFoiLz4KPC9zdmc+Cg=="
 
 # ============================== (Restante dos HELPERS) ===============================
 
@@ -444,32 +253,35 @@ def calc_employer_cost(country: str, salary: float, bonus: float, T: Dict[str, s
 
     df = pd.DataFrame(enc_list)
     if not df.empty:
-        df[T["cost_header_charge"]] = df["nome"]
-        df[T["cost_header_percent"]] = df["percentual"].apply(lambda p: f"{p:.2f}%")
-        df[T["cost_header_base"]] = df["base"]
-        # Usa fmt_cap para formatar tetos na coluna de Observações
-        df[T["cost_header_obs"]] = df.apply(lambda row: fmt_cap(row['teto'], COUNTRIES[country]['symbol'], country) if 'teto' in row and row['teto'] is not None else row['obs'], axis=1)
-        # ^^^ Modificado para usar fmt_cap se teto existir
-        df[T["cost_header_bonus"]] = ["✅" if b else "❌" for b in df["bonus"]]
+        df_display = df.copy() # Criar cópia para exibição
+        df_display[T["cost_header_charge"]] = df_display["nome"]
+        df_display[T["cost_header_percent"]] = df_display["percentual"].apply(lambda p: f"{p:.2f}%")
+        df_display[T["cost_header_base"]] = df_display["base"]
+        # Formata Obs/Teto na cópia
+        df_display[T["cost_header_obs"]] = df_display.apply(lambda row: fmt_cap(row['teto'], COUNTRIES[country]['symbol'], country) if 'teto' in row and row['teto'] is not None else row['obs'], axis=1)
+        df_display[T["cost_header_bonus"]] = ["✅" if b else "❌" for b in df_display["bonus"]]
         cols = [T["cost_header_charge"], T["cost_header_percent"], T["cost_header_base"], T["cost_header_bonus"], T["cost_header_obs"]]
         if benefits.get("ferias", False):
-            df[T["cost_header_vacation"]] = ["✅" if b else "❌" for b in df["ferias"]]
+            df_display[T["cost_header_vacation"]] = ["✅" if b else "❌" for b in df_display["ferias"]]
             cols.insert(3, T["cost_header_vacation"])
         if benefits.get("decimo", False):
-            df[T["cost_header_13th"]] = ["✅" if b else "❌" for b in df["decimo"]]
+            df_display[T["cost_header_13th"]] = ["✅" if b else "❌" for b in df_display["decimo"]]
             insert_pos = 4 if benefits.get("ferias", False) else 3
             cols.insert(insert_pos, T["cost_header_13th"])
-        df = df[cols]
+        df_display = df_display[cols] # DataFrame formatado para exibição
+    else:
+        df_display = pd.DataFrame() # DataFrame vazio se não houver encargos
 
+    # Cálculo do Custo (usando 'df' original)
     salario_anual_base = salary * 12.0
     salario_anual_beneficios = salary * months
     total_cost_items = []
-    for item in enc_list:
+    for index, item in df.iterrows(): # Usar df original para cálculo
         perc = item.get("percentual", 0.0) / 100.0; teto = item.get("teto", None); incide_bonus = item.get("bonus", False)
         base_calc_anual = salario_anual_base if country in ["Estados Unidos", "Canadá"] else salario_anual_beneficios
         if incide_bonus: base_calc_anual += bonus
         if teto is not None and isinstance(teto, (int, float)):
-            if country == "Chile" and "UF" in item.get("obs", ""): pass # Ignora teto UF por simplicidade
+            if country == "Chile" and isinstance(teto, float) and teto < 200: pass # Ignora teto UF
             elif item.get("nome") == "CPP2 (ER)": base_calc_anual = max(0, min(base_calc_anual, teto) - min(base_calc_anual, ANNUAL_CAPS["CA_CPP_YMPEx1"]))
             else: base_calc_anual = min(base_calc_anual, teto)
         custo_item = base_calc_anual * perc
@@ -477,7 +289,7 @@ def calc_employer_cost(country: str, salary: float, bonus: float, T: Dict[str, s
     total_encargos = sum(total_cost_items)
     custo_total_anual = (salary * months) + bonus + total_encargos
     mult = (custo_total_anual / salario_anual_base) if salario_anual_base > 0 else 0.0
-    return custo_total_anual, mult, df, months
+    return custo_total_anual, mult, df_display, months # Retorna df_display
 
 def get_sti_area_map(T: Dict[str, str]) -> Tuple[List[str], Dict[str, str]]:
     display_list = [T["sti_area_non_sales"], T["sti_area_sales"]]
@@ -508,54 +320,45 @@ with st.sidebar:
     st.markdown("<h2 style='color:white; text-align:center; font-size:20px; margin-bottom: 25px;'>Simulador de Remuneração<br>(Região das Americas)</h2>", unsafe_allow_html=True)
     idioma = st.selectbox("🌐 Idioma / Language / Idioma", list(I18N.keys()), index=0, key="lang_select")
     T = I18N[idioma]
-    st.markdown(f"### {T['country']}")
-    country = st.selectbox(T["choose_country"], list(COUNTRIES.keys()), index=0, key="country_select")
-    st.markdown("---", unsafe_allow_html=True)
+    st.markdown(f"<h3 style='margin-bottom: 0.5rem;'>{T['country']}</h3>", unsafe_allow_html=True) # Reduzido margem H3
+    country = st.selectbox(T["choose_country"], list(COUNTRIES.keys()), index=0, key="country_select", label_visibility="collapsed") # Label oculta
 
+    # REQ 6: Divisores removidos
     menu_options = [T["menu_calc"], T["menu_rules"], T["menu_rules_sti"], T["menu_cost"]]
     if 'active_menu' not in st.session_state or st.session_state.active_menu not in menu_options:
         st.session_state.active_menu = menu_options[0]
 
     button_container = st.container()
-    cols = button_container.columns(1) # Cria uma única coluna para empilhar os botões
+    cols = button_container.columns(1)
     # Loop para criar os botões estilizados
     for i, option in enumerate(menu_options):
         is_active = (st.session_state.active_menu == option)
-        button_key = f"menu_btn_{option.replace(' ', '_')}" # Chave única para cada botão
-        
-        # Usar st.markdown para aplicar a classe CSS
+        button_key = f"menu_btn_{option.replace(' ', '_').lower()}" # Chave única e minúscula
+        # Aplica classe CSS para o botão ativo
+        active_class = "active-menu-button" if is_active else ""
         button_html = f"""
-        <style>
+         <style>
+            /* Hack para aplicar classe baseada no estado */
             #{button_key} {{
-                background: {'#ffffff' if is_active else 'rgba(255, 255, 255, 0.1)'} !important;
-                color: {'#0a3d62' if is_active else '#ffffff'} !important;
-                border: 1px solid {'#ffffff' if is_active else 'rgba(255, 255, 255, 0.3)'} !important;
-                border-radius: 8px !important;
-                width: 100% !important;
-                margin-bottom: 8px !important;
-                font-weight: 600 !important;
-                box-shadow: none !important;
-                transition: background 0.2s ease;
-            }}
+                background: {'#e6f0f8' if is_active else '#ffffff'} !important;
+                border-color: {'#a3c4e3' if is_active else '#d0d7de'} !important;
+                color: #0a3d62 !important; /* Sempre texto azul escuro */
+             }}
              #{button_key}:hover {{
-                 background: {'#f0f0f0' if is_active else 'rgba(255, 255, 255, 0.2)'} !important;
-                 border-color: {'#d0d0d0' if is_active else 'rgba(255, 255, 255, 0.5)'} !important;
+                 background: {'#dbe9f6' if is_active else '#f0f2f6'} !important; /* Hover sutil */
+                 border-color: {'#8cb8dd' if is_active else '#adb5bd'} !important;
             }}
-             #{button_key}:focus:not(:active) {{
-                 border-color: {'#ffffff' if is_active else 'rgba(255, 255, 255, 0.3)'} !important;
-                 box-shadow: none !important;
-            }}
-        </style>
+         </style>
         """
         st.markdown(button_html, unsafe_allow_html=True)
-
+        # Cria o botão
         if cols[0].button(option, key=button_key, use_container_width=True):
-             if not is_active: # Apenas atualiza e reroda se clicar num botão diferente
+             if not is_active:
                  st.session_state.active_menu = option
                  st.rerun()
 
-    st.markdown("---", unsafe_allow_html=True)
-    st.markdown(f'<div style="text-align: center;"><img src="data:image/svg+xml;base64,{MAPA_AMERICAS_B64}" style="width:80%; max-width: 150px; height:auto; padding-top: 20px; opacity: 0.8;"></div>', unsafe_allow_html=True)
+    # REQ 6: Divisor removido
+    st.markdown(f'<div style="text-align: center;"><img src="data:image/svg+xml;base64,{MAPA_AMERICAS_B64}" style="width:80%; max-width: 150px; height:auto; padding-top: 30px; opacity: 0.8;"></div>', unsafe_allow_html=True)
 
 US_STATE_RATES, COUNTRY_TABLES, BR_INSS_TBL, BR_IRRF_TBL = load_tables()
 
@@ -630,6 +433,9 @@ if active_menu == T["menu_calc"]:
     cc1.markdown(f"<div class='metric-card' style='border-left: 5px solid #28a745; background: #e6ffe6;'><h4>💰 {T['tot_earnings']}</h4><h3>{fmt_money(calc['total_earn'], symbol)}</h3></div>", unsafe_allow_html=True)
     cc2.markdown(f"<div class='metric-card' style='border-left: 5px solid #dc3545; background: #ffe6e6;'><h4>📉 {T['tot_deductions']}</h4><h3>{fmt_money(calc['total_ded'], symbol)}</h3></div>", unsafe_allow_html=True)
     cc3.markdown(f"<div class='metric-card' style='border-left: 5px solid #007bff; background: #e6f7ff;'><h4>💵 {T['net']}</h4><h3>{fmt_money(calc['net'], symbol)}</h3></div>", unsafe_allow_html=True)
+
+    # REQ 2: Espaço antes do FGTS
+    st.write("")
     if country == "Brasil": st.markdown(f"**💼 {T['fgts_deposit']}:** {fmt_money(calc['fgts'], symbol)}")
 
     st.write("---")
