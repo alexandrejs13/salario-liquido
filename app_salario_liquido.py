@@ -1,7 +1,8 @@
 # -------------------------------------------------------------
-# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.48)
+# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.49)
 # Tema azul plano, multilíngue, responsivo e com STI corrigido
 # (REQ 1: Cálculos de Custo e Líquido com Tetos implementados)
+# (REQ 3: Correção de erro 'ValidationError' no gráfico Altair)
 # -------------------------------------------------------------
 
 import streamlit as st
@@ -54,9 +55,19 @@ section[data-testid="stSidebar"] .stButton > button:hover{ background:#f5f8ff !i
 .metric-card{ background:#fff; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); padding:16px; text-align:center; transition: all 0.3s ease; }
 .metric-card:hover{ box-shadow:0 6px 16px rgba(0,0,0,0.15); transform: translateY(-2px); }
 
-.metric-card h4{ margin:0; font-size:13px; color:#0a3d62;}
-/* REQ 6: Fonte valor (17px) + REQ 3: Espaço (2px) */
-.metric-card h3{ margin:2px 0 0; color:#0a3d62; font-size:17px; } 
+/* REQ 2: Ajuste de fontes dos cards mensais para 17px */
+.metric-card h4{
+    margin:0;
+    font-size:17px; /* REQ 2: Aumentado de 13px p/ 17px */
+    font-weight: 600; /* REQ 2: Alinhado com card anual */
+    color:#0a3d62;
+}
+.metric-card h3{
+    margin:2px 0 0;
+    color:#0a3d62;
+    font-size:17px; /* REQ 6: Garantido 17px */
+    font-weight: 700; /* REQ 2: Alinhado com card anual */
+}
 
 /* Tabela */
 .table-wrap{ background:#fff; border:1px solid #d0d7de; border-radius:8px; overflow:hidden; }
@@ -75,12 +86,12 @@ section[data-testid="stSidebar"] .stButton > button:hover{ background:#f5f8ff !i
     border-radius: 10px;
     box-shadow: 0 1px 4px rgba(0,0,0,.06);
     padding: 10px 15px;
-    margin-bottom: 8px; 
+    margin-bottom: 8px;
     border-left: 5px solid #0a3d62;
     min-height: 110px; /* REQ 5: Aumentado para 110px p/ caber fontes */
     display: flex;
     flex-direction: column;
-    justify-content: center; 
+    justify-content: center;
     box-sizing: border-box;
 }
 .annual-card-label { align-items: flex-start; }
@@ -100,7 +111,7 @@ section[data-testid="stSidebar"] .stButton > button:hover{ background:#f5f8ff !i
     font-size: 15px; /* REQ 5: Aumentado de 12px para 15px */
     font-weight: 400; /* REQ 5: Não negrito */
     line-height: 1.3;
-    margin-top: 4px; 
+    margin-top: 4px;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -377,7 +388,7 @@ TABLES_DEFAULT = {
     "Chile": {"rates": {"AFP": 0.1115, "Saúde": 0.07}}, # AFP 10% + comissão média
     "Argentina": {"rates": {"Jubilación": 0.11, "Obra Social": 0.03, "PAMI": 0.03}},
     "Colômbia": {"rates": {"Saúde": 0.04, "Pensão": 0.04}},
-    "Canadá": {"rates": {"CPP": 0.0595, "EI": 0.0163, "Income Tax": 0.15}} # Simplificado
+    "Canadá": {"rates": {"CPP": 0.0595, "CPP2": 0.04, "EI": 0.0163, "Income Tax": 0.15}} # Simplificado
 }
 EMPLOYER_COST_DEFAULT = {
     # REQ 1: Encargos atualizados (mais precisos)
@@ -463,14 +474,14 @@ STI_RANGES = {
         "Senior Manager": (0.20, 0.40),
         "Senior Expert / Senior Project Manager": (0.15, 0.35),
         "Manager / Selected Expert / Project Manager": (0.10, 0.30),
-        "Others": (0.0, 0.10)  # ≤ 10%
+        "Others": (0.0, 0.10)
     },
     "Sales": {
         "Executive Manager / Senior Group Manager": (0.45, 0.70),
         "Group Manager / Lead Sales Manager": (0.35, 0.50),
         "Senior Manager / Senior Sales Manager": (0.25, 0.45),
         "Manager / Selected Sales Manager": (0.20, 0.35),
-        "Others": (0.0, 0.15)  # ≤ 15%
+        "Others": (0.0, 0.15)
     }
 }
 STI_LEVEL_OPTIONS = {
@@ -501,8 +512,8 @@ STI_I18N_KEYS = {
     "Manager / Selected Sales Manager": "sti_level_manager_selected_sales_manager"
 }
 
-# REQ 8: Mapa Sidebar (SVG Minimalista Base64)
-MAPA_AMERICAS_B64 = "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjIgMjE1IiBzdHlsZT0iYmFja2dyb3VuZDp0cmFuc3BhcmVudDsiPgogIDxwYXRoIHN0cm9rZT0iI0ZGRkZGRiIgc3Ryb2tlLXdpZHRoPSIxLjIiIGZpbGw9Im5vbmUiIGQ9Ik0zOS4xMSA3My40NkwzMy42OSA3MC4xM0MzMS4wMyA2OC4wMiAyOS45MSA2NC45OCAzMC40MSA2Mi4xOEwzMi43MyA0OS4yM0MzMy4zOCA0NS42MiAzNS4zMSA0Mi41NiAzOC4wNyA0MC44MUw0MS4zMiAzOC4zOEM0My4zNyAzNi44OCA0NS44MyAzNi4zNyA0OC4yMSAzNi45OEw1OC4yMyAzOS4zN0M2MC4yMyA0MC4wMiA2MS44OSA0MS4zOSA2Mi44NSA0My4yMUw2NS43MiA0Ny45M0M2Ny4xNSA1MC41NyA2Ny4zMiA1My44MiA2Ni4xOCA1Ni44Mkw2Mi4xMyA2Ny45M0M2MS4xNiA3MC4zMyA1OS4zMyA3Mi4yNSA1Ny4wMyA3My4yMUw0OC42MyA3Ni4zNUM0NS41MyA3Ny42NyA0MS45MyA3Ni40NyAzOS4xMSA3My40NlpNOTQuNTcgNDEuNjdMODkuMDggMzcuNTJDODcuNDEgMzYuMTggODUuMjkgMzUuNDQgODMuMDcgMzUuNDhMODAuNTMgMzUuNTdDNzguNDMgMzUuNjMgNzYuNDEgMzYuMzggNzQuODUgMzcuNjFMNDguMSA1MS4xOEM0Ni43MSA1Mi4yNyA0NS42NiA1My43MiA0NS4wOSA1NS4zNUw0Mi45MiA2MC45OUM0Mi4wMSA2My41MiA0Mi4zNyA2Ni4zMiA0My45NSA2OC41M0w0OC44MiA3NS4zMUM1MC4wMyA3Ny4wMiA1MS43MyA3OC4zNSA1My43NyA3OC45OEw2MC42MyA4MS4wNEM2My4zMyA4MS45MiA2Ni4yNiA4MS42NiA2OC43MiA4MC4zMUw3NS4xOSA3Ni45OUM3Ny40NSA3NS43NyA3OS4yOCA3My44OSA4MC4zMyA3MS41MUw4MS42MiA2OC44OEM4Mi4yOCA2Ny40MyA4My4yOSA2Ni4yMSA4NC41OCA2NS4zOEw5MS41MiA2MC4yOEM5My4yMyA1OS4xNSA5NC41NSA1Ny41MiA5NS4yMSA1NS42NUw5Ny42MSA0OC45NEM5OC4xMyA0Ny4zNSA5Ny45OSA0NS42MiA5Ny4yNSA0NC4wM0w5NC41NyA0MS42N1pNMTAzLjMyIDU2LjYyTDEwMC4wNyA1NS4xM0M5OC4yMyA1NC4zMiA5Ni43OSA1Mi43NiA5Ni4yMSA1MC44N0w5NS40NSA0OC4yOEM5NS4xOSA0Ny40MyA5NS4xNyA0Ni41MyA5NS4zOCA0NS43M0w5Ni40MSA0Mi4yOEM5Ny4wNyA0MC4xMyA5OC42NyAzOC41MyAxMDA4LjcyIDM3Ljg4TDEwNC43OCAzNy4xM0MxMDYuNzMgMzYuNzggMTA4LjU5IDM3LjQxIDEwOS45MiAzOC44M0wxMTIuMDMgNDAuOTVDMTEzLjE3IDQyLjE3IDExMy44MyA0My44MSAxMTMuODMgNDUuNTNMMTEzLjU3IDQ5LjQ4QzExMy41MiA1MS4yNiAxMTIuODEgNTIuOTMgMTExLjYyIDU0LjExTDEwNy42MyA1OC40M0MxMDUuOTcgNjAuMDkgMTAzLjMyIDU5LjUxIDEwMi4yMyA1Ny43N0MxMDIuMDcgNTcuNDMgMTAxLjk1IDU2Ljc1IDEwMi4yMyA1Ni4xOEwxMDMuMzIgNTYuNjJaTTYwLjkyIDEyMS4xOEw1Ni4wMyAxMjAuNDNDNTMuNDMgMTIxLjA3IDUxLjE4IDEyMi45MiA1MC4xMiAxMjUuNDJMMzkuMzcgMTUxLjYyQzM4LjU2IDE1My44MiAzOC41NiAxNTYuMzcgMzkuMzcgMTU4LjU3TDUwLjEyIDE4NC43OEM1MS4xOCAxODcuMjggNTMuNDMgMTg5LjEzIDU2LjAzIDE4OS43OEw2MC45MiAxOTAuNTNDNjIuNTIgMTkxLjAxIDY0LjIyIDE5MS4wMSA2NS44MiAxOTAuNTNMNzAuNzIgMTg5Ljc4QzcyLjczIDE4OS4zNSA3NC41OCAxODguMTggNzUuOTEgMTg2LjQzTDc5LjQyIDE4Mi4yM0M4Mi4wNyAxNzkuMDMgODMuMDEgMTc0Ljc4IDgyLjE3IDE3MC44NEw3OS45MSAxNjIuNTRDNzguNDMgMTU2Ljc4IDc0LjM4IDE1MS44OCA2OC41MyAxNDkuNzdMNjIuMzMgMTQ3LjU3QzYxLjQ4IDE0Ny4yNiA2MC42MyAxNDcuMjYgNTkuNzggMTQ3LjU3TDUzLjU4IDE0OS43N0M0Ny43MyAxNTEuODggNDMuNjMgMTU2Ljc4IDQyLjE4IDE2Mi41NEwzOS45MiAxNzAuODRDMzkuMDcgMTc0Ljc4IDQwLjAxIDE3OS4wMyA0Mi42NSAxODIuMjNMNDYuMTcgMTg2LjQzQzQ3LjQ5IDE4OC4xOCA0OS4zNCAxODkuMzUgNTEuMzggMTg5Ljc4TDU0LjQ4IDE5MC4zOEM1NC43OCAxOTAuNDMgNTUuMDMgMTkwLjQzIDU1LjI4IDE5MC4zOEw1NS41MyAxOTAuMzhMNTEuMzggMTg5Ljc4TDQ5LjM0IDE4OS4zNUw0Ny40OSAxODguMThMNDYuMTcgMTg2LjQzTDQyLjY1IDE4Mi4yM0wzOS45MiAxNzAuODRMNDIuMTggMTYyLjVMMC40MiAxMjUuNDJMNTEuMTMgMTIyLjkyQzUxLjUxIDEyMi43NiA1MS44MyAxMjIuNTUgNTIuMTMgMTIyLjMyTDUyLjM4IDEyMi4yM0M1Mi43MyAxMjIuMDcgNTMuMDkgMTIxLjk1IDUzLjUgMTIxLjg4QzU0LjM1IDEyMS43IDU1LjIxIDEyMS43IDU2LjAzIDEyMS44OEw1OC4wMyAxMjIuMjNDNTguMzggMTIyLjMyIDU4LjY4IDEyMi40NSA1OC45MyAxMjIuNjdMNTkuMTggMTIyLjkzTDY4LjUzIDE0OS43N0w2Mi4zMyAxNDcuNTdMNTMuNTggMTQ5Ljc3TDQyLjE4IDE2Mi41NEwzOS45MiAxNzAuODRMNDIuNjUgMTgyLjIzTDQ2LjE3IDE4Ni40M0w0Ny40OSAxODguMThMODUuMDMgMTg4LjE4Qzg1LjY4IDE4Ny45NyA4Ni4yOCAxODcuNjcgODYuODMgMTg3LjI4TDg5Ljc4IDE4NS4wOEM5MS41MyAxODMuODIgOTIuNzMgMTgxLjk3IDkzLjEzIDE3OS44N0w5OC4xMyAxNjUuNTRDOTkuMDQgMTYzLjAxIDk4LjY4IDE2MC4xMyA5Ny4yIDE1Ny45OEw5Mi44NyAxNTAuOTNDOTEuNzMgMTQ5LjQ4IDkwLjAyIDE0OC41MyA4OC4xOCAxNDguMjJMODMuMjMgMTQ3LjI2QzgxLjM4IDE0Ny4wMSA3OS41MyAxNDcuNTIgNzggMTQ4LjY3TDczLjY4IDE1MS4zOEM3Mi4wNyAxNTIuNDIgNzAuOTMgMTU0LjA3IDcwLjQzIDE1NS45Mkw2OC42MyAxNjIuNTRDNjguMDcgMTY0LjcyIDY4LjU4IDE2Ny4wMiA3MC4wMyAxNjguNzNMNzMuODggMTczLjYyQzc0LjQ4IDE3NC40MyA3NS40MyAxNzQuOSA3Ni40MyAxNzQuOUw3OC42OCAxNzQuNjVDNzkuNTMgMTc0LjU1IDgwLjMyIDE3NC4yIDgwLjkzIDE3My42N0w4NS41OCAxNzAuMzhDODYuODQgMTY5LjQ4IDg3Ljc5IDE2OC4xMyA4OC4xMyAxNjYuNjJMODkuOTMgMTYwLjE4QzkwLjI4IDE1OC44MiA5MC4xOCAxNTcuMzcgODkuNjMgMTU2LjA4TDg4LjQ4IDE1My4xOEM4OC4wMyAxNTIuMTMgODcuMTggMTUxLjM4IDg2LjEzIDE1MS4xM0w4My45MyAxNTAuNjNDODIuNTMgMTUwLjM4IDgxLjA4IDE1MC43MyA4MC4wMyAxNTEuNjJMNDguMSA1MS4xOEw0Ni4wMyA1NC4zMUM0NS44MyA1NC42MiA0NS42MSA1NC45MyA0NS40MyA1NS4yNUw0My4yNyA1OS45QzQyLjc5IDYxLjE1IDQyLjkgNjIuNTMgNDMuNjggNjMuNjlMNDguNTUgNzAuNDhDNDkuMDcgNzEuNDMgNDkuOTcgNzIuMSA1MC45OCA3Mi40M0w1Ny44NCA3NC41QzU5LjE5IDc0Ljk4IDYwLjY0IDc0LjQ4IDYxLjU0IDczLjQzTDY4LjA0IDY2LjVDNzAuMDQgNjQuMyA3MC4zMyA2MS4xIDY4LjUzIDU4Ljc1TDY0Ljc4IDUzLjQzQzYyLjAyIDUwLjM4IDU3LjQzIDQ5LjU3IDUzLjc3IDUyLjE4TDQ3LjE4IDU2Ljc1QzQ1Ljk4IDU3LjU4IDQ0LjkzIDU4Ljc4IDQ0LjIyIDYwLjE4TDQyLjA1IDY1Ljg0QzQxLjI1IDY4LjM3IDQyLjMxIDcxLjE3IDQ0LjUzIDczLjA3TDU1LjI4IDE5MC4zOEw1NS4wMyAxOTAuNDNMNzYuNDMgMTc0LjkiLz4KPC9zdmc+Cg=="
+# REQ 1/8: Mapa Sidebar (SVG Minimalista Base64)
+MAPA_AMERICAS_B64 = "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjIgMjE1IiBzdHlsZT0iYmFja2dyb3VuZDp0cmFuc3BhcmVudDsiPgogIDxwYXRoIHN0cm9rZT0iI0ZGRkZGRiIgc3Ryb2tlLXdpZHRoPSIxLjIiIGZpbGw9Im5vbmUiIGQ9Ik0zOS4xMSA3My40NkwzMy42OSA3MC4xM0MzMS4wMyA2OC4wMiAyOS45MSA2NC45OCAzMC40MSA2Mi4xOEwzMi43MyA0OS4yM0MzMy4zOCA0NS42MiAzNS4zMSA0Mi41NiAzOC4wNyA0MC44MUw0MS4zMiAzOC4zOEM0My4zNyAzNi44OCA0NS44MyAzNi4zNyA0OC4yMSAzNi45OEw1OC4yMyAzOS4zN0M2MC4yMyA0MC4wMiA2MS44OSA0MS4zOSA2Mi44NSA0My4yMUw2NS43MiA0Ny45M0M2Ny4xNSA1MC41NyA2Ny4zMiA1My44MiA2Ni4xOCA1Ni44Mkw2Mi4xMyA2Ny45M0M2MS4xNiA3MC4zMyA1OS4zMyA3Mi4yNSA1Ny4wMyA3My4yMUw0OC42MyA3Ni4zNUM0NS41MyA3Ny42NyA0MS45MyA3Ni40NyAzOS4xMSA3My40NlpNOTQuNTcgNDEuNjdMODkuMDggMzcuNTJDODcuNDEgMzYuMTggODUuMjkgMzUuNDQgODMuMDcgMzUuNDhMODAuNTMgMzUuNTdDNzguNDMgMzUuNjMgNzYuNDEgMzYuMzggNzQuODUgMzcuNjFMNDguMSA1MS4xOEM0Ni43MSA1Mi4yNyA0NS42NiA1My43MiA0NS4wOSA1NS4zNUw0Mi45MiA2MC45OUM0Mi4wMSA2My41MiA0Mi4zNyA2Ni4zMiA0My45NSA2OC41M0w0OC44MiA3NS4zMUM1MC4wMyA3Ny4wMiA1MS43MyA3OC4zNSA1My43NyA3OC45OEw2MC42MyA4MS4wNEM2My4zMyA4MS45MiA2Ni4yNiA4MS42NiA2OC43MiA4MC4zMUw3NS4xOSA3Ni45OUM3Ny40NSA3NS43NyA3OS4yOCA3My44OSA4MC4zMyA3MS41MUw4MS42MiA2OC44OEM4Mi4yOCA2Ny40MyA4My4yOSA2Ni4yMSA4NC41OCA2NS4zOEw5MS41MiA2MC4yOEM5My4yMyA1OS4xNSA5NC41NSA1Ny41MiA5NS4yMSA1NS42NUw5Ny42MSA0OC45NEM5OC4xMyA0Ny4zNSA5Ny45OSA0NS42MiA5Ny4yNSA0NC4wM0w5NC41NyA0MS42N1pNMTAzLjMyIDU2LjYyTDEwMC4wNyA1NS4xM0M5OC4yMyA1NC4zMiA5Ni43OSA1Mi43NiA5Ni4yMSA1MC44N0w5NS40NSA0OC4yOEM5NS4xOSA0Ny40MyA5NS4xNyA0Ni41MyA5NS4zOCA0NS43M0w5Ni40MSA0Mi4yOEM5Ny4wNyA0MC4xMyA5OC42NyAzOC41MyAxMDA4LjcyIDM3Ljg4TDEwNC43OCAzNy4xM0MxMDYuNzMgMzYuNzggMTA4LjU5IDM3LjQxIDEwOS45MiAzOC44M0wxMTIuMDMgNDAuOTVDMTEzLjE3IDQyLjE3IDExMy44MyA0My44MSAxMTMuODMgNDUuNTNMMTEzLjU3IDQ5LjQ4QzExMy41MiA1MS4yNiAxMTIuODEgNTIuOTMgMTExLjYyIDU0LjExTDEwNy42MyA1OC40M0MxMDUuOTcgNjAuMDkgMTAzLjMyIDU5LjUxIDEwMi4yMyA1Ny43N0MxMDIuMDcgNTcuNDMgMTAxLjk1IDU2Ljc1IDEwMi4yMyA1Ni4xOEwxMDMuMzIgNTYuNjJaTTYwLjkyIDEyMS4xOEw1Ni4wMyAxMjAuNDNDNTMuNDMgMTIxLjA3IDUxLjE4IDEyMi45MiA1MC4xMiAxMjUuNDJMMzkuMzcgMTUxLjYyQzM4LjU2IDE1My44MiAzOC41NiAxNTYuMzcgMzkuMzcgMTU4LjU3TDUwLjEyIDE4NC43OEM1MS4xOCAxODcuMjggNTMuNDMgMTg5LjEzIDU2LjAzIDE4OS43OEw2MC45MiAxOTAuNTNDNjIuNTIgMTkxLjAxIDY0LjIyIDE5MS4wMSA2NS44MiAxOTAuNTNMNzAuNzIgMTg5Ljc4QzcyLjczIDE4OS4zNSA3NC41OCAxODguMTggNzUuOTEgMTg2LjQzTDc5LjQyIDE4Mi4yM0M4Mi4wNyAxNzkuMDMgODMuMDEgMTc0Ljc4IDgyLjE3IDE3MC44NEw3OS45MSAxNjIuNTRDNzguNDMgMTU2Ljc4IDc0LjM4IDE1MS44OCA2OC41MyAxNDkuNzdMNjIuMzMgMTQ3LjU3QzYxLjQ4IDE0Ny4yNiA2MC42MyAxNDcuMjYgNTkuNzggMTQ3LjU3TDUzLjU4IDE0OS43N0M0Ny43MyAxNTEuODggNDMuNjMgMTU2Ljc4IDQyLjE4IDE2Mi41NEwzOS45MiAxNzAuODRDMzkuMDcgMTc0Ljc4IDQwLjAxIDE3OS4wMyA0Mi42NSAxODIuMjNMNDYuMTcgMTg2LjQzQzQ3LjQ5IDE4OC4xOCA0OS4zNCAxODkuMzUgNTEuMzggMTg5Ljc4TDU0LjQ4IDE5MC4zOEM1NC43OCAxOTAuNDMgNTUuMDMgMTkwLjQzIDU1LjI4IDE5MC4zOEw1NS41MyAxOTAuMzhMNTEuMzggMTg5Ljc4TDQ5LjM0IDE4OS4zNUw0Ny40OSAxODguMThMNDYuMTcgMTg2LjQzTDQyLjY1IDE4Mi4yM0wzOS45MiAxNzAuODRMNDIuMTggMTYyLjVMMC40MiAxMjUuNDJMNTEuMTMgMTIyLjkyQzUxLjUxIDEyMi43NiA1MS44MyAxMjIuNTUgNTIuMTMgMTIyLjMyTDUyLjM4IDEyMi4yM0M1Mi43MyAxMjIuMDcgNTMuMDkgMTIxLjk1IDUzLjUgMTIxLjg4QzU0LjM1IDEyMS43IDU1LjIxIDEyMS43IDU2LjAzIDEyMS44OEw1OC4wMyAxMjIuMjNDNTguMzggMTIyLjMyIDU4LjY4IDEyMi40NSA1OC45MyAxMjIuNjdMNTkuMTggMTIyLjkzTDY4LjUzIDE0OS43N0w2Mi4zMyAxNDcuNTdMNTMuNTggMTQ5Ljc3TDQyLjE4IDE2Mi41NEwzOS45MiAxNzAuODRMNDIuNjUgMTgyLjIzTDQ2LjE3IDE4Ni40M0w0Ny40OSAxODguMThMODUuMDMgMTg4LjE4Qzg1LjY4IDE4Ny45NyA4Ni4yOCAxODcuNjcgODYuODMgMTg3LjI4TDg5Ljc4IDE4NS4wOEM5MS41MyAxODMuODIgOTIuNzMgMTgxLjk3IDkzLjEzIDE3OS44N0w5OC4xMyAxNjUuNTRDOTkuMDQgMTYzLjAxIDk4LjY4IDE2MC4xMyA5Ny4yIDE1Ry45OEw5Mi44NyAxNTAuOTNDOTEuNzMgMTQ5LjQ4IDkwLjAyIDE0OC41MyA4OC4xOCAxNDguMjJMODMuMjMgMTQ3LjI2QzgxLjM4IDE0Ny4wMSA3OS41MyAxNDcuNTIgNzggMTQ4LjY3TDczLjY4IDE1MS4zOEM3Mi4wNyAxNTIuNDIgNzAuOTMgMTU0LjA3IDcwLjQzIDE1NS45Mkw2OC42MyAxNjIuNTRDNjguMDcgMTY0LjcyIDY4LjU4IDE2Ny4wMiA3MC4wMyAxNjguNzNMNzMuODggMTczLjYyQzc0LjQ4IDE3NC40MyA3NS40MyAxNzQuOSA3Ni40MyAxNzQuOUw3OC42OCAxNzQuNjVDNzkuNTMgMTc0LjU1IDgwLjMyIDE3NC4yIDgwLjkzIDE3My42N0w4NS41OCAxNzAuMzhDODYuODQgMTY5LjQ4IDg3Ljc5IDE2OC4xMyA4OC4xMyAxNjYuNjJMODkuOTMgMTYwLjE4QzkwLjI4IDE1viii4ODIgOTAuMTggMTU3LjM3IDg5LjYzIDE1Ni4wOEw4OC40OCAxNTMuMThDODguMDMgMTUyLjEzIDg3LjE4IDE1MS4zOCA4Ni4xMyAxNTEuMTNM affinitiesAxNTAuNjNDODIuNTMgMTUwLjM4IDgxLjA4IDE1MC43MyA4MC4wMyAxNTEuNjJMNDguMSA1MS4xOEw0Ni4wMyA1NC4zMUM0NS44MyA1NC42MiA0NS42MSA1NC45MyA0NS40MyA1NS4yNUw0My4yNyA1OS45QzQyLjc5IDYxLjE1IDQyLjkgNjIuNTMgNDMuNjggNjMuNjlMNDguNTUgNzAuNDhDNDkuMDcgNzEuNDMgNDkuOTcgNzIuMSA1MC45OCA3Mi40M0w1Ny44NCA3NC41QzU5LjE5IDc0Ljk4IDYwLjY0IDc0LjQ4IDYxLjU0IDczLjQzTDY4LjA0IDY2LjVDNzAuMDQgNjQuMyA3MC4zMyA2MS4xIDY4LjUzIDU4Ljc1TDY0Ljc4IDUzLjQzQzYyLjAyIDUwLjM4IDU3LjQzIDQ5LjU3IDUzLjc3IDUyLjE4TDQ3LjE4IDU2Ljc1QzQ1Ljk4IDU3LjU4IDQ0LjkzIDU4Ljc4IDQ0LjIyIDYwLjE4TDQyLjA1IDY1Ljg0QzQxLjI1IDY4LjM3IDQyLjMxIDcxLjE3IDQ0LjUzIDczLjA3TDU1LjI4IDE5MC4zOEw1NS4wMyAxOTAuNDNMNzYuNDMgMTc0LjkiLz4KPC9zdmc+Cg=="
 
 # ============================== HELPERS (REQ 1: Atualizados) ===============================
 
@@ -695,18 +706,16 @@ def calc_employer_cost(country: str, salary: float, bonus: float, T: Dict[str, s
         
         # Define a base de cálculo
         if country in ["Estados Unidos", "Canadá"]:
-            # Para EUA/CAN, a base é salário (12 meses) + bônus
             base_calc_anual = salario_anual_base
             if incide_bonus:
                 base_calc_anual += bonus
         else:
-            # Para LATAM, a base é salário com benefícios (ex: 13.33) + bônus
             base_calc_anual = salario_anual_beneficios
             if incide_bonus:
                 base_calc_anual += bonus
                 
         # Aplica o teto ANUAL (se houver)
-        if teto is not None:
+        if teto is not None and isinstance(teto, (int, float)):
             # Caso especial CPP2
             if item.get("nome") == "CPP2 (ER)":
                 base_cpp1 = min(base_calc_anual, ANNUAL_CAPS["CA_CPP_YMPEx1"])
@@ -714,13 +723,11 @@ def calc_employer_cost(country: str, salary: float, bonus: float, T: Dict[str, s
             else:
                 base_calc_anual = min(base_calc_anual, teto)
         
-        # Calcula o custo do item
         custo_item = base_calc_anual * perc
         total_cost_items.append(custo_item)
 
     total_encargos = sum(total_cost_items)
     
-    # Custo total = Salário (com 13º/férias) + Bônus + Encargos
     custo_total_anual = (salary * months) + bonus + total_encargos
     
     mult = (custo_total_anual / salario_anual_base) if salario_anual_base > 0 else 0.0
@@ -776,10 +783,10 @@ def load_tables():
     return us_states, country_tables, br_inss, br_irrf
 
 
-# ============================== SIDEBAR (REQ 7 e 8) ===============================
+# ============================== SIDEBAR (REQ 2, 7 e 8) ===============================
 with st.sidebar:
-    # REQ 7: Título Sidebar
-    st.markdown("<h2 style='color:white; text-align:center; font-size:20px; padding-bottom:10px;'>Simulador de Salários<br>(Região das Americas)</h2>", unsafe_allow_html=True)
+    # REQ 7: Título Sidebar + REQ 2: Espaçamento
+    st.markdown("<h2 style='color:white; text-align:center; font-size:20px; margin-bottom: 25px;'>Simulador de Salários<br>(Região das Americas)</h2>", unsafe_allow_html=True)
     
     idioma = st.selectbox("🌐 Idioma / Language / Idioma",
                           list(I18N.keys()), index=0, key="lang_select")
@@ -794,7 +801,7 @@ with st.sidebar:
         index=0, key="menu_radio"
     )
     
-    # REQ 8: Mapa Sidebar
+    # REQ 1/8: Mapa Sidebar
     st.markdown(
         f'<img src="data:image/svg+xml;base64,{MAPA_AMERICAS_B64}" style="width:100%; height:auto; padding-top: 30px; opacity: 0.7;">', 
         unsafe_allow_html=True
@@ -827,7 +834,7 @@ st.write(
     f"**{T['valid_from'] if 'valid_from' in T else 'Vigência'}:** {valid_from}")
 st.write("---") # REQ 9 (espaçamento)
 
-# ========================= CÁLCULO DE SALÁRIO (REQ 2) ==========================
+# ========================= SIMULADOR DE REMUNERAÇÃO (REQ 2) ==========================
 if menu == T["menu_calc"]:
 
     area_options_display, area_display_map = get_sti_area_map(T)
@@ -915,7 +922,7 @@ if menu == T["menu_calc"]:
     st.table(df)
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # ---- Cards totais (linha única) (REQ 6: Fonte)
+    # ---- Cards totais (linha única) (REQ 2: Fonte)
     cc1, cc2, cc3 = st.columns(3)
     cc1.markdown(
         f"<div class='metric-card' style='border-left: 5px solid #28a745; background: #e6ffe6;'><h4>💰 {T['tot_earnings']}</h4><h3>{fmt_money(calc['total_earn'], symbol)}</h3></div>", unsafe_allow_html=True)
@@ -1016,7 +1023,7 @@ if menu == T["menu_calc"]:
         unsafe_allow_html=True,
     )
 
-    # --- Gráfico de Pizza (REQ 4: Título removido; REQ 5: Legenda maior) ---
+    # --- Gráfico de Pizza (REQ 3: Correção de Erro) ---
     st.write("---")
     
     chart_df = pd.DataFrame(
@@ -1057,7 +1064,7 @@ if menu == T["menu_calc"]:
 
     chart = (
         alt.layer(pie, labels)
-        .properties(title=None) # REQ 4: Título do gráfico removido
+        .properties(title="") # REQ 3: Corrigido de None para ""
         .configure_legend(orient="bottom", title=None, labelLimit=250)
         .configure_view(strokeWidth=0)
         .resolve_scale(color='independent')
@@ -1278,7 +1285,7 @@ The annual cost factor `13.33` (12 + 1 + 0.33) reflects the 13th Salary (1 extra
 
 ### 🇨🇴 {T["rules_er"]}
 - **Salud (EPS):** 8.5%. **Base:** Salário Bruto.
-- **Pensión:** 12%. **Base:** Salário Bruto.
+- **Pensão:** 12%. **Base:** Salário Bruto.
 - **Parafiscales (SENA, ICBF...):** 9% (REQ 1: Adicionado).
 - **Cesantías (Fundo):** 8.33% (1/12) (REQ 1: Adicionado).
 
@@ -1381,7 +1388,6 @@ elif menu == T["menu_rules_sti"]:
 
 # ========================= CUSTO DO EMPREGADOR (REQ 1) ========================
 else:
-    # O Custo do Empregador agora precisa do Bônus para calcular os tetos corretamente
     c1, c2 = st.columns(2)
     salario = c1.number_input(
         f"{T['salary']} ({symbol})", min_value=0.0, value=10000.0, step=100.0, key="salary_cost")
@@ -1390,7 +1396,6 @@ else:
     
     st.write("---")
     
-    # REQ 1: Passa o bônus para a função de custo
     anual, mult, df_cost, months = calc_employer_cost(
         country, salario, bonus_anual, T, tables_ext=COUNTRY_TABLES)
     
