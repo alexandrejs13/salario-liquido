@@ -584,66 +584,58 @@ if menu == T["menu_calc"]:
         st.write("")
         st.markdown(f"**💼 {T['fgts_deposit']}:** {fmt_money(calc['fgts'], symbol)}")
 
-      # ---------- Composição da Remuneração Total Anual ----------
+         # ---------- Composição da Remuneração Total Anual ----------
     st.write("---")
     st.subheader(T["annual_comp_title"])
 
+    # ==== Cálculos base ====
     months = COUNTRY_TABLES.get("REMUN_MONTHS", {}).get(
         country, REMUN_MONTHS_DEFAULT.get(country, 12.0)
     )
     salario_anual = salario * months
     total_anual = salario_anual + bonus_anual
 
+    # ==== Validação do bônus (STI) ====
     min_pct, max_pct = get_sti_range(area, level)
     bonus_pct = (bonus_anual / salario_anual) if salario_anual > 0 else 0.0
     pct_txt = f"{bonus_pct*100:.1f}%"
-    faixa_txt = (
-        f"≤ {(max_pct or 0)*100:.0f}%"
-        if level == "Others"
-        else f"{min_pct*100:.0f}% – {max_pct*100:.0f}%"
-    )
-    dentro = (
-        bonus_pct <= (max_pct or 0)
-        if level == "Others"
-        else (bonus_pct >= min_pct and bonus_pct <= max_pct)
-    )
+    faixa_txt = f"≤ {(max_pct or 0)*100:.0f}%" if level == "Others" else f"{min_pct*100:.0f}% – {max_pct*100:.0f}%"
+    dentro = (bonus_pct <= (max_pct or 0)) if level == "Others" else (min_pct <= bonus_pct <= max_pct)
     cor = "#1976d2" if dentro else "#d32f2f"
-    status_txt = (
-        "Dentro do range"
-        if idioma == "Português"
-        else "Within range"
-        if idioma == "English"
-        else "Dentro del rango"
-    )
+    status_txt = "Dentro do range" if idioma == "Português" else ("Within range" if idioma == "English" else "Dentro del rango")
 
-    col1, col2, col3 = st.columns([1.7, 0.9, 1.5])
+    # ==== Layout (títulos à esquerda, valores ao lado, gráfico à direita) ====
+    col1, col2, col3 = st.columns([1.8, 0.9, 1.6])
 
-    # --- Coluna 1: títulos e descrições ---
+    # --- Coluna 1: títulos e descrições (cards compactos) ---
     with col1:
         st.markdown(
             """
             <style>
             .annual-block {display:flex; flex-direction:column; gap:8px;}
-            .annual-item {
+            .annual-item{
               background:#fff; border-radius:10px;
-              box-shadow:0 1px 4px rgba(0,0,0,0.05);
+              box-shadow:0 1px 4px rgba(0,0,0,.06);
               padding:8px 10px;
             }
-            .annual-item h4 {
-              margin:0; font-size:13px; color:#0a3d62; line-height:1.3;
+            .annual-item h4{
+              margin:0; font-size:12.5px; color:#0a3d62; line-height:1.25;
+              word-wrap:break-word; white-space:normal;
             }
-            .sti-note {margin-top:3px; font-size:11px; line-height:1.3;}
+            .sti-note{margin-top:3px; font-size:11px; line-height:1.25;}
             </style>
             """,
             unsafe_allow_html=True,
         )
 
         st.markdown("<div class='annual-block'>", unsafe_allow_html=True)
+
         st.markdown(
             f"<div class='annual-item'><h4>📅 {T['annual_salary']} — "
             f"({T['months_factor']}: {months})</h4></div>",
             unsafe_allow_html=True,
         )
+
         sti_line = (
             f"STI ratio do bônus: <strong>{pct_txt}</strong> — "
             f"<strong>{status_txt}</strong> ({faixa_txt}) — "
@@ -651,57 +643,44 @@ if menu == T["menu_calc"]:
         )
         st.markdown(
             f"<div class='annual-item'><h4>🎯 {T['annual_bonus']}<br>"
-            f"<span class='sti-note' style='color:{cor}'>{sti_line}</span>"
-            f"</h4></div>",
+            f"<span class='sti-note' style='color:{cor}'>{sti_line}</span></h4></div>",
             unsafe_allow_html=True,
         )
+
         st.markdown(
             f"<div class='annual-item'><h4>💼 {T['annual_total']}</h4></div>",
             unsafe_allow_html=True,
         )
+
         st.markdown("</div>", unsafe_allow_html=True)
 
-    # --- Coluna 2: valores ---
+    # --- Coluna 2: valores (cada valor em card próprio) ---
     with col2:
         st.markdown(
             """
             <style>
-            .value-block {display:flex; flex-direction:column; gap:8px;}
-            .value-card {
+            .value-block{display:flex; flex-direction:column; gap:8px;}
+            .value-card{
               background:#fff; border-radius:10px;
-              box-shadow:0 1px 4px rgba(0,0,0,0.05);
+              box-shadow:0 1px 4px rgba(0,0,0,.06);
               text-align:center; padding:8px;
             }
-            .value-card h3 {
-              margin:0; font-size:16px; color:#0a3d62;
-            }
+            .value-card h3{margin:0; font-size:16px; color:#0a3d62;}
             </style>
             """,
             unsafe_allow_html=True,
         )
-
         st.markdown("<div class='value-block'>", unsafe_allow_html=True)
-        st.markdown(
-            f"<div class='value-card'><h3>{fmt_money(salario_anual, symbol)}</h3></div>",
-            unsafe_allow_html=True,
-        )
-        st.markdown(
-            f"<div class='value-card'><h3>{fmt_money(bonus_anual, symbol)}</h3></div>",
-            unsafe_allow_html=True,
-        )
-        st.markdown(
-            f"<div class='value-card'><h3>{fmt_money(total_anual, symbol)}</h3></div>",
-            unsafe_allow_html=True,
-        )
+        st.markdown(f"<div class='value-card'><h3>{fmt_money(salario_anual, symbol)}</h3></div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='value-card'><h3>{fmt_money(bonus_anual, symbol)}</h3></div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='value-card'><h3>{fmt_money(total_anual, symbol)}</h3></div>", unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
 
-    # --- Coluna 3: gráfico ---
+    # --- Coluna 3: gráfico (pizza) com legenda em 2 colunas (duas linhas) ---
     with col3:
         chart_df = pd.DataFrame(
-            {
-                "Componente": [T["annual_salary"], T["annual_bonus"]],
-                "Valor": [salario_anual, bonus_anual],
-            }
+            {"Componente": [T["annual_salary"], T["annual_bonus"]],
+             "Valor": [salario_anual, bonus_anual]}
         )
 
         base = (
@@ -715,13 +694,8 @@ if menu == T["menu_calc"]:
             color=alt.Color(
                 "Componente:N",
                 legend=alt.Legend(
-                    orient="bottom",
-                    direction="horizontal",
-                    columns=2,
-                    title=None,
-                    labelLimit=200,
-                    labelFontSize=11,
-                    symbolSize=90,
+                    orient="bottom", direction="horizontal",
+                    columns=2, title=None, labelLimit=180, labelFontSize=11, symbolSize=90
                 ),
             ),
             tooltip=[
@@ -734,29 +708,21 @@ if menu == T["menu_calc"]:
         labels = (
             base.transform_filter(alt.datum.Percent >= 0.01)
             .mark_text(radius=80, fontWeight="bold", color="white")
-            .encode(
-                theta=alt.Theta("Valor:Q", stack=True),
-                text=alt.Text("Percent:Q", format=".1%"),
-            )
+            .encode(theta=alt.Theta("Valor:Q", stack=True),
+                    text=alt.Text("Percent:Q", format=".1%"))
         )
 
         chart = (
             alt.layer(pie, labels)
-            .properties(width=340, height=260, title=T["pie_title"])
-            .configure_legend(
-                orient="bottom",
-                direction="horizontal",
-                columns=2,
-                title=None,
-                labelFontSize=11,
-                padding=6,
-            )
+            .properties(width=360, height=260, title=T["pie_title"])
+            .configure_legend(orient="bottom", direction="horizontal", columns=2, title=None)
             .configure_view(strokeWidth=0)
         )
 
+        st.markdown("<div style='padding-bottom:8px'></div>", unsafe_allow_html=True)
         st.altair_chart(chart, use_container_width=True)
+    # ---------- FIM: Composição da Remuneração Total Anual ----------
 
-    # ================= CENTER COLUMN (values only)
 with col2:
         st.markdown("""
         <style>
