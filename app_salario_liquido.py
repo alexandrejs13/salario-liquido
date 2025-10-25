@@ -49,6 +49,9 @@ section[data-testid="stSidebar"] .stButton > button:hover{ background:#f5f8ff !i
 
 /* Cards */
 .metric-card{ background:#fff; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.08); padding:12px; text-align:center; }
+
+/* Blocos com fundo cinza claro */
+.gray-block{ background:#f3f5f8; border-radius:12px; padding:16px; margin-bottom:20px; }
 .metric-card h4{ margin:0; font-size:13px; color:#0a3d62;}
 .metric-card h3{ margin:4px 0 0; color:#0a3d62; font-size:18px; }
 
@@ -58,7 +61,7 @@ section[data-testid="stSidebar"] .stButton > button:hover{ background:#f5f8ff !i
 /* Título com bandeira */
 .country-header{ display:flex; align-items:center; gap:10px; }
 .country-flag{ font-size:28px; }
-.country-title{ font-size:24px; font-weight:700; color:#0a3d62; }
+.country-title{ font-size:32px; font-weight:700; color:#0a3d62; }
 
 /* Cards compactos (anual) */
 .metric-card.compact{ padding:12px; min-height:100px; }
@@ -236,7 +239,7 @@ REMUN_MONTHS_DEFAULT = {
 US_STATE_RATES_DEFAULT = {
     "No State Tax": 0.00, "AK": 0.00, "FL": 0.00, "NV": 0.00, "SD": 0.00, "TN": 0.00, "TX": 0.00, "WA": 0.00, "WY": 0.00, "NH": 0.00,
     "AL": 0.05, "AR": 0.049, "AZ": 0.025, "CA": 0.06,  "CO": 0.044, "CT": 0.05, "DC": 0.06,  "DE": 0.055, "GA": 0.054, "HI": 0.08,
-    "IA": 0.05, "ID": 0.055, "IL": 0.0495, "IN": 0.0323, "KS": 0.052, "KY": 0.045, "LA": 0.045, "MA": 0.05, "MD": 0.047, "ME": 0.058,
+    "ID": 0.069, "IL": 0.049, "IN": 0.0323, "IA": 0.044, "KS": 0.057, "KY": 0.05, "LA": 0.0425, "ME": 0.0715, "MD": 0.0575, "MA": 0.05,
     "MI": 0.0425, "MN": 0.058, "MO": 0.045, "MS": 0.05, "MT": 0.054, "NC": 0.045, "ND": 0.02,  "NE": 0.05,  "NJ": 0.055, "NM": 0.049,
     "NY": 0.064, "OH": 0.030, "OK": 0.0475,"OR": 0.08,  "PA": 0.0307, "RI": 0.0475,"SC": 0.052, "UT": 0.0485,"VA": 0.05,  "VT": 0.06,
     "WI": 0.053, "WV": 0.05
@@ -439,7 +442,10 @@ def calc_employer_cost(country: str, salary: float, tables_ext=None):
     df = pd.DataFrame(enc_list)
 
     if not df.empty:
-        df.rename(columns={"nome":"Encargo","percentual":"Percentual (%)","obs":"Observação","base":"Base"}, inplace=True)
+        df["Encargo"] = df["nome"]
+        df["Percentual (%)"] = df["percentual"]
+        df["Base"] = df["base"]
+        df["Observação"] = df["obs"]
         df["Incide Bônus"] = ["✅" if b else "❌" for b in df["bonus"]]
         cols = ["Encargo","Percentual (%)","Base","Incide Bônus","Observação"]
         if benefits.get("ferias", False):
@@ -526,15 +532,18 @@ st.write("---")
 
 # ========================= CÁLCULO DE SALÁRIO ==========================
 if menu == T["menu_calc"]:
+    # Bloco de Remuneração Mensal (Solicitação 5)
+    st.markdown("<div class='gray-block'>", unsafe_allow_html=True)
     if country == "Brasil":
-        st.markdown("### Parâmetros de Cálculo da Remuneração")
+        st.markdown("## Parâmetros de Cálculo da Remuneração")
         c1, c2, c3, c4, c5 = st.columns([2,1,1.6,1.6,2.4])
         salario = c1.number_input(f"{T['salary']} ({symbol})", min_value=0.0, value=10000.0, step=100.0, key="salary_input")
         dependentes = c2.number_input(f"{T['dependents']}", min_value=0, value=0, step=1, key="dep_input")
         bonus_anual = c3.number_input(f"{T['bonus']} ({symbol})", min_value=0.0, value=0.0, step=100.0, key="bonus_input")
         area = c4.selectbox(T["area"], ["Non Sales","Sales"], index=0, key="sti_area")
         level = c5.selectbox(T["level"], STI_LEVEL_OPTIONS[area], index=len(STI_LEVEL_OPTIONS[area])-1, key="sti_level")
-        st.markdown("### Remuneração Mensal Bruta e Líquida")
+        st.write("---") # Divisor entre Parâmetros e Remuneração Mensal (Solicitação 2)
+        st.markdown("## Remuneração Mensal Bruta e Líquida")
         state_code, state_rate = None, None
 
     elif country == "Estados Unidos":
@@ -584,8 +593,11 @@ if menu == T["menu_calc"]:
         st.write("")
         st.markdown(f"**💼 {T['fgts_deposit']}:** {fmt_money(calc['fgts'], symbol)}")
 
+    st.markdown("</div>", unsafe_allow_html=True) # Fim do Bloco de Remuneração Mensal
+
     # ---------- Composição da Remuneração Total Anual ----------
-    st.write("---")
+    st.write("---") # Divisor entre blocos
+    st.markdown("<div class='gray-block'>", unsafe_allow_html=True) # Bloco de Remuneração Anual (Solicitação 5)
     st.subheader(T["annual_comp_title"])
 
     # ==== Cálculos base ====
@@ -617,6 +629,7 @@ if menu == T["menu_calc"]:
               background:#fff; border-radius:10px;
               box-shadow:0 1px 4px rgba(0,0,0,.06);
               padding:8px 10px;
+              min-height: 57px; /* Altura ajustada para corresponder ao card de valor */
             }
             .annual-item p{
               margin:0; font-size:16px; color:#0a3d62; line-height:1.25;
@@ -664,6 +677,10 @@ if menu == T["menu_calc"]:
               background:#fff; border-radius:10px;
               box-shadow:0 1px 4px rgba(0,0,0,.06);
               text-align:center; padding:8px;
+              min-height: 57px; /* Altura ajustada para corresponder ao card de descrição */
+              display: flex; /* Para centralizar verticalmente */
+              align-items: center;
+              justify-content: center;
             }
             .value-card h3{margin:0; font-size:16px; color:#0a3d62;}
             </style>
@@ -705,7 +722,7 @@ if menu == T["menu_calc"]:
                 "Componente:N",
                 legend=alt.Legend(
                     orient="bottom", direction="horizontal",
-                    columns=2, title=None, labelLimit=180, labelFontSize=11, symbolSize=90
+                    title=None, labelLimit=180, labelFontSize=11, symbolSize=90
                 ),
             ),
             tooltip=[
@@ -731,6 +748,8 @@ if menu == T["menu_calc"]:
 
         st.markdown("<div style='padding-bottom:8px'></div>", unsafe_allow_html=True)
         st.altair_chart(chart, use_container_width=True)
+
+    st.markdown("</div>", unsafe_allow_html=True) # Fim do Bloco de Remuneração Anual
 
 # =========================== REGRAS DE CONTRIBUIÇÕES ===================
 elif menu == T["menu_rules"]:
@@ -773,7 +792,7 @@ Contribuições espelhadas (FICA/Medicare) + SUTA (média ~2%).
         st.markdown("""
 ### 🇦🇷 Argentina
 **Empleado**: Jubilación 11%, Obra Social 3%, PAMI 3%.  
-**Empleador**: Contribuciones ~18%. **SAC (13º)** ⇒ meses **13**.
+**Empleador**: Contribuições ~18%. **SAC (13º)** ⇒ meses **13**.
 """)
         st.markdown("""
 ### 🇨🇴 Colômbia
