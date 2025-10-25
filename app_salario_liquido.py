@@ -584,7 +584,7 @@ if menu == T["menu_calc"]:
         st.write("")
         st.markdown(f"**💼 {T['fgts_deposit']}:** {fmt_money(calc['fgts'], symbol)}")
 
-           # ---------- Composição da Remuneração Total Anual ----------
+               # ---------- Composição da Remuneração Total Anual ----------
     st.write("---")
     st.subheader(T["annual_comp_title"])
 
@@ -610,19 +610,25 @@ if menu == T["menu_calc"]:
     )
 
     # ---- Layout: blocos à esquerda (títulos) + valores ao lado + gráfico à direita
-    col_left, col_values, col_chart = st.columns([2, 1, 1.6])
+    col_left, col_values, col_chart = st.columns([1.7, 0.9, 1.6])
 
     # ================= LEFT COLUMN (titles + notes)
     with col_left:
         st.markdown("""
         <style>
-        .annual-block {display:flex; flex-direction:column; gap:12px;}
+        .annual-block {display:flex; flex-direction:column; gap:8px;}
         .annual-item {
-          background:#fff; border-radius:12px; box-shadow:0 2px 6px rgba(0,0,0,0.06);
-          padding:10px 14px;
+          background:#fff; border-radius:10px;
+          box-shadow:0 1px 4px rgba(0,0,0,0.05);
+          padding:6px 10px;
         }
-        .annual-item h4 {margin:0; font-size:13px; color:#0a3d62;}
-        .annual-item .sti-note {margin-top:4px; font-size:12px;}
+        .annual-item h4 {
+          margin:0; font-size:12px; color:#0a3d62; line-height:1.3;
+          word-wrap:break-word; white-space:normal;
+        }
+        .annual-item .sti-note {
+          margin-top:3px; font-size:11px; line-height:1.3;
+        }
         </style>
         """, unsafe_allow_html=True)
 
@@ -658,6 +664,77 @@ if menu == T["menu_calc"]:
         )
 
         st.markdown("</div>", unsafe_allow_html=True)
+
+    # ================= CENTER COLUMN (values only)
+    with col_values:
+        st.markdown("""
+        <style>
+        .value-block {display:flex; flex-direction:column; gap:8px;}
+        .value-card {
+          background:#fff; border-radius:10px;
+          box-shadow:0 1px 4px rgba(0,0,0,0.05);
+          text-align:center; padding:6px;
+        }
+        .value-card h3 {margin:0; font-size:16px; color:#0a3d62;}
+        </style>
+        """, unsafe_allow_html=True)
+
+        st.markdown("<div class='value-block'>", unsafe_allow_html=True)
+        st.markdown(f"<div class='value-card'><h3>{fmt_money(salario_anual, symbol)}</h3></div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='value-card'><h3>{fmt_money(bonus_anual, symbol)}</h3></div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='value-card'><h3>{fmt_money(total_anual, symbol)}</h3></div>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    # ================= RIGHT COLUMN (chart)
+    with col_chart:
+        chart_df = pd.DataFrame({
+            "Componente": [T["annual_salary"], T["annual_bonus"]],
+            "Valor": [salario_anual, bonus_anual]
+        })
+        base = (
+            alt.Chart(chart_df)
+            .transform_joinaggregate(Total='sum(Valor)')
+            .transform_calculate(Percent='datum.Valor / datum.Total')
+        )
+        pie = (
+            base.mark_arc(innerRadius=65, outerRadius=105)
+            .encode(
+                theta=alt.Theta('Valor:Q', stack=True),
+                color=alt.Color('Componente:N',
+                    legend=alt.Legend(
+                        orient='bottom',
+                        direction='horizontal',
+                        title=None,
+                        columns=2,
+                        labelLimit=200,
+                        symbolSize=90,
+                        labelFontSize=11
+                    )
+                ),
+                tooltip=[
+                    alt.Tooltip('Componente:N'),
+                    alt.Tooltip('Valor:Q', format=",.2f"),
+                    alt.Tooltip('Percent:Q', format=".1%")
+                ]
+            )
+        )
+        labels = (
+            base.transform_filter(alt.datum.Percent >= 0.01)
+            .mark_text(radius=80, fontWeight='bold', color='white')
+            .encode(theta=alt.Theta('Valor:Q', stack=True), text=alt.Text('Percent:Q', format='.1%'))
+        )
+        chart = (
+            alt.layer(pie, labels)
+            .properties(width=340, height=260, title=T["pie_title"])
+            .configure_legend(
+                orient="bottom",
+                padding=6,
+                symbolLimit=250
+            )
+            .configure_view(strokeWidth=0)
+        )
+        st.altair_chart(chart, use_container_width=True)
+
 
     # ================= CENTER COLUMN (values only)
     with col_values:
