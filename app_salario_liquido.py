@@ -660,7 +660,7 @@ if menu == T["menu_calc"]:
         # Cards de Remuneração Anual (Colunas dentro do card)
         
         # Card Salário Anual
-        st.markdown(
+    st.markdown(
             f"""
             <div class='annual-card-item' style='border-left-color: #28a745;'>
                 <div class='description'>
@@ -681,7 +681,7 @@ if menu == T["menu_calc"]:
             f"<strong>{status_txt}</strong> ({faixa_txt}) — "
             f"<em>{area} • {level}</em>"
         )
-        st.markdown(
+    st.markdown(
             f"""
             <div class='annual-card-item' style='border-left-color: {cor};'>
                 <div class='description'>
@@ -697,7 +697,7 @@ if menu == T["menu_calc"]:
         )
 
         # Card Remuneração Total Anual
-        st.markdown(
+    st.markdown(
             f"""
             <div class='annual-card-item' style='border-left-color: #007bff; background: #e6f7ff;'>
                 <div class='description'>
