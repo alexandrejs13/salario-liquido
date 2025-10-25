@@ -584,7 +584,7 @@ if menu == T["menu_calc"]:
         st.write("")
         st.markdown(f"**💼 {T['fgts_deposit']}:** {fmt_money(calc['fgts'], symbol)}")
 
-        # ---------- Composição da Remuneração Total Anual ----------
+    # ---------- Composição da Remuneração Total Anual ----------
     st.write("---")
     st.subheader(T["annual_comp_title"])
 
@@ -668,7 +668,6 @@ if menu == T["menu_calc"]:
 
     # ================= CENTER COLUMN (values only)
    with col2:
-
         st.markdown("""
         <style>
         .value-block {display:flex; flex-direction:column; gap:8px;}
