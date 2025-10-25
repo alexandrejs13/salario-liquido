@@ -641,7 +641,7 @@ if menu == T["menu_calc"]:
             f"<strong>{status_txt}</strong> ({faixa_txt}) — "
             f"<em>{area} • {level}</em>"
         )
-st.markdown(
+        st.markdown(
             f"<div class='annual-item'><p>🎯 {T['annual_bonus']}<br>"
             f"<span class='sti-note' style='color:{cor}'>{sti_line}</span></p></div>",
             unsafe_allow_html=True,
