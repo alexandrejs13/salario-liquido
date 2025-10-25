@@ -745,7 +745,8 @@ if menu == T["menu_calc"]:
 
 
     # ================= CENTER COLUMN (values only)
-    with col_values:
+   with col2:
+
         st.markdown("""
         <style>
         .value-block {display:flex; flex-direction:column; gap:8px;}
