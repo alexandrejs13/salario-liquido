@@ -890,7 +890,7 @@ with col_chart:
 elif menu == T["menu_rules"]:
     st.subheader(T["rules_expanded"])
     # Textos por idioma
-    if idioma == "Português":
+if idioma == "Português":
         st.markdown(f"""
 ### 🇧🇷 Brasil
 **Empregado – INSS (progressivo)**  
