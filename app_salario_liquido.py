@@ -23,7 +23,7 @@ st.markdown("""
 <style>
 html, body { font-family:'Segoe UI', Helvetica, Arial, sans-serif; background:#f7f9fb; color:#1a1a1a;}
 h1,h2,h3 { color:#0a3d62; }
-hr { border:0; height:1px; background:#e2e6ea; margin:16px 0; }
+hr { border:0; height:2px; background:linear-gradient(to right, #0a3d62, #e2e6ea); margin:16px 0; border-radius:1px; }
 
 /* Sidebar */
 section[data-testid="stSidebar"]{ background:#0a3d62 !important; padding-top:8px; }
@@ -48,10 +48,10 @@ section[data-testid="stSidebar"] .stButton > button{
 section[data-testid="stSidebar"] .stButton > button:hover{ background:#f5f8ff !important; border-color:#9bb4d1 !important; }
 
 /* Cards */
-.metric-card{ background:#fff; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.08); padding:12px; text-align:center; }
+.metric-card{ background:#fff; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); padding:16px; text-align:center; transition: all 0.3s ease; }
+.metric-card:hover{ box-shadow:0 6px 16px rgba(0,0,0,0.15); transform: translateY(-2px); }
 
-/* Blocos com fundo cinza claro */
-.gray-block{ background:#f3f5f8; border-radius:12px; padding:16px; margin-bottom:20px; }
+
 .metric-card h4{ margin:0; font-size:13px; color:#0a3d62;}
 .metric-card h3{ margin:4px 0 0; color:#0a3d62; font-size:18px; }
 
@@ -533,7 +533,7 @@ st.write("---")
 # ========================= CÁLCULO DE SALÁRIO ==========================
 if menu == T["menu_calc"]:
     # Bloco de Remuneração Mensal (Solicitação 5)
-    st.markdown("<div class='gray-block'>", unsafe_allow_html=True)
+    
     if country == "Brasil":
         st.markdown("## Parâmetros de Cálculo da Remuneração")
         c1, c2, c3, c4, c5 = st.columns([2,1,1.6,1.6,2.4])
@@ -585,19 +585,19 @@ if menu == T["menu_calc"]:
 
     # ---- Cards totais (linha única)
     cc1, cc2, cc3 = st.columns(3)
-    cc1.markdown(f"<div class='metric-card'><h4>🟩 {T['tot_earnings']}</h4><h3>{fmt_money(calc['total_earn'], symbol)}</h3></div>", unsafe_allow_html=True)
-    cc2.markdown(f"<div class='metric-card'><h4>🟥 {T['tot_deductions']}</h4><h3>{fmt_money(calc['total_ded'], symbol)}</h3></div>", unsafe_allow_html=True)
-    cc3.markdown(f"<div class='metric-card'><h4>🟦 {T['net']}</h4><h3>{fmt_money(calc['net'], symbol)}</h3></div>", unsafe_allow_html=True)
+    cc1.markdown(f"<div class='metric-card' style='border-left: 5px solid #28a745; background: #e6ffe6;'><h4>💰 {T['tot_earnings']}</h4><h3>{fmt_money(calc['total_earn'], symbol)}</h3></div>", unsafe_allow_html=True)
+    cc2.markdown(f"<div class='metric-card' style='border-left: 5px solid #dc3545; background: #ffe6e6;'><h4>📉 {T['tot_deductions']}</h4><h3>{fmt_money(calc['total_ded'], symbol)}</h3></div>", unsafe_allow_html=True)
+    cc3.markdown(f"<div class='metric-card' style='border-left: 5px solid #007bff; background: #e6f7ff;'><h4>💵 {T['net']}</h4><h3>{fmt_money(calc['net'], symbol)}</h3></div>", unsafe_allow_html=True)
 
     if country == "Brasil":
         st.write("")
         st.markdown(f"**💼 {T['fgts_deposit']}:** {fmt_money(calc['fgts'], symbol)}")
 
-    st.markdown("</div>", unsafe_allow_html=True) # Fim do Bloco de Remuneração Mensal
+    
 
     # ---------- Composição da Remuneração Total Anual ----------
     st.write("---") # Divisor entre blocos
-    st.markdown("<div class='gray-block'>", unsafe_allow_html=True) # Bloco de Remuneração Anual (Solicitação 5)
+
     st.subheader(T["annual_comp_title"])
 
     # ==== Cálculos base ====
@@ -617,7 +617,7 @@ if menu == T["menu_calc"]:
     status_txt = "Dentro do range" if idioma == "Português" else ("Within range" if idioma == "English" else "Dentro del rango")
 
     # ==== Layout (títulos à esquerda, valores ao lado, gráfico à direita) ====
-    col1, col2, col3 = st.columns([1.8, 0.9, 1.6])
+    col1, col2, col3 = st.columns([1.8, 0.7, 1.8])
 
     # --- Coluna 1: títulos e descrições (cards compactos) ---
     with col1:
@@ -749,7 +749,7 @@ if menu == T["menu_calc"]:
         st.markdown("<div style='padding-bottom:8px'></div>", unsafe_allow_html=True)
         st.altair_chart(chart, use_container_width=True)
 
-    st.markdown("</div>", unsafe_allow_html=True) # Fim do Bloco de Remuneração Anual
+    
 
 # =========================== REGRAS DE CONTRIBUIÇÕES ===================
 elif menu == T["menu_rules"]:
