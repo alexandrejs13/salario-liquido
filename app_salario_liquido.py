@@ -584,7 +584,7 @@ if menu == T["menu_calc"]:
         st.write("")
         st.markdown(f"**💼 {T['fgts_deposit']}:** {fmt_money(calc['fgts'], symbol)}")
 
-                  # ---------- Composição da Remuneração Total Anual ----------
+        # ---------- Composição da Remuneração Total Anual ----------
     st.write("---")
     st.subheader(T["annual_comp_title"])
 
@@ -609,63 +609,84 @@ if menu == T["menu_calc"]:
         else "Dentro del rango"
     )
 
-    # ---- Layout: cards à esquerda + gráfico à direita
-    col_cards, col_chart = st.columns([1.4, 1.6])
+    # ---- Layout: títulos à esquerda, valores à direita, gráfico ao lado
+    col_left, col_values, col_chart = st.columns([1.7, 0.9, 1.6])
 
-    with col_cards:
+    # ================= LEFT COLUMN (títulos e descrições)
+    with col_left:
         st.markdown("""
         <style>
-        .annual-cards {display:flex; flex-direction:column; gap:10px;}
-        .annual-card {
-          background:#fff; border-radius:12px;
-          box-shadow:0 2px 6px rgba(0,0,0,0.06);
-          padding:10px 14px;
-          display:flex; flex-direction:column;
-          justify-content:center;
+        .annual-block {display:flex; flex-direction:column; gap:8px;}
+        .annual-item {
+          background:#fff; border-radius:10px;
+          box-shadow:0 1px 4px rgba(0,0,0,0.05);
+          padding:8px 10px;
         }
-        .annual-card h4 {margin:0; font-size:13px; color:#0a3d62; line-height:1.3;}
-        .annual-card h3 {margin:4px 0 0; font-size:17px; color:#0a3d62;}
-        .sti-note {margin-top:4px; font-size:12px; line-height:1.3;}
+        .annual-item h4 {
+          margin:0; font-size:13px; color:#0a3d62; line-height:1.3;
+          word-wrap:break-word; white-space:normal;
+        }
+        .sti-note {
+          margin-top:3px; font-size:11px; line-height:1.3;
+        }
         </style>
         """, unsafe_allow_html=True)
 
-        st.markdown("<div class='annual-cards'>", unsafe_allow_html=True)
+        st.markdown("<div class='annual-block'>", unsafe_allow_html=True)
 
-        # --- Card 1: Salário Anual
+        # --- Salário anual
         st.markdown(
-            f"<div class='annual-card'>"
+            f"<div class='annual-item'>"
             f"<h4>📅 {T['annual_salary']} — ({T['months_factor']}: {months})</h4>"
-            f"<h3>{fmt_money(salario_anual, symbol)}</h3>"
             f"</div>",
             unsafe_allow_html=True
         )
 
-        # --- Card 2: Bônus Anual
-        if level == 'Others':
+        # --- Bônus anual + STI ratio
+        if level == "Others":
             sti_line = f"STI ratio do bônus: <strong>{pct_txt}</strong> — <strong>{status_txt}</strong> (≤ {(max_pct or 0)*100:.0f} %) — <em>{area} • {level}</em>"
         else:
             sti_line = f"STI ratio do bônus: <strong>{pct_txt}</strong> — <strong>{status_txt}</strong> ({faixa_txt}) — <em>{area} • {level}</em>"
+
         st.markdown(
-            f"<div class='annual-card'>"
-            f"<h4>🎯 {T['annual_bonus']}</h4>"
-            f"<h3>{fmt_money(bonus_anual, symbol)}</h3>"
-            f"<div class='sti-note' style='color:{cor}'>{sti_line}</div>"
+            f"<div class='annual-item'>"
+            f"<h4>🎯 {T['annual_bonus']}<br>"
+            f"<span class='sti-note' style='color:{cor}'>{sti_line}</span></h4>"
             f"</div>",
             unsafe_allow_html=True
         )
 
-        # --- Card 3: Total
+        # --- Total
         st.markdown(
-            f"<div class='annual-card'>"
+            f"<div class='annual-item'>"
             f"<h4>💼 {T['annual_total']}</h4>"
-            f"<h3>{fmt_money(total_anual, symbol)}</h3>"
             f"</div>",
             unsafe_allow_html=True
         )
 
         st.markdown("</div>", unsafe_allow_html=True)
 
-    # ---- Gráfico à direita com legenda em duas linhas
+    # ================= CENTER COLUMN (cards de valores)
+    with col_values:
+        st.markdown("""
+        <style>
+        .value-block {display:flex; flex-direction:column; gap:8px;}
+        .value-card {
+          background:#fff; border-radius:10px;
+          box-shadow:0 1px 4px rgba(0,0,0,0.05);
+          text-align:center; padding:8px;
+        }
+        .value-card h3 {margin:0; font-size:16px; color:#0a3d62;}
+        </style>
+        """, unsafe_allow_html=True)
+
+        st.markdown("<div class='value-block'>", unsafe_allow_html=True)
+        st.markdown(f"<div class='value-card'><h3>{fmt_money(salario_anual, symbol)}</h3></div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='value-card'><h3>{fmt_money(bonus_anual, symbol)}</h3></div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='value-card'><h3>{fmt_money(total_anual, symbol)}</h3></div>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    # ================= RIGHT COLUMN (gráfico)
     with col_chart:
         chart_df = pd.DataFrame({
             "Componente": [T["annual_salary"], T["annual_bonus"]],
@@ -687,8 +708,8 @@ if menu == T["menu_calc"]:
                     legend=alt.Legend(
                         orient='bottom',
                         direction='horizontal',
-                        title=None,
                         columns=2,
+                        title=None,
                         labelLimit=200,
                         labelFontSize=11,
                         symbolSize=90
@@ -727,6 +748,7 @@ if menu == T["menu_calc"]:
         )
 
         st.altair_chart(chart, use_container_width=True)
+
 
 
     # ================= CENTER COLUMN (values only)
