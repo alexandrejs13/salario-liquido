@@ -887,7 +887,7 @@ with col_chart:
 
 
 # =========================== REGRAS DE CONTRIBUIÇÕES ===================
-    elif menu == T["menu_rules"]:
+elif menu == T["menu_rules"]:
     st.subheader(T["rules_expanded"])
     # Textos por idioma
     if idioma == "Português":
@@ -949,6 +949,7 @@ Contribuições espelhadas (FICA/Medicare) + SUTA (média ~2%).
 **Employee**: CPP ~5,95%, EI ~1,63% (até limites).  
 **Employer**: CPP ~5,95%, EI ~2,28%. Meses **12** (sem 13º).
 """)
+
     elif idioma == "English":
         st.markdown(f"""
 ### 🇧🇷 Brazil
@@ -998,6 +999,7 @@ Apply bracket rate minus fixed deduction.
 **Employee:** CPP ~5.95%, EI ~1.63% (to limits).  
 **Employer:** CPP ~5.95%, EI ~2.28%. Months **12**.
 """)
+
     else:  # Español
         st.markdown(f"""
 ### 🇧🇷 Brasil
@@ -1047,40 +1049,3 @@ Aplicar tasa del tramo menos deducción fija.
 **Empleado:** CPP ~5,95%, EI ~1,63% (hasta topes).  
 **Empleador:** CPP ~5,95%, EI ~2,28%. Meses **12**.
 """)
-
-# =========================== REGRAS DE CÁLCULO DO STI ==================
-elif menu == T["menu_rules_sti"]:
-    st.markdown("#### Non Sales")
-    df_ns = pd.DataFrame([
-        {"Career Level":"CEO","STI %":"100%"},
-        {"Career Level":"Members of the GEB","STI %":"50–80%"},
-        {"Career Level":"Executive Manager","STI %":"45–70%"},
-        {"Career Level":"Senior Group Manager","STI %":"40–60%"},
-        {"Career Level":"Group Manager","STI %":"30–50%"},
-        {"Career Level":"Lead Expert / Program Manager","STI %":"25–40%"},
-        {"Career Level":"Senior Manager","STI %":"20–40%"},
-        {"Career Level":"Senior Expert / Senior Project Manager","STI %":"15–35%"},
-        {"Career Level":"Manager / Selected Expert / Project Manager","STI %":"10–30%"},
-        {"Career Level":"Others","STI %":"≤ 10%"},
-    ])
-    st.table(df_ns)
-
-    st.markdown("#### Sales")
-    df_s = pd.DataFrame([
-        {"Career Level":"Executive Manager / Senior Group Manager","STI %":"45–70%"},
-        {"Career Level":"Group Manager / Lead Sales Manager","STI %":"35–50%"},
-        {"Career Level":"Senior Manager / Senior Sales Manager","STI %":"25–45%"},
-        {"Career Level":"Manager / Selected Sales Manager","STI %":"20–35%"},
-        {"Career Level":"Others","STI %":"≤ 15%"},
-    ])
-    st.table(df_s)
-
-# ========================= CUSTO DO EMPREGADOR ========================
-else:
-    salario = st.number_input(f"{T['salary']} ({symbol})", min_value=0.0, value=10000.0, step=100.0, key="salary_cost")
-    anual, mult, df_cost, months = calc_employer_cost(country, salario, tables_ext=COUNTRY_TABLES)
-    st.markdown(f"**{T['employer_cost_total']}:** {fmt_money(anual, symbol)}  \n**Equivalente:** {mult:.3f} × (12 meses)  \n**{T['months_factor']}:** {months}")
-    if not df_cost.empty:
-        st.dataframe(df_cost, use_container_width=True)
-    else:
-        st.info("Sem encargos configurados para este país (no JSON).")
