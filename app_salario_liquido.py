@@ -964,7 +964,7 @@ with col3:
         )
 
         st.altair_chart(chart, use_container_width=True)
-🧩 Resumo do que esse bloco faz:
+#🧩 Resumo do que esse bloco faz:
 Todos os três with colX: têm exatamente a mesma indentação.
 
 Todos os st.markdown(""" estão fechados com """).
