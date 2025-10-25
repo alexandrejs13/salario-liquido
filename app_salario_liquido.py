@@ -527,12 +527,14 @@ st.write("---")
 # ========================= CÁLCULO DE SALÁRIO ==========================
 if menu == T["menu_calc"]:
     if country == "Brasil":
+        st.markdown("### Parâmetros de Cálculo da Remuneração")
         c1, c2, c3, c4, c5 = st.columns([2,1,1.6,1.6,2.4])
         salario = c1.number_input(f"{T['salary']} ({symbol})", min_value=0.0, value=10000.0, step=100.0, key="salary_input")
         dependentes = c2.number_input(f"{T['dependents']}", min_value=0, value=0, step=1, key="dep_input")
         bonus_anual = c3.number_input(f"{T['bonus']} ({symbol})", min_value=0.0, value=0.0, step=100.0, key="bonus_input")
         area = c4.selectbox(T["area"], ["Non Sales","Sales"], index=0, key="sti_area")
         level = c5.selectbox(T["level"], STI_LEVEL_OPTIONS[area], index=len(STI_LEVEL_OPTIONS[area])-1, key="sti_level")
+        st.markdown("### Remuneração Mensal Bruta e Líquida")
         state_code, state_rate = None, None
 
     elif country == "Estados Unidos":
@@ -616,8 +618,8 @@ if menu == T["menu_calc"]:
               box-shadow:0 1px 4px rgba(0,0,0,.06);
               padding:8px 10px;
             }
-            .annual-item h4{
-              margin:0; font-size:12.5px; color:#0a3d62; line-height:1.25;
+            .annual-item p{
+              margin:0; font-size:16px; color:#0a3d62; line-height:1.25;
               word-wrap:break-word; white-space:normal;
             }
             .sti-note{margin-top:3px; font-size:11px; line-height:1.25;}
@@ -629,8 +631,8 @@ if menu == T["menu_calc"]:
         st.markdown("<div class='annual-block'>", unsafe_allow_html=True)
 
         st.markdown(
-            f"<div class='annual-item'><h4>📅 {T['annual_salary']} — "
-            f"({T['months_factor']}: {months})</h4></div>",
+            f"<div class='annual-item'><p>📅 {T['annual_salary']} — "
+            f"({T['months_factor']}: {months})</p></div>",
             unsafe_allow_html=True,
         )
 
@@ -639,14 +641,14 @@ if menu == T["menu_calc"]:
             f"<strong>{status_txt}</strong> ({faixa_txt}) — "
             f"<em>{area} • {level}</em>"
         )
-        st.markdown(
-            f"<div class='annual-item'><h4>🎯 {T['annual_bonus']}<br>"
-            f"<span class='sti-note' style='color:{cor}'>{sti_line}</span></h4></div>",
+st.markdown(
+            f"<div class='annual-item'><p>🎯 {T['annual_bonus']}<br>"
+            f"<span class='sti-note' style='color:{cor}'>{sti_line}</span></p></div>",
             unsafe_allow_html=True,
         )
 
         st.markdown(
-            f"<div class='annual-item'><h4>💼 {T['annual_total']}</h4></div>",
+            f"<div class='annual-item'><p>💼 {T['annual_total']}</p></div>",
             unsafe_allow_html=True,
         )
 
@@ -723,7 +725,7 @@ if menu == T["menu_calc"]:
         chart = (
             alt.layer(pie, labels)
             .properties(width=360, height=260, title=T["pie_title"])
-            .configure_legend(orient="bottom", direction="horizontal", columns=2, title=None)
+            .configure_legend(orient="bottom", title=None)
             .configure_view(strokeWidth=0)
         )
 
