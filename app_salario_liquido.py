@@ -616,11 +616,9 @@ if menu == T["menu_calc"]:
     status_txt = "Dentro do range" if idioma == "Português" else ("Within range" if idioma == "English" else "Dentro del rango")
 
     # ==== Layout (títulos à esquerda, valores ao lado, gráfico à direita) ====
-    col1, col2 = st.columns([1.5, 1])
+    # Removendo colunas para layout vertical
 
-    # --- Coluna 1: Cards de Remuneração Anual ---
-    with col1:
-        # Novo estilo de card para a remuneração anual
+# Novo estilo de card para a remuneração anual (aplicado uma única vez)
         st.markdown(
             """
             <style>
@@ -664,6 +662,8 @@ if menu == T["menu_calc"]:
             unsafe_allow_html=True,
         )
 
+        # Cards de Remuneração Anual (Colunas dentro do card)
+        
         # Card Salário Anual
         st.markdown(
             f"""
@@ -716,51 +716,53 @@ if menu == T["menu_calc"]:
             unsafe_allow_html=True,
         )
 
-    # --- Coluna 2: Gráfico de Pizza ---
-    with col2:
-        chart_df = pd.DataFrame(
-            {"Componente": [T["annual_salary"], T["annual_bonus"]],
-             "Valor": [salario_anual, bonus_anual]}
-        )
+    # --- Gráfico de Pizza (abaixo dos cards) ---
+    st.write("---")
+    st.markdown(f"### {T['pie_title']}")
+    
+    chart_df = pd.DataFrame(
+        {"Componente": [T["annual_salary"], T["annual_bonus"]],
+         "Valor": [salario_anual, bonus_anual]}
+    )
 
-        base = (
-            alt.Chart(chart_df)
-            .transform_joinaggregate(Total="sum(Valor)")
-            .transform_calculate(Percent="datum.Valor / datum.Total")
-        )
+    base = (
+        alt.Chart(chart_df)
+        .transform_joinaggregate(Total="sum(Valor)")
+        .transform_calculate(Percent="datum.Valor / datum.Total")
+    )
 
-        pie = base.mark_arc(innerRadius=70, outerRadius=110).encode(
-            theta=alt.Theta("Valor:Q", stack=True),
-            color=alt.Color(
-                "Componente:N",
-                legend=alt.Legend(
-                    orient="bottom", direction="horizontal",
-                    title=None, labelLimit=180, labelFontSize=11, symbolSize=90
-                ),
+    pie = base.mark_arc(innerRadius=70, outerRadius=110).encode(
+        theta=alt.Theta("Valor:Q", stack=True),
+        color=alt.Color(
+            "Componente:N",
+            legend=alt.Legend(
+                orient="bottom", direction="horizontal",
+                title=None, labelLimit=180, labelFontSize=11, symbolSize=90
             ),
-            tooltip=[
-                alt.Tooltip("Componente:N"),
-                alt.Tooltip("Valor:Q", format=",.2f"),
-                alt.Tooltip("Percent:Q", format=".1%"),
-            ],
-        )
+        ),
+        tooltip=[
+            alt.Tooltip("Componente:N"),
+            alt.Tooltip("Valor:Q", format=",.2f"),
+            alt.Tooltip("Percent:Q", format=".1%"),
+        ],
+    )
 
-        labels = (
-            base.transform_filter(alt.datum.Percent >= 0.01)
-            .mark_text(radius=80, fontWeight="bold", color="white")
-            .encode(theta=alt.Theta("Valor:Q", stack=True),
-                    text=alt.Text("Percent:Q", format=".1%"))
-        )
+    labels = (
+        base.transform_filter(alt.datum.Percent >= 0.01)
+        .mark_text(radius=80, fontWeight="bold", color="white")
+        .encode(theta=alt.Theta("Valor:Q", stack=True),
+                text=alt.Text("Percent:Q", format=".1%"))
+    )
 
-        chart = (
-            alt.layer(pie, labels)
-            .properties(title=T["pie_title"])
-            .configure_legend(orient="bottom", title=None, labelLimit=180)
-            .configure_view(strokeWidth=0)
-            .resolve_scale(color='independent') # Garante que a legenda não se sobreponha
-        )
+    chart = (
+        alt.layer(pie, labels)
+        .properties(title=T["pie_title"])
+        .configure_legend(orient="bottom", title=None, labelLimit=180)
+        .configure_view(strokeWidth=0)
+        .resolve_scale(color='independent') # Garante que a legenda não se sobreponha
+    )
 
-        st.altair_chart(chart, use_container_width=True)
+    st.altair_chart(chart, use_container_width=True)
 
     
 
