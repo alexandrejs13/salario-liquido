@@ -972,21 +972,6 @@ Todos os st.markdown(""" estão fechados com """).
 O elif menu == ... vem logo depois, sem nenhum espaço antes (coluna 0).
 
 Depois que colar esse trecho, o IndentationError desaparece.
-Se ainda der erro, me mande as 3 linhas acima do col1, col2, col3 = st.columns([...]) — às vezes o if menu == T["menu_calc"]: ficou com um espaço a menos.
-
-
-
-
-
-
-
-
-
-
-
-
-
-O ChatGPT pode cometer erros. Por isso, lembre-se de conferir informações relevantes.
 
 # =========================== REGRAS DE CONTRIBUIÇÕES ===================
 elif menu == T["menu_rules"]:
