@@ -76,6 +76,43 @@ section[data-testid="stSidebar"] .stButton > button:hover{ background:#f5f8ff !i
 
 /* Espaço extra abaixo do gráfico para legenda */
 .vega-embed{ padding-bottom: 16px; }
+
+/* CSS dos Cards Anuais */
+.annual-card-item {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-left: 5px solid #0a3d62; /* Cor principal */
+}
+.annual-card-item h4 {
+    margin: 0;
+    font-size: 14px;
+    color: #0a3d62;
+    font-weight: 600;
+}
+.annual-card-item h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #0a3d62;
+    font-weight: 700;
+}
+.annual-card-item .description {
+    flex-grow: 1;
+}
+.annual-card-item .value {
+    text-align: right;
+}
+.annual-card-item .sti-note {
+    display: block;
+    font-size: 10px;
+    line-height: 1.2;
+    margin-top: 2px;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -618,49 +655,7 @@ if menu == T["menu_calc"]:
     # ==== Layout (títulos à esquerda, valores ao lado, gráfico à direita) ====
     # Removendo colunas para layout vertical
 
-# Novo estilo de card para a remuneração anual (aplicado uma única vez)
-        st.markdown(
-            """
-            <style>
-            .annual-card-item {
-                background: #fff;
-                border-radius: 10px;
-                box-shadow: 0 1px 4px rgba(0,0,0,.06);
-                padding: 10px 15px;
-                margin-bottom: 8px;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                border-left: 5px solid #0a3d62; /* Cor principal */
-            }
-            .annual-card-item h4 {
-                margin: 0;
-                font-size: 14px;
-                color: #0a3d62;
-                font-weight: 600;
-            }
-            .annual-card-item h3 {
-                margin: 0;
-                font-size: 16px;
-                color: #0a3d62;
-                font-weight: 700;
-            }
-            .annual-card-item .description {
-                flex-grow: 1;
-            }
-            .annual-card-item .value {
-                text-align: right;
-            }
-            .annual-card-item .sti-note {
-                display: block;
-                font-size: 10px;
-                line-height: 1.2;
-                margin-top: 2px;
-            }
-            </style>
-            """,
-            unsafe_allow_html=True,
-        )
+
 
         # Cards de Remuneração Anual (Colunas dentro do card)
         
