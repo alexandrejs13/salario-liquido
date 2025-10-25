@@ -588,14 +588,12 @@ if menu == T["menu_calc"]:
     st.write("---")
     st.subheader(T["annual_comp_title"])
 
-    # ==== Cálculos base ====
     months = COUNTRY_TABLES.get("REMUN_MONTHS", {}).get(
         country, REMUN_MONTHS_DEFAULT.get(country, 12.0)
     )
     salario_anual = salario * months
     total_anual = salario_anual + bonus_anual
 
-    # ==== Validação do bônus (STI) ====
     min_pct, max_pct = get_sti_range(area, level)
     bonus_pct = (bonus_anual / salario_anual) if salario_anual > 0 else 0.0
     pct_txt = f"{bonus_pct*100:.1f}%"
@@ -618,39 +616,34 @@ if menu == T["menu_calc"]:
         else "Dentro del rango"
     )
 
-    # ==== Layout de colunas ====
     col1, col2, col3 = st.columns([1.7, 0.9, 1.5])
 
     # --- Coluna 1: títulos e descrições ---
     with col1:
         st.markdown(
             """
-        <style>
-        .annual-block {display:flex; flex-direction:column; gap:8px;}
-        .annual-item {
-          background:#fff; border-radius:10px;
-          box-shadow:0 1px 4px rgba(0,0,0,0.05);
-          padding:8px 10px;
-        }
-        .annual-item h4 {
-          margin:0; font-size:13px; color:#0a3d62; line-height:1.3;
-        }
-        .sti-note {margin-top:3px; font-size:11px; line-height:1.3;}
-        </style>
-        """,
+            <style>
+            .annual-block {display:flex; flex-direction:column; gap:8px;}
+            .annual-item {
+              background:#fff; border-radius:10px;
+              box-shadow:0 1px 4px rgba(0,0,0,0.05);
+              padding:8px 10px;
+            }
+            .annual-item h4 {
+              margin:0; font-size:13px; color:#0a3d62; line-height:1.3;
+            }
+            .sti-note {margin-top:3px; font-size:11px; line-height:1.3;}
+            </style>
+            """,
             unsafe_allow_html=True,
         )
 
         st.markdown("<div class='annual-block'>", unsafe_allow_html=True)
-
-        # 📅 Salário Anual
         st.markdown(
             f"<div class='annual-item'><h4>📅 {T['annual_salary']} — "
             f"({T['months_factor']}: {months})</h4></div>",
             unsafe_allow_html=True,
         )
-
-        # 🎯 Bônus + STI
         sti_line = (
             f"STI ratio do bônus: <strong>{pct_txt}</strong> — "
             f"<strong>{status_txt}</strong> ({faixa_txt}) — "
@@ -662,31 +655,28 @@ if menu == T["menu_calc"]:
             f"</h4></div>",
             unsafe_allow_html=True,
         )
-
-        # 💼 Total
         st.markdown(
             f"<div class='annual-item'><h4>💼 {T['annual_total']}</h4></div>",
             unsafe_allow_html=True,
         )
-
         st.markdown("</div>", unsafe_allow_html=True)
 
     # --- Coluna 2: valores ---
     with col2:
         st.markdown(
             """
-        <style>
-        .value-block {display:flex; flex-direction:column; gap:8px;}
-        .value-card {
-          background:#fff; border-radius:10px;
-          box-shadow:0 1px 4px rgba(0,0,0,0.05);
-          text-align:center; padding:8px;
-        }
-        .value-card h3 {
-          margin:0; font-size:16px; color:#0a3d62;
-        }
-        </style>
-        """,
+            <style>
+            .value-block {display:flex; flex-direction:column; gap:8px;}
+            .value-card {
+              background:#fff; border-radius:10px;
+              box-shadow:0 1px 4px rgba(0,0,0,0.05);
+              text-align:center; padding:8px;
+            }
+            .value-card h3 {
+              margin:0; font-size:16px; color:#0a3d62;
+            }
+            </style>
+            """,
             unsafe_allow_html=True,
         )
 
@@ -765,12 +755,6 @@ if menu == T["menu_calc"]:
         )
 
         st.altair_chart(chart, use_container_width=True)
-
-
-
-
-
-
 
     # ================= CENTER COLUMN (values only)
         with col2:
