@@ -584,7 +584,7 @@ if menu == T["menu_calc"]:
         st.write("")
         st.markdown(f"**💼 {T['fgts_deposit']}:** {fmt_money(calc['fgts'], symbol)}")
 
-               # ---------- Composição da Remuneração Total Anual ----------
+                  # ---------- Composição da Remuneração Total Anual ----------
     st.write("---")
     st.subheader(T["annual_comp_title"])
 
@@ -609,61 +609,125 @@ if menu == T["menu_calc"]:
         else "Dentro del rango"
     )
 
-    # ---- Layout: blocos à esquerda (títulos) + valores ao lado + gráfico à direita
-    col_left, col_values, col_chart = st.columns([1.7, 0.9, 1.6])
+    # ---- Layout: cards à esquerda + gráfico à direita
+    col_cards, col_chart = st.columns([1.4, 1.6])
 
-    # ================= LEFT COLUMN (titles + notes)
-    with col_left:
+    with col_cards:
         st.markdown("""
         <style>
-        .annual-block {display:flex; flex-direction:column; gap:8px;}
-        .annual-item {
-          background:#fff; border-radius:10px;
-          box-shadow:0 1px 4px rgba(0,0,0,0.05);
-          padding:6px 10px;
+        .annual-cards {display:flex; flex-direction:column; gap:10px;}
+        .annual-card {
+          background:#fff; border-radius:12px;
+          box-shadow:0 2px 6px rgba(0,0,0,0.06);
+          padding:10px 14px;
+          display:flex; flex-direction:column;
+          justify-content:center;
         }
-        .annual-item h4 {
-          margin:0; font-size:12px; color:#0a3d62; line-height:1.3;
-          word-wrap:break-word; white-space:normal;
-        }
-        .annual-item .sti-note {
-          margin-top:3px; font-size:11px; line-height:1.3;
-        }
+        .annual-card h4 {margin:0; font-size:13px; color:#0a3d62; line-height:1.3;}
+        .annual-card h3 {margin:4px 0 0; font-size:17px; color:#0a3d62;}
+        .sti-note {margin-top:4px; font-size:12px; line-height:1.3;}
         </style>
         """, unsafe_allow_html=True)
 
-        st.markdown("<div class='annual-block'>", unsafe_allow_html=True)
+        st.markdown("<div class='annual-cards'>", unsafe_allow_html=True)
 
-        # --- Salário anual
+        # --- Card 1: Salário Anual
         st.markdown(
-            f"<div class='annual-item'>"
+            f"<div class='annual-card'>"
             f"<h4>📅 {T['annual_salary']} — ({T['months_factor']}: {months})</h4>"
+            f"<h3>{fmt_money(salario_anual, symbol)}</h3>"
             f"</div>",
             unsafe_allow_html=True
         )
 
-        # --- Bônus anual + STI ratio
-        if level == "Others":
+        # --- Card 2: Bônus Anual
+        if level == 'Others':
             sti_line = f"STI ratio do bônus: <strong>{pct_txt}</strong> — <strong>{status_txt}</strong> (≤ {(max_pct or 0)*100:.0f} %) — <em>{area} • {level}</em>"
         else:
             sti_line = f"STI ratio do bônus: <strong>{pct_txt}</strong> — <strong>{status_txt}</strong> ({faixa_txt}) — <em>{area} • {level}</em>"
         st.markdown(
-            f"<div class='annual-item'>"
-            f"<h4>🎯 {T['annual_bonus']}<br>"
-            f"<span class='sti-note' style='color:{cor}'>{sti_line}</span></h4>"
+            f"<div class='annual-card'>"
+            f"<h4>🎯 {T['annual_bonus']}</h4>"
+            f"<h3>{fmt_money(bonus_anual, symbol)}</h3>"
+            f"<div class='sti-note' style='color:{cor}'>{sti_line}</div>"
             f"</div>",
             unsafe_allow_html=True
         )
 
-        # --- Total
+        # --- Card 3: Total
         st.markdown(
-            f"<div class='annual-item'>"
+            f"<div class='annual-card'>"
             f"<h4>💼 {T['annual_total']}</h4>"
+            f"<h3>{fmt_money(total_anual, symbol)}</h3>"
             f"</div>",
             unsafe_allow_html=True
         )
 
         st.markdown("</div>", unsafe_allow_html=True)
+
+    # ---- Gráfico à direita com legenda em duas linhas
+    with col_chart:
+        chart_df = pd.DataFrame({
+            "Componente": [T["annual_salary"], T["annual_bonus"]],
+            "Valor": [salario_anual, bonus_anual]
+        })
+
+        base = (
+            alt.Chart(chart_df)
+            .transform_joinaggregate(Total='sum(Valor)')
+            .transform_calculate(Percent='datum.Valor / datum.Total')
+        )
+
+        pie = (
+            base.mark_arc(innerRadius=70, outerRadius=110)
+            .encode(
+                theta=alt.Theta('Valor:Q', stack=True),
+                color=alt.Color(
+                    'Componente:N',
+                    legend=alt.Legend(
+                        orient='bottom',
+                        direction='horizontal',
+                        title=None,
+                        columns=2,
+                        labelLimit=200,
+                        labelFontSize=11,
+                        symbolSize=90
+                    )
+                ),
+                tooltip=[
+                    alt.Tooltip('Componente:N'),
+                    alt.Tooltip('Valor:Q', format=",.2f"),
+                    alt.Tooltip('Percent:Q', format=".1%")
+                ]
+            )
+        )
+
+        labels = (
+            base.transform_filter(alt.datum.Percent >= 0.01)
+            .mark_text(radius=80, fontWeight='bold', color='white')
+            .encode(
+                theta=alt.Theta('Valor:Q', stack=True),
+                text=alt.Text('Percent:Q', format='.1%')
+            )
+        )
+
+        chart = (
+            alt.layer(pie, labels)
+            .properties(width=340, height=260, title=T["pie_title"])
+            .configure_legend(
+                orient="bottom",
+                title=None,
+                direction="horizontal",
+                columns=2,
+                labelLimit=250,
+                padding=8,
+                labelFontSize=11
+            )
+            .configure_view(strokeWidth=0)
+        )
+
+        st.altair_chart(chart, use_container_width=True)
+
 
     # ================= CENTER COLUMN (values only)
     with col_values:
