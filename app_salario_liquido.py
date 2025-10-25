@@ -43,7 +43,7 @@ section[data-testid="stSidebar"] [data-baseweb="menu"] div[role="option"]{
 }
 section[data-testid="stSidebar"] .stButton > button{
   background:#ffffff !important; border:1px solid #c9d6e2 !important; border-radius:10px !important;
-  font-weight:600 !important; box-shadow:0 1px 3px rgba(0,0,0,.06); color:#0b1f33 !important;
+  font-weight:600 !important; box-shadow:0 1px 3px rgba(0,0,0,.06 ); color:#0b1f33 !important;
 }
 section[data-testid="stSidebar"] .stButton > button:hover{ background:#f5f8ff !important; border-color:#9bb4d1 !important; }
 
@@ -237,8 +237,7 @@ US_STATE_RATES_DEFAULT = {
     "No State Tax": 0.00, "AK": 0.00, "FL": 0.00, "NV": 0.00, "SD": 0.00, "TN": 0.00, "TX": 0.00, "WA": 0.00, "WY": 0.00, "NH": 0.00,
     "AL": 0.05, "AR": 0.049, "AZ": 0.025, "CA": 0.06,  "CO": 0.044, "CT": 0.05, "DC": 0.06,  "DE": 0.055, "GA": 0.054, "HI": 0.08,
     "IA": 0.05, "ID": 0.055, "IL": 0.0495, "IN": 0.0323, "KS": 0.052, "KY": 0.045, "LA": 0.045, "MA": 0.05, "MD": 0.047, "ME": 0.058,
-    "MI": 0.0425, "MN": 0.058, "MO": 0.045, "MS": 0.05, "MT": 0.054, "NC": 0.045, "ND": 0.02,  "NE": 0.05,  "NJ": 0.055, "NM": 0.049,
-    "NY": 0.064, "OH": 0.030, "OK": 0.0475,"OR": 0.08,  "PA": 0.0307, "RI": 0.0475,"SC": 0.052, "UT": 0.0485,"VA": 0.05,  "VT": 0.06,
+    "MI": 0.0425,"MN": 0.0535,"MO": 0.054,"MS": 0.05,"MT": 0.047,"NC": 0.0525,"ND": 0.029,"NE": 0.032,"NJ": 0.05525,"NM": 0.049,"NY": 0.064, "OH": 0.030, "OK": 0.0475,"OR": 0.08,  "PA": 0.0307, "RI": 0.0475,"SC": 0.052, "UT": 0.0485,"VA": 0.05,  "VT": 0.06,
     "WI": 0.053, "WV": 0.05
 }
 TABLES_DEFAULT = {
@@ -642,7 +641,8 @@ if menu == T["menu_calc"]:
             f"<em>{area} • {level}</em>"
         )
 st.markdown(
-            f"<div class='annual-item'><p>🎯 {T['annual_bonus']}<br>"
+            f"<div class='annual-item'><p>🎯 {T['annual_bonus']}  
+"
             f"<span class='sti-note' style='color:{cor}'>{sti_line}</span></p></div>",
             unsafe_allow_html=True,
         )
@@ -773,7 +773,7 @@ Contribuições espelhadas (FICA/Medicare) + SUTA (média ~2%).
         st.markdown("""
 ### 🇦🇷 Argentina
 **Empleado**: Jubilación 11%, Obra Social 3%, PAMI 3%.  
-**Empleador**: Contribuciones ~18%. **SAC (13º)** ⇒ meses **13**.
+**Empleador**: Contribuições ~18%. **SAC (13º)** ⇒ meses **13**.
 """)
         st.markdown("""
 ### 🇨🇴 Colômbia
