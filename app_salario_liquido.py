@@ -239,7 +239,7 @@ REMUN_MONTHS_DEFAULT = {
 US_STATE_RATES_DEFAULT = {
     "No State Tax": 0.00, "AK": 0.00, "FL": 0.00, "NV": 0.00, "SD": 0.00, "TN": 0.00, "TX": 0.00, "WA": 0.00, "WY": 0.00, "NH": 0.00,
     "AL": 0.05, "AR": 0.049, "AZ": 0.025, "CA": 0.06,  "CO": 0.044, "CT": 0.05, "DC": 0.06,  "DE": 0.055, "GA": 0.054, "HI": 0.08,
-    "ID": 0.069, "IL": 0.049, "IN": 0.0323, "IA": 0.044, "KS": 0.057, "KY": 0.05, "LA": 0.0425, "ME": 0.0715, "MD": 0.0575, "MA": 0.05,
+    "IA": 0.06,  "ID": 0.06,  "IL": 0.0495,"IN": 0.0323,"KS": 0.046, "KY": 0.05,  "LA": 0.0425,"MA": 0.05,  "MD": 0.0575,"ME": 0.058,
     "MI": 0.0425, "MN": 0.058, "MO": 0.045, "MS": 0.05, "MT": 0.054, "NC": 0.045, "ND": 0.02,  "NE": 0.05,  "NJ": 0.055, "NM": 0.049,
     "NY": 0.064, "OH": 0.030, "OK": 0.0475,"OR": 0.08,  "PA": 0.0307, "RI": 0.0475,"SC": 0.052, "UT": 0.0485,"VA": 0.05,  "VT": 0.06,
     "WI": 0.053, "WV": 0.05
@@ -443,7 +443,7 @@ def calc_employer_cost(country: str, salary: float, tables_ext=None):
 
     if not df.empty:
         df["Encargo"] = df["nome"]
-        df["Percentual (%)"] = df["percentual"]
+        df["Percentual (%)"] = df["percentual"].apply(lambda p: f"{p:.2f}%")
         df["Base"] = df["base"]
         df["Observação"] = df["obs"]
         df["Incide Bônus"] = ["✅" if b else "❌" for b in df["bonus"]]
@@ -532,7 +532,6 @@ st.write("---")
 
 # ========================= CÁLCULO DE SALÁRIO ==========================
 if menu == T["menu_calc"]:
-    # Bloco de Remuneração Mensal (Solicitação 5)
     
     if country == "Brasil":
         st.markdown("## Parâmetros de Cálculo da Remuneração")
@@ -617,94 +616,108 @@ if menu == T["menu_calc"]:
     status_txt = "Dentro do range" if idioma == "Português" else ("Within range" if idioma == "English" else "Dentro del rango")
 
     # ==== Layout (títulos à esquerda, valores ao lado, gráfico à direita) ====
-    col1, col2, col3 = st.columns([1.8, 0.7, 1.8])
+    col1, col2 = st.columns([1.5, 1])
 
-    # --- Coluna 1: títulos e descrições (cards compactos) ---
+    # --- Coluna 1: Cards de Remuneração Anual ---
     with col1:
+        # Novo estilo de card para a remuneração anual
         st.markdown(
             """
             <style>
-            .annual-block {display:flex; flex-direction:column; gap:8px;}
-            .annual-item{
-              background:#fff; border-radius:10px;
-              box-shadow:0 1px 4px rgba(0,0,0,.06);
-              padding:8px 10px;
-              min-height: 57px; /* Altura ajustada para corresponder ao card de valor */
+            .annual-card-item {
+                background: #fff;
+                border-radius: 10px;
+                box-shadow: 0 1px 4px rgba(0,0,0,.06);
+                padding: 10px 15px;
+                margin-bottom: 8px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-left: 5px solid #0a3d62; /* Cor principal */
             }
-            .annual-item p{
-              margin:0; font-size:16px; color:#0a3d62; line-height:1.25;
-              word-wrap:break-word; white-space:normal;
+            .annual-card-item h4 {
+                margin: 0;
+                font-size: 14px;
+                color: #0a3d62;
+                font-weight: 600;
             }
-            .sti-note{margin-top:3px; font-size:11px; line-height:1.25;}
+            .annual-card-item h3 {
+                margin: 0;
+                font-size: 16px;
+                color: #0a3d62;
+                font-weight: 700;
+            }
+            .annual-card-item .description {
+                flex-grow: 1;
+            }
+            .annual-card-item .value {
+                text-align: right;
+            }
+            .annual-card-item .sti-note {
+                display: block;
+                font-size: 10px;
+                line-height: 1.2;
+                margin-top: 2px;
+            }
             </style>
             """,
             unsafe_allow_html=True,
         )
 
-        st.markdown("<div class='annual-block'>", unsafe_allow_html=True)
-
+        # Card Salário Anual
         st.markdown(
-            f"<div class='annual-item'><p>📅 {T['annual_salary']} — "
-            f"({T['months_factor']}: {months})</p></div>",
+            f"""
+            <div class='annual-card-item' style='border-left-color: #28a745;'>
+                <div class='description'>
+                    <h4>📅 {T['annual_salary']}</h4>
+                    <span class='sti-note'>({T['months_factor']}: {months})</span>
+                </div>
+                <div class='value'>
+                    <h3>{fmt_money(salario_anual, symbol)}</h3>
+                </div>
+            </div>
+            """,
             unsafe_allow_html=True,
         )
 
+        # Card Bônus Anual
         sti_line = (
             f"STI ratio do bônus: <strong>{pct_txt}</strong> — "
             f"<strong>{status_txt}</strong> ({faixa_txt}) — "
             f"<em>{area} • {level}</em>"
         )
         st.markdown(
-            f"<div class='annual-item'><p>🎯 {T['annual_bonus']}<br>"
-            f"<span class='sti-note' style='color:{cor}'>{sti_line}</span></p></div>",
-            unsafe_allow_html=True,
-        )
-
-        st.markdown(
-            f"<div class='annual-item'><p>💼 {T['annual_total']}</p></div>",
-            unsafe_allow_html=True,
-        )
-
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    # --- Coluna 2: valores (cada valor em card próprio) ---
-    with col2:
-        st.markdown(
-            """
-            <style>
-            .value-block{display:flex; flex-direction:column; gap:8px;}
-            .value-card{
-              background:#fff; border-radius:10px;
-              box-shadow:0 1px 4px rgba(0,0,0,.06);
-              text-align:center; padding:8px;
-              min-height: 57px; /* Altura ajustada para corresponder ao card de descrição */
-              display: flex; /* Para centralizar verticalmente */
-              align-items: center;
-              justify-content: center;
-            }
-            .value-card h3{margin:0; font-size:16px; color:#0a3d62;}
-            </style>
+            f"""
+            <div class='annual-card-item' style='border-left-color: {cor};'>
+                <div class='description'>
+                    <h4>🎯 {T['annual_bonus']}</h4>
+                    <span class='sti-note' style='color:{cor}'>{sti_line}</span>
+                </div>
+                <div class='value'>
+                    <h3>{fmt_money(bonus_anual, symbol)}</h3>
+                </div>
+            </div>
             """,
             unsafe_allow_html=True,
         )
 
-        st.markdown("<div class='value-block'>", unsafe_allow_html=True)
+        # Card Remuneração Total Anual
         st.markdown(
-            f"<div class='value-card'><h3>{fmt_money(salario_anual, symbol)}</h3></div>",
+            f"""
+            <div class='annual-card-item' style='border-left-color: #007bff; background: #e6f7ff;'>
+                <div class='description'>
+                    <h4>💼 {T['annual_total']}</h4>
+                </div>
+                <div class='value'>
+                    <h3>{fmt_money(total_anual, symbol)}</h3>
+                </div>
+            </div>
+            """,
             unsafe_allow_html=True,
         )
-        st.markdown(
-            f"<div class='value-card'><h3>{fmt_money(bonus_anual, symbol)}</h3></div>",
-            unsafe_allow_html=True,
-        )
-        st.markdown(
-            f"<div class='value-card'><h3>{fmt_money(total_anual, symbol)}</h3></div>",
-            unsafe_allow_html=True,
-        )
-        st.markdown("</div>", unsafe_allow_html=True)
 
-    # --- Coluna 3: gráfico (pizza) com legenda em 2 colunas ---
-    with col3:
+    # --- Coluna 2: Gráfico de Pizza ---
+    with col2:
         chart_df = pd.DataFrame(
             {"Componente": [T["annual_salary"], T["annual_bonus"]],
              "Valor": [salario_anual, bonus_anual]}
@@ -741,12 +754,12 @@ if menu == T["menu_calc"]:
 
         chart = (
             alt.layer(pie, labels)
-            .properties(width=360, height=260, title=T["pie_title"])
-            .configure_legend(orient="bottom", title=None)
+            .properties(title=T["pie_title"])
+            .configure_legend(orient="bottom", title=None, labelLimit=180)
             .configure_view(strokeWidth=0)
+            .resolve_scale(color='independent') # Garante que a legenda não se sobreponha
         )
 
-        st.markdown("<div style='padding-bottom:8px'></div>", unsafe_allow_html=True)
         st.altair_chart(chart, use_container_width=True)
 
     
@@ -787,12 +800,12 @@ Contribuições espelhadas (FICA/Medicare) + SUTA (média ~2%).
         st.markdown("""
 ### 🇨🇱 Chile
 **Trabajador**: AFP ~10%, Salud ~7%.  
-**Empleador**: Seguro de cesantía ~2,4%.
+**Empleador**: Seguro Desemprego ~2,4%.
 """)
         st.markdown("""
 ### 🇦🇷 Argentina
 **Empleado**: Jubilación 11%, Obra Social 3%, PAMI 3%.  
-**Empleador**: Contribuições ~18%. **SAC (13º)** ⇒ meses **13**.
+**Empleador**: Contribuições Patronais ~18%. **SAC (13º)** ⇒ meses **13**.
 """)
         st.markdown("""
 ### 🇨🇴 Colômbia
@@ -838,7 +851,7 @@ Contribuições espelhadas (FICA/Medicare) + SUTA (média ~2%).
 **Employer:** Health 8.5%, Pension 12%. “Prima de servicios” ⇒ **13 months**.
 """)
         st.markdown("""
-### 🇨🇦 Canada
+### 🇨🇦 Canadá
 **Employee:** CPP ~5.95%, EI ~1.63% (to limits).  
 **Employer:** CPP ~5.95%, EI ~2.28%. Months **12**.
 """)
@@ -871,7 +884,7 @@ Contribuições espelhadas (FICA/Medicare) + SUTA (média ~2%).
 **Empleador:** ~18%. SAC ⇒ **13 meses**.
 """)
         st.markdown("""
-### 🇨🇴 Colombia
+### 🇨🇴 Colômbia
 **Trabajador:** Salud 4%, Pensión 4%.  
 **Empleador:** Salud 8,5%, Pensión 12%. “Prima de servicios” ⇒ **13 meses**.
 """)
