@@ -625,7 +625,7 @@ if menu == T["menu_calc"]:
         st.markdown(f"<div class='annual-item'><h4>💼 {T['annual_total']}</h4></div>", unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
 
-    with col2:
+        with col2:
         st.markdown("""
         <style>
         .value-block {display:flex; flex-direction:column; gap:8px;}
@@ -644,7 +644,7 @@ if menu == T["menu_calc"]:
         st.markdown(f"<div class='value-card'><h3>{fmt_money(total_anual, symbol)}</h3></div>", unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
 
-    with col3:
+        with col3:
         chart_df = pd.DataFrame({
             "Componente": [T["annual_salary"], T["annual_bonus"]],
             "Valor": [salario_anual, bonus_anual]
@@ -667,7 +667,7 @@ if menu == T["menu_calc"]:
 
 
     # ================= CENTER COLUMN (values only)
-   with col2:
+        with col2:
         st.markdown("""
         <style>
         .value-block {display:flex; flex-direction:column; gap:8px;}
