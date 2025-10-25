@@ -640,12 +640,14 @@ if menu == T["menu_calc"]:
             f"<strong>{status_txt}</strong> ({faixa_txt}) — "
             f"<em>{area} • {level}</em>"
         )
-st.markdown(
-            f"<div class='annual-item'><p>🎯 {T['annual_bonus']}  
+# Linhas 644-648 no código corrigido:
+644	        st.markdown(
+645	            f"<div class='annual-item'><p>🎯 {T['annual_bonus']}  
 "
-            f"<span class='sti-note' style='color:{cor}'>{sti_line}</span></p></div>",
-            unsafe_allow_html=True,
-        )
+646	            f"<span class='sti-note' style='color:{cor}'>{sti_line}</span></p></div>",
+647	            unsafe_allow_html=True,
+648	        )
+
 
         st.markdown(
             f"<div class='annual-item'><p>💼 {T['annual_total']}</p></div>",
