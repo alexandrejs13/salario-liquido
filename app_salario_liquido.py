@@ -676,7 +676,7 @@ if menu == T["menu_calc"]:
         )
 
         # Card Bônus Anual
-        sti_line = (
+      sti_line = (
             f"STI ratio do bônus: <strong>{pct_txt}</strong> — "
             f"<strong>{status_txt}</strong> ({faixa_txt}) — "
             f"<em>{area} • {level}</em>"
