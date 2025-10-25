@@ -887,7 +887,70 @@ with col_chart:
 
 
 # =========================== REGRAS DE CONTRIBUIÇÕES ===================
- # --- Coluna 3: gráfico ---
+ col1, col2, col3 = st.columns([1.7, 0.9, 1.5])
+
+    # --- Coluna 1: títulos e descrições ---
+    with col1:
+        st.markdown(
+            """
+            <style>
+            .annual-block {display:flex; flex-direction:column; gap:8px;}
+            .annual-item {
+              background:#fff; border-radius:10px;
+              box-shadow:0 1px 4px rgba(0,0,0,0.05);
+              padding:8px 10px;
+            }
+            .annual-item h4 {
+              margin:0; font-size:13px; color:#0a3d62; line-height:1.3;
+            }
+            .sti-note {margin-top:3px; font-size:11px; line-height:1.3;}
+            </style>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        st.markdown("<div class='annual-block'>", unsafe_allow_html=True)
+        st.markdown(
+            f"<div class='annual-item'><h4>📅 {T['annual_salary']} — ({T['months_factor']}: {months})</h4></div>",
+            unsafe_allow_html=True,
+        )
+        sti_line = (
+            f"STI ratio do bônus: <strong>{pct_txt}</strong> — <strong>{status_txt}</strong> ({faixa_txt}) — <em>{area} • {level}</em>"
+        )
+        st.markdown(
+            f"<div class='annual-item'><h4>🎯 {T['annual_bonus']}<br>"
+            f"<span class='sti-note' style='color:{cor}'>{sti_line}</span></h4></div>",
+            unsafe_allow_html=True,
+        )
+        st.markdown(
+            f"<div class='annual-item'><h4>💼 {T['annual_total']}</h4></div>",
+            unsafe_allow_html=True,
+        )
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    # --- Coluna 2: valores ---
+    with col2:
+        st.markdown(
+            """
+            <style>
+            .value-block {display:flex; flex-direction:column; gap:8px;}
+            .value-card {
+              background:#fff; border-radius:10px;
+              box-shadow:0 1px 4px rgba(0,0,0,0.05);
+              text-align:center; padding:8px;
+            }
+            .value-card h3 {margin:0; font-size:16px; color:#0a3d62;}
+            </style>
+            """,
+            unsafe_allow_html=True,
+        )
+        st.markdown("<div class='value-block'>", unsafe_allow_html=True)
+        st.markdown(f"<div class='value-card'><h3>{fmt_money(salario_anual, symbol)}</h3></div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='value-card'><h3>{fmt_money(bonus_anual, symbol)}</h3></div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='value-card'><h3>{fmt_money(total_anual, symbol)}</h3></div>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    # --- Coluna 3: gráfico ---
     with col3:
         chart_df = pd.DataFrame(
             {
@@ -947,6 +1010,29 @@ with col_chart:
         )
 
         st.altair_chart(chart, use_container_width=True)
+🧩 Resumo do que esse bloco faz:
+Todos os três with colX: têm exatamente a mesma indentação.
+
+Todos os st.markdown(""" estão fechados com """).
+
+O elif menu == ... vem logo depois, sem nenhum espaço antes (coluna 0).
+
+Depois que colar esse trecho, o IndentationError desaparece.
+Se ainda der erro, me mande as 3 linhas acima do col1, col2, col3 = st.columns([...]) — às vezes o if menu == T["menu_calc"]: ficou com um espaço a menos.
+
+
+
+
+
+
+
+
+
+
+
+
+
+O ChatGPT pode cometer erros. Por isso, lembre-se de conferir informações relevantes.
 
 # =========================== REGRAS DE CONTRIBUIÇÕES ===================
 elif menu == T["menu_rules"]:
