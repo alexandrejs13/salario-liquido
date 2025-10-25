@@ -47,13 +47,13 @@ section[data-testid="stSidebar"] .stButton > button{
 }
 section[data-testid="stSidebar"] .stButton > button:hover{ background:#f5f8ff !important; border-color:#9bb4d1 !important; }
 
-/* Cards */
+/* Cards Mensais (Req 3: Reduzir espaço) */
 .metric-card{ background:#fff; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); padding:16px; text-align:center; transition: all 0.3s ease; }
 .metric-card:hover{ box-shadow:0 6px 16px rgba(0,0,0,0.15); transform: translateY(-2px); }
 
 
 .metric-card h4{ margin:0; font-size:13px; color:#0a3d62;}
-.metric-card h3{ margin:4px 0 0; color:#0a3d62; font-size:18px; }
+.metric-card h3{ margin:2px 0 0; color:#0a3d62; font-size:18px; } /* REQ 3: margin-top reduzido de 4px para 2px */
 
 /* Tabela */
 .table-wrap{ background:#fff; border:1px solid #d0d7de; border-radius:8px; overflow:hidden; }
@@ -63,21 +63,10 @@ section[data-testid="stSidebar"] .stButton > button:hover{ background:#f5f8ff !i
 .country-flag{ font-size:28px; }
 .country-title{ font-size:32px; font-weight:700; color:#0a3d62; }
 
-/* Cards compactos (anual) */
-.metric-card.compact{ padding:12px; min-height:100px; }
-
-/* Grid para os 3 cards anuais lado a lado (desktop) e empilhados (mobile) */
-.annual-cards-grid{
-  display:grid; gap:12px; grid-template-columns: repeat(3, 1fr);
-}
-@media (max-width: 992px){
-  .annual-cards-grid{ grid-template-columns: 1fr; }
-}
-
 /* Espaço extra abaixo do gráfico para legenda */
 .vega-embed{ padding-bottom: 16px; }
 
-/* CSS dos Cards Anuais (Ajuste de Altura) */
+/* CSS dos Cards Anuais (Req 2 e Ajuste de Altura) */
 .annual-card-base { /* Base comum para label e value */
     background: #fff;
     border-radius: 10px;
@@ -87,12 +76,11 @@ section[data-testid="stSidebar"] .stButton > button:hover{ background:#f5f8ff !i
     border-left: 5px solid #0a3d62; /* Cor principal */
 
     /* SUGESTÃO LAYOUT: Altura igual e Centralização */
-    min-height: 85px; /* Altura mínima p/ acomodar o card de Bônus */
+    min-height: 95px; /* REQ: Altura mínima p/ acomodar o card de Bônus com fonte maior */
     display: flex;
     flex-direction: column;
     justify-content: center; /* Alinha verticalmente o conteúdo */
     box-sizing: border-box;
-    /* Fim da Sugestão */
 }
 .annual-card-label {
     /* Herda .annual-card-base */
@@ -106,7 +94,7 @@ section[data-testid="stSidebar"] .stButton > button:hover{ background:#f5f8ff !i
 .annual-card-label h4,
 .annual-card-value h3 {
     margin: 0;
-    font-size: 16px; /* REQ: Mesmo tamanho de fonte */
+    font-size: 17px; /* REQ 2: Tamanho da fonte aumentado de 16px para 17px */
     color: #0a3d62;
 }
 .annual-card-label h4 {
@@ -117,9 +105,9 @@ section[data-testid="stSidebar"] .stButton > button:hover{ background:#f5f8ff !i
 }
 .annual-card-label .sti-note { /* sti-note agora fica no label */
     display: block;
-    font-size: 10px;
+    font-size: 12px; /* REQ 2: Tamanho da fonte aumentado de 10px para 12px */
     line-height: 1.2;
-    margin-top: 2px;
+    margin-top: 4px; /* Espaço leve abaixo do título */
 }
 </style>
 """, unsafe_allow_html=True)
@@ -227,7 +215,6 @@ I18N = {
         "annual_comp_title": "Total Annual Gross Compensation",
         "calc_params_title": "Compensation Calculation Parameters",
         "monthly_comp_title": "Monthly Gross and Net Compensation",
-        # REQ 3 (Textos dos cards)
         "annual_salary": "📅 Annual Salary (Salary × Country Months)",
         "annual_bonus": "🎯 Annual Bonus",
         "annual_total": "💼 Total Annual Compensation",
@@ -299,7 +286,6 @@ I18N = {
         "annual_comp_title": "Composición de la Remuneración Anual Bruta",
         "calc_params_title": "Parámetros de Cálculo de Remuneración",
         "monthly_comp_title": "Remuneración Mensual Bruta y Neta",
-        # REQ 3 (Textos dos cards)
         "annual_salary": "📅 Salario Anual (Salario × Meses del País)",
         "annual_bonus": "🎯 Bono Anual",
         "annual_total": "💼 Remuneración Anual Total",
@@ -405,11 +391,11 @@ EMPLOYER_COST_DEFAULT = {
     ],
     "Chile": [
         {"nome": "Seguro Desemprego", "percentual": 2.4, "base": "Salário",
-            "ferias": True, "decimo": False, "bonus": True, "obs": "Empregador"}
+            "ferias": True, "decimo": False, "bonus": True, "obs": "Empregador (com teto)"}
     ],
     "Argentina": [
         {"nome": "Contribuições Patronais", "percentual": 18.0, "base": "Salário",
-            "ferias": True, "decimo": True, "bonus": True, "obs": "Média setores"}
+            "ferias": True, "decimo": True, "bonus": True, "obs": "Média setores (com teto)"}
     ],
     "Colômbia": [
         {"nome": "Saúde Empregador", "percentual": 8.5, "base": "Salário",
@@ -419,22 +405,23 @@ EMPLOYER_COST_DEFAULT = {
     ],
     "Estados Unidos": [
         {"nome": "Social Security (ER)", "percentual": 6.2, "base": "Salário",
-           "ferias": False, "decimo": False, "bonus": True, "obs": "Até wage base"},
+           "ferias": False, "decimo": False, "bonus": True, "obs": "Até teto ($168.6k/ano)"},
         {"nome": "Medicare (ER)", "percentual": 1.45, "base": "Salário",
            "ferias": False, "decimo": False, "bonus": True, "obs": "Sem teto"},
         {"nome": "SUTA (avg)", "percentual": 2.0, "base": "Salário",
-           "ferias": False, "decimo": False, "bonus": True, "obs": "Média estado"}
+           "ferias": False, "decimo": False, "bonus": True, "obs": "Média (sobre teto baixo)"}
     ],
     "Canadá": [
         {"nome": "CPP (ER)", "percentual": 5.95, "base": "Salário",
-           "ferias": False, "decimo": False, "bonus": True, "obs": "Até limite"},
+           "ferias": False, "decimo": False, "bonus": True, "obs": "Até teto (YMPE)"},
         {"nome": "EI (ER)", "percentual": 2.28, "base": "Salário",
-           "ferias": False, "decimo": False, "bonus": True, "obs": "—"}
+           "ferias": False, "decimo": False, "bonus": True, "obs": "1.4x Empregado (até teto)"}
     ]
 }
 BR_INSS_DEFAULT = {
     "vigencia": "2025-01-01",
     "teto_contribuicao": 1146.68,
+    "teto_base": 8157.41,
     "faixas": [
         {"ate": 1412.00, "aliquota": 0.075},
         {"ate": 2666.68, "aliquota": 0.09},
@@ -584,11 +571,21 @@ def generic_net(salary: float, rates: Dict[str, float]):
 
 
 def us_net(salary: float, state_code: str, state_rate: float):
+    # REQ 4: Correção para Teto da Social Security (FICA)
+    # Usando dados de 2024 como fallback para 2025
+    FICA_WAGE_BASE_ANNUAL = 168600.0 
+    FICA_WAGE_BASE_MONTHLY = FICA_WAGE_BASE_ANNUAL / 12.0
+    
     lines = [("Base Pay", salary, 0.0)]
     total_earn = salary
-    fica = salary * 0.062
-    medicare = salary * 0.0145
+    
+    # Aplica o teto mensalizado
+    salario_base_fica = min(salary, FICA_WAGE_BASE_MONTHLY)
+    fica = salario_base_fica * 0.062
+    
+    medicare = salary * 0.0145 # Sem teto
     total_ded = fica + medicare
+    
     lines += [("FICA (Social Security)", 0.0, fica),
               ("Medicare", 0.0, medicare)]
     if state_code:
@@ -611,6 +608,8 @@ def calc_country_net(country: str, salary: float, state_code=None, state_rate=No
         lines, te, td, net = us_net(salary, state_code, state_rate)
         return {"lines": lines, "total_earn": te, "total_ded": td, "net": net, "fgts": 0.0}
     else:
+        # Simplificação: Outros países usam taxas fixas
+        # Nota: O ideal seria ter funções 'calc_cpp_ei_progressivo' (Canadá) etc.
         rates = (tables_ext or {}).get("TABLES", {}).get(
             country, {}).get("rates", {})
         if not rates:
@@ -636,6 +635,8 @@ def calc_employer_cost(country: str, salary: float, T: Dict[str, str], tables_ex
         df[T["cost_header_bonus"]] = ["✅" if b else "❌" for b in df["bonus"]]
         cols = [T["cost_header_charge"], T["cost_header_percent"],
                 T["cost_header_base"], T["cost_header_bonus"], T["cost_header_obs"]]
+        
+        # REQ 5: Lógica para ocultar colunas (já implementada)
         if benefits.get("ferias", False):
             df[T["cost_header_vacation"]] = ["✅" if b else "❌" for b in df["ferias"]]
             cols.insert(3, T["cost_header_vacation"])
@@ -645,6 +646,9 @@ def calc_employer_cost(country: str, salary: float, T: Dict[str, str], tables_ex
             cols.insert(insert_pos, T["cost_header_13th"])
         df = df[cols]
 
+    # Lógica simplificada: Soma percentuais e aplica sobre a base anual
+    # Nota: Esta lógica não aplica tetos (ex: FICA, CPP) no cálculo do CUSTO,
+    # embora o salário LÍQUIDO (us_net) tenha sido corrigido.
     perc_total = sum(e.get("percentual", 0.0) for e in enc_list)
     anual = salary * months * (1 + perc_total/100.0)
     mult = (anual / (salary * 12.0)) if salary > 0 else 0.0
@@ -878,12 +882,6 @@ if menu == T["menu_calc"]:
     
     # Linha de status do STI (com tradução)
     sti_line = (
-        f"{T['annual_bonus']} ratio: <strong>{pct_txt}</strong> — "
-        f"<strong>{status_txt}</strong> ({faixa_txt}) — "
-        f"<em>{area_display} • {level_display}</em>"
-    )
-    # Correção para usar a chave I18N correta
-    sti_line = (
         f"STI ratio do bônus: <strong>{pct_txt}</strong> — "
         f"<strong>{status_txt}</strong> ({faixa_txt}) — "
         f"<em>{area_display} • {level_display}</em>"
@@ -916,10 +914,10 @@ if menu == T["menu_calc"]:
         unsafe_allow_html=True,
     )
 
-    # Card Remuneração Total Anual (Label)
+    # Card Remuneração Total Anual (Label) (REQ 1: Cor alterada)
     c1.markdown(
         f"""
-        <div class='annual-card-base annual-card-label' style='border-left-color: #007bff; background: #e6f7ff;'>
+        <div class='annual-card-base annual-card-label' style='border-left-color: #0a3d62; background: #e6f0f8;'>
             <h4>{T['annual_total']}</h4>
         </div>
         """,
@@ -948,10 +946,10 @@ if menu == T["menu_calc"]:
         unsafe_allow_html=True,
     )
 
-    # Card Remuneração Total Anual (Valor)
+    # Card Remuneração Total Anual (Valor) (REQ 1: Cor alterada)
     c2.markdown(
         f"""
-        <div class='annual-card-base annual-card-value' style='border-left-color: #007bff; background: #e6f7ff;'>
+        <div class='annual-card-base annual-card-value' style='border-left-color: #0a3d62; background: #e6f0f8;'>
             <h3>{fmt_money(total_anual, symbol)}</h3>
         </div>
         """,
@@ -1008,129 +1006,413 @@ if menu == T["menu_calc"]:
     st.altair_chart(chart, use_container_width=True)
 
 
-# =========================== REGRAS DE CONTRIBUIÇÕES ===================
+# =========================== REGRAS DE CONTRIBUIÇÕES (REQ 4 e 5) ===================
 elif menu == T["menu_rules"]:
     st.subheader(T["rules_expanded"])
-    if idioma == "Português":
-        st.markdown(f"""
-### 🇧🇷 Brasil
-**Empregado – INSS (progressivo)** Soma por faixas até o salário, com **teto de contribuição**.  
-Faixas vigentes (ex.): 7,5% até 1.412; 9% até 2.666,68; 12% até 4.000,03; 14% até 8.157,41 (teto).  
-**Exemplo**: salário **R$ 4.000,00** ⇒ INSS = 1.412×7,5% + (2.666,68−1.412)×9% + (4.000,03−2.666,68)×12% = **R$ {fmt_money(calc_inss_progressivo(4000, BR_INSS_TBL), 'R$')[3:]}** aprox.
 
-**Empregado – IRRF (progressivo com dedução)** Base = salário bruto − INSS − **{fmt_money(BR_IRRF_TBL['deducao_dependente'],'R$')}** por dependente.  
-Aplica-se a alíquota e dedução fixa da faixa.
+    # REQ 4: Lógica de filtro por país
+    if country == "Brasil":
+        if idioma == "Português":
+            st.markdown(f"""
+### 🇧🇷 {T["rules_emp"]}
+- **INSS (Previdência Social):** Alíquota progressiva (7.5% a 14%) aplicada por faixas de salário.
+  - **Base:** Salário Bruto.
+  - **Teto da Base (2025):** {fmt_money(BR_INSS_DEFAULT.get('teto_base', 8157.41), 'R$')}.
+  - **Teto da Contribuição (2025):** {fmt_money(BR_INSS_DEFAULT.get('teto_contribuicao', 1146.68), 'R$')}. O cálculo é `(Faixa1 * 7.5%) + (Faixa2 * 9%) + ...` até o teto.
+- **IRRF (Imposto de Renda):** Alíquota progressiva (0% a 27.5%) com parcelas a deduzir.
+  - **Base:** Salário Bruto - INSS - ( {fmt_money(BR_IRRF_DEFAULT.get('deducao_dependente', 189.59), 'R$')} × Nº de Dependentes).
 
-**Empregador** INSS Patronal (~20%), RAT (~2%), Sistema S (~5,8%), **FGTS 8%**. Em geral incidem em 13º e férias (meses ~ **13,33**).
-""")
-        st.markdown("""
-### 🇺🇸 Estados Unidos
-**Employee** - FICA: 6,2% (até wage base anual federal).  
-- Medicare: 1,45% (sem teto).  
-- State Tax: conforme estado (0%–~8%).
+### 🇧🇷 {T["rules_er"]}
+- **INSS Patronal (CPP):** 20% (Regra Geral). **Base:** Total da folha (Salário Bruto).
+- **RAT/FAP (Risco Acidente):** 1% a 3% (usamos 2% no simulador). **Base:** Total da folha.
+- **Sistema S (Terceiros):** ~5.8%. **Base:** Total da folha.
+- **FGTS (Fundo de Garantia):** 8%. **Base:** Total da folha. (Não é um imposto, mas um custo/depósito).
 
-**Employer** Contribuições espelhadas (FICA/Medicare) + SUTA (média ~2%).
+#### {T['cost_header_13th']} e {T['cost_header_vacation']} (Req 5)
+O custo anual total no Brasil inclui o 13º Salário (1 salário extra) e Férias (1 salário + 1/3 de bônus constitucional).
+- O fator de meses `13.33` (12 + 1 + 0.33) reflete essa base de custo anual.
+- Todos os encargos do empregador (INSS, RAT, Sistema S, FGTS) incidem sobre o 13º e as Férias, por isso o simulador aplica os percentuais sobre a base total (`Salário × 13.33`).
 """)
-        st.markdown("""
-### 🇲🇽 México
-**Empleado**: ISR (progressivo), IMSS ~5%, INFONAVIT ~5%.  
-**Empleador**: IMSS patronal ~7%, INFONAVIT ~5%. **Aguinaldo** ⇒ meses ~**12,5**.
-""")
-        st.markdown("""
-### 🇨🇱 Chile
-**Trabajador**: AFP ~10%, Salud ~7%.  
-**Empleador**: Seguro Desemprego ~2,4%.
-""")
-        st.markdown("""
-### 🇦🇷 Argentina
-**Empleado**: Jubilación 11%, Obra Social 3%, PAMI 3%.  
-**Empleador**: Contribuições Patronais ~18%. **SAC (13º)** ⇒ meses **13**.
-""")
-        st.markdown("""
-### 🇨🇴 Colômbia
-**Trabajador**: Salud 4%, Pensión 4%.  
-**Empleador**: Salud 8,5%, Pensión 12%. **Prima de servicios** ⇒ meses **13**.
-""")
-        st.markdown("""
-### 🇨🇦 Canadá
-**Employee**: CPP ~5,95%, EI ~1,63% (até limites).  
-**Employer**: CPP ~5,95%, EI ~2,28%. Meses **12**.
-""")
+        elif idioma == "English":
+            st.markdown(f"""
+### 🇧🇷 {T["rules_emp"]}
+- **INSS (Social Security):** Progressive rate (7.5% to 14%) applied in brackets.
+  - **Base:** Gross Salary.
+  - **Base Cap (2025):** {fmt_money(BR_INSS_DEFAULT.get('teto_base', 8157.41), 'R$')}.
+  - **Contribution Cap (2025):** {fmt_money(BR_INSS_DEFAULT.get('teto_contribuicao', 1146.68), 'R$')}. The calculation is `(Bracket1 * 7.5%) + (Bracket2 * 9%) + ...` up to the cap.
+- **IRRF (Income Tax):** Progressive rate (0% to 27.5%) with fixed deductions per bracket.
+  - **Base:** Gross Salary - INSS - ( {fmt_money(BR_IRRF_DEFAULT.get('deducao_dependente', 189.59), 'R$')} × No. of Dependents).
 
-    elif idioma == "English":
-        st.markdown(f"""
-### 🇧🇷 Brazil
-**Employee – Social Security (INSS, progressive):** tiered brackets with a cap.  
-**Employee – Income Tax (IRRF):** Base = Gross − INSS − **{BR_IRRF_TBL['deducao_dependente']}** per dependent.  
-**Employer:** Social security (~20%), risk (~2%), System S (~5.8%), **FGTS 8%** (often on 13th/vacations).
+### 🇧🇷 {T["rules_er"]}
+- **INSS Patronal (CPP):** 20% (General rule). **Base:** Total payroll (Gross Salary).
+- **RAT/FAP (Work Accident):** 1% to 3% (we use 2% in the simulator). **Base:** Total payroll.
+- **"Sistema S" (Third-parties):** ~5.8%. **Base:** Total payroll.
+- **FGTS (Severance Fund):** 8%. **Base:** Total payroll. (Not a tax, but a cost/deposit).
+
+#### {T['cost_header_13th']} & {T['cost_header_vacation']} (Req 5)
+The total annual cost in Brazil includes the 13th Salary (1 extra salary) and Vacations (1 salary + 1/3 constitutional bonus).
+- The `13.33` months factor (12 + 1 + 0.33) reflects this annual cost base.
+- All employer charges (INSS, RAT, System S, FGTS) apply to the 13th salary and vacation pay, which is why the simulator applies the percentages to the total base (`Salary × 13.33`).
 """)
-        st.markdown("""
-### 🇺🇸 United States
-**Employee:** FICA 6.2%, Medicare 1.45%, state tax varies (0–~8%).  
-**Employer:** Mirrors FICA/Medicare + SUTA (~2% avg).
-""")
-        st.markdown("""
-### 🇲🇽 Mexico
-**Employee:** ISR (progressive), IMSS ~5%, INFONAVIT ~5%.  
-**Employer:** IMSS ~7%, INFONAVIT ~5%. Aguinaldo ⇒ ~12.5 months.
-""")
-        st.markdown("""
-### 🇨🇱 Chile
-**Employee:** AFP ~10%, Health ~7%.  
-**Employer:** Unemployment insurance ~2.4%.
-""")
-        st.markdown("""
-### 🇦🇷 Argentina
-**Employee:** Retirement 11%, Health 3%, PAMI 3%.  
-**Employer:** ~18%. SAC ⇒ **13 months**.
-""")
-        st.markdown("""
-### 🇨🇴 Colombia
-**Employee:** Health 4%, Pension 4%.  
-**Employer:** Health 8.5%, Pension 12%. “Prima de servicios” ⇒ **13 months**.
-""")
-        st.markdown("""
-### 🇨🇦 Canadá
-**Employee:** CPP ~5.95%, EI ~1.63% (to limits).  
-**Employer:** CPP ~5.95%, EI ~2.28%. Months **12**.
+        else: # Español
+            st.markdown(f"""
+### 🇧🇷 {T["rules_emp"]}
+- **INSS (Seguridad Social):** Tasa progresiva (7.5% a 14%) aplicada por tramos de salario.
+  - **Base:** Salario Bruto.
+  - **Tope Base (2025):** {fmt_money(BR_INSS_DEFAULT.get('teto_base', 8157.41), 'R$')}.
+  - **Tope de Contribución (2025):** {fmt_money(BR_INSS_DEFAULT.get('teto_contribuicao', 1146.68), 'R$')}. El cálculo es `(Tramo1 * 7.5%) + (Tramo2 * 9%) + ...` hasta el tope.
+- **IRRF (Impuesto de Renta):** Tasa progresiva (0% a 27.5%) con deducciones fijas.
+  - **Base:** Salario Bruto - INSS - ( {fmt_money(BR_IRRF_DEFAULT.get('deducao_dependente', 189.59), 'R$')} × Nº de Dependientes).
+
+### 🇧🇷 {T["rules_er"]}
+- **INSS Patronal (CPP):** 20% (Regla General). **Base:** Nómina total (Salario Bruto).
+- **RAT/FAP (Riesgo Accidente):** 1% a 3% (usamos 2% en el simulador). **Base:** Nómina total.
+- **"Sistema S" (Terceros):** ~5.8%. **Base:** Nómina total.
+- **FGTS (Fondo de Garantía):** 8%. **Base:** Nómina total. (No es un impuesto, sino un costo/depósito).
+
+#### {T['cost_header_13th']} y {T['cost_header_vacation']} (Req 5)
+El costo anual total en Brasil incluye el 13º Salario (1 salario extra) y Vacaciones (1 salario + 1/3 de bono constitucional).
+- El factor de meses `13.33` (12 + 1 + 0.33) refleja esta base de costo anual.
+- Todas las cargas del empleador (INSS, RAT, Sistema S, FGTS) se aplican al 13º y a las vacaciones, por lo que el simulador aplica los porcentajes sobre la base total (`Salario × 13.33`).
 """)
 
-    else:  # Español
-        st.markdown(f"""
-### 🇧🇷 Brasil
-**Trabajador – INSS (progresivo)** con tope.  
-**Trabajador – IRRF**: Base = Bruto − INSS − **{BR_IRRF_TBL['deducao_dependente']}** por dependiente.  
-**Empleador:** ~20% seguridad social, ~2% riesgo, ~5,8% Sistema S, **FGTS 8%** (13º/vacaciones).
+    elif country == "Estados Unidos":
+        if idioma == "Português":
+            st.markdown(f"""
+### 🇺🇸 {T["rules_emp"]}
+- **FICA (Social Security):** 6.2%.
+  - **Base:** Salário Bruto, aplicado **somente** até o teto anual de $168,600 (valor 2024). Salários acima disso não pagam esta contribuição.
+- **Medicare:** 1.45%.
+  - **Base:** Salário Bruto total (sem teto). (Uma taxa adicional de 0.9% pode ser aplicada para rendas muito altas, não incluída no simulador).
+- **State Tax (Imposto Estadual):** Varia (0% a ~8%+). **Base:** Salário Bruto (varia por estado).
+
+### 🇺🇸 {T["rules_er"]}
+- **FICA (Social Security) Match:** 6.2%. **Base:** Mesma base e teto do empregado ($168,600/ano).
+- **Medicare Match:** 1.45%. **Base:** Salário Bruto total (sem teto).
+- **FUTA/SUTA (Desemprego):** Impostos de desemprego (Federal/Estadual).
+  - **Base:** Varia, mas geralmente é uma % (ex: 2-3%) aplicada sobre um teto salarial baixo (ex: os primeiros $7,000 - $10,000 do salário). O simulador usa uma média de 2% sobre o salário total para simplificar.
+
+#### {T['cost_header_13th']} e {T['cost_header_vacation']} (Req 5)
+- Não há 13º salário obrigatório por lei.
+- Férias (PTO - Paid Time Off) são um benefício negociado, não uma provisão contábil com encargos adicionais como no Brasil.
+- O fator de meses usado para custo é `12.00`.
 """)
-        st.markdown("""
-### 🇺🇸 Estados Unidos
-**Empleado:** FICA 6,2%, Medicare 1,45%, impuesto estatal 0–~8%.  
-**Empleador:** Espejo + SUTA (~2%).
+        elif idioma == "English":
+            st.markdown(f"""
+### 🇺🇸 {T["rules_emp"]}
+- **FICA (Social Security):** 6.2%.
+  - **Base:** Gross Salary, applied **only** up to the annual cap of $168,600 (2024 value). Earnings above this cap are not subject to this tax.
+- **Medicare:** 1.45%.
+  - **Base:** Total Gross Salary (no cap). (An additional 0.9% "Additional Medicare Tax" may apply for very high earners, not included in the simulator).
+- **State Tax:** Varies (0% to ~8%+). **Base:** Gross Salary (varies by state).
+
+### 🇺🇸 {T["rules_er"]}
+- **FICA (Social Security) Match:** 6.2%. **Base:** Same base and cap as the employee ($168,600/year).
+- **Medicare Match:** 1.45%. **Base:** Total Gross Salary (no cap).
+- **FUTA/SUTA (Unemployment):** Federal/State unemployment taxes.
+  - **Base:** Varies, but it's typically a % (e.g., 2-3%) applied on a low wage base (e.g., the first $7,000 - $10,000 of salary). The simulator uses an average of 2% on the total salary for simplicity.
+
+#### {T['cost_header_13th']} & {T['cost_header_vacation']} (Req 5)
+- There is no mandatory 13th salary by law.
+- Vacation (PTO - Paid Time Off) is a negotiated benefit, not an accounting provision with additional payroll taxes as in other countries.
+- The months factor used for cost is `12.00`.
 """)
-        st.markdown("""
-### 🇲🇽 México
-**Empleado:** ISR (progresivo), IMSS ~5%, INFONAVIT ~5%.  
-**Empleador:** IMSS ~7%, INFONAVIT ~5%. Aguinaldo ⇒ **12,5 meses**.
+        else: # Español
+            st.markdown(f"""
+### 🇺🇸 {T["rules_emp"]}
+- **FICA (Social Security):** 6.2%.
+  - **Base:** Salario Bruto, aplicado **solo** hasta el tope anual de $168,600 (valor 2024). Los salarios por encima de esto no pagan esta contribución.
+- **Medicare:** 1.45%.
+  - **Base:** Salario Bruto total (sin tope). (Una tasa adicional de 0.9% puede aplicarse para ingresos muy altos, no incluida en el simulador).
+- **State Tax (Impuesto Estatal):** Varía (0% a ~8%+). **Base:** Salario Bruto (varía por estado).
+
+### 🇺🇸 {T["rules_er"]}
+- **FICA (Social Security) Match:** 6.2%. **Base:** Misma base y tope que el empleado ($168,600/año).
+- **Medicare Match:** 1.45%. **Base:** Salario Bruto total (sin tope).
+- **FUTA/SUTA (Desempleo):** Impuestos de desempleo (Federal/Estatal).
+  - **Base:** Varía, pero generalmente es un % (ej: 2-3%) aplicado sobre un tope salarial bajo (ej: los primeros $7,000 - $10,000 de salario). El simulador usa un promedio de 2% sobre el salario total para simplificar.
+
+#### {T['cost_header_13th']} y {T['cost_header_vacation']} (Req 5)
+- No hay 13º salario obligatorio por ley.
+- Las vacaciones (PTO) son un beneficio negociado, no una provisión contable con cargas adicionales como en otros países.
+- El factor de meses usado para el costo es `12.00`.
 """)
-        st.markdown("""
-### 🇨🇱 Chile
-**Trabajador:** AFP ~10%, Salud ~7%.  
-**Empleador:** Seguro de cesantía ~2,4%.
+
+    elif country == "México":
+        if idioma == "Português":
+            st.markdown(f"""
+### 🇲🇽 {T["rules_emp"]}
+- **ISR (Imposto de Renda):** Alíquota progressiva complexa.
+- **IMSS (Seguro Social):** Taxa percentual sobre o salário (com teto).
+- **INFONAVIT (Habitação):** Não é uma dedução, mas o empregador pode reter pagamentos de crédito.
+- *Nota: O simulador usa taxas fixas (ex: ISR 15%, IMSS 5%) como uma **simplificação**. O cálculo real é baseado em tabelas progressivas.*
+
+### 🇲🇽 {T["rules_er"]}
+- **IMSS Patronal:** Cota do empregador para o seguro social (complexa, ~7% no simulador).
+- **INFONAVIT:** 5%. **Base:** Salário Bruto.
+- **SAR (Sistema de Aposentadoria):** 2%. **Base:** Salário Bruto.
+
+#### {T['cost_header_13th']} e {T['cost_header_vacation']} (Req 5)
+- **Aguinaldo (13º):** Obrigatório, mínimo de 15 dias de salário, pago anualmente.
+- O fator de meses `12.50` (12 + 15/30 dias) reflete essa base de custo anual.
+- **Prima Vacacional:** 25% pagos sobre o salário dos dias de férias.
 """)
-        st.markdown("""
-### 🇦🇷 Argentina
-**Empleado:** Jubilación 11%, Obra Social 3%, PAMI 3%.  
-**Empleador:** ~18%. SAC ⇒ **13 meses**.
+        elif idioma == "English":
+            st.markdown(f"""
+### 🇲🇽 {T["rules_emp"]}
+- **ISR (Income Tax):** Complex progressive rate.
+- **IMSS (Social Security):** Percentage rate on salary (with cap).
+- **INFONAVIT (Housing):** Not a deduction, but employer may withhold credit payments.
+- *Note: The simulator uses flat rates (e.g., ISR 15%, IMSS 5%) as a **simplification**. The actual calculation is based on progressive tables.*
+
+### 🇲🇽 {T["rules_er"]}
+- **IMSS (Employer):** Employer's share for social security (complex, ~7% in simulator).
+- **INFONAVIT:** 5%. **Base:** Gross Salary.
+- **SAR (Retirement System):** 2%. **Base:** Gross Salary.
+
+#### {T['cost_header_13th']} & {T['cost_header_vacation']} (Req 5)
+- **Aguinaldo (13th):** Mandatory, minimum 15 days of salary, paid annually.
+- The `12.50` months factor (12 + 15/30 days) reflects this annual cost base.
+- **Prima Vacacional (Vacation Bonus):** 25% paid on the salary for vacation days.
 """)
-        st.markdown("""
-### 🇨🇴 Colômbia
-**Trabajador:** Salud 4%, Pensión 4%.  
-**Empleador:** Salud 8,5%, Pensión 12%. “Prima de servicios” ⇒ **13 meses**.
+        else: # Español
+            st.markdown(f"""
+### 🇲🇽 {T["rules_emp"]}
+- **ISR (Impuesto Sobre la Renta):** Tasa progresiva compleja.
+- **IMSS (Seguro Social):** Tasa porcentual sobre el salario (con tope).
+- **INFONAVIT (Vivienda):** No es una deducción, pero el empleador puede retener pagos de crédito.
+- *Nota: El simulador usa tasas fijas (ej: ISR 15%, IMSS 5%) como una **simplificación**. El cálculo real se basa en tablas progresivas.*
+
+### 🇲🇽 {T["rules_er"]}
+- **IMSS Patronal:** Cuota del empleador para el seguro social (compleja, ~7% en simulador).
+- **INFONAVIT:** 5%. **Base:** Salario Bruto.
+- **SAR (Sistema de Ahorro para el Retiro):** 2%. **Base:** Salario Bruto.
+
+#### {T['cost_header_13th']} y {T['cost_header_vacation']} (Req 5)
+- **Aguinaldo (13º):** Obligatorio, mínimo 15 días de salario, pagado anualmente.
+- El factor de meses `12.50` (12 + 15/30 días) refleja esta base de costo anual.
+- **Prima Vacacional:** 25% pagado sobre el salario de los días de vacaciones.
 """)
-        st.markdown("""
-### 🇨🇦 Canadá
-**Empleado:** CPP ~5,95%, EI ~1,63% (topes).  
-**Empleador:** CPP ~5,95%, EI ~2,28%. **12 meses**.
+
+    elif country == "Chile":
+        if idioma == "Português":
+            st.markdown(f"""
+### 🇨🇱 {T["rules_emp"]}
+- **AFP (Pensão):** 10% (obrigatório) + comissão da administradora (ex: ~1.15%).
+  - **Base:** Salário Bruto, com teto de ~84.3 UF.
+- **Saúde (FONASA ou ISAPRE):** 7% (obrigatório).
+  - **Base:** Salário Bruto, com o mesmo teto de ~84.3 UF.
+- *O simulador usa 10% e 7% para simplificar (não inclui a comissão da AFP).*
+
+### 🇨🇱 {T["rules_er"]}
+- **Seguro de Cesantía (Seguro Desemprego):** 2.4%.
+  - **Base:** Salário Bruto, com teto de ~126.6 UF.
+- **SIS (Seguro Invalidez):** ~1.53% (varia por licitação).
+
+#### {T['cost_header_13th']} e {T['cost_header_vacation']} (Req 5)
+- **Aguinaldo (13º):** Não é obrigatório por lei (comum no setor público, mas opcional/negociado no privado).
+- O fator de meses usado para custo é `12.00`.
+""")
+        elif idioma == "English":
+            st.markdown(f"""
+### 🇨🇱 {T["rules_emp"]}
+- **AFP (Pension):** 10% (mandatory) + administration fee (e.g., ~1.15%).
+  - **Base:** Gross Salary, with a cap of ~84.3 UF.
+- **Health (FONASA or ISAPRE):** 7% (mandatory).
+  - **Base:** Gross Salary, with the same cap of ~84.3 UF.
+- *The simulator uses 10% and 7% for simplicity (does not include the AFP fee).*
+
+### 🇨🇱 {T["rules_er"]}
+- **Seguro de Cesantía (Unemployment Insurance):** 2.4%.
+  - **Base:** Gross Salary, with a cap of ~126.6 UF.
+- **SIS (Disability Insurance):** ~1.53% (varies by auction).
+
+#### {T['cost_header_13th']} & {T['cost_header_vacation']} (Req 5)
+- **Aguinaldo (13th):** Not mandatory by law (common in public sector, but optional/negotiated in private).
+- The months factor used for cost is `12.00`.
+""")
+        else: # Español
+            st.markdown(f"""
+### 🇨🇱 {T["rules_emp"]}
+- **AFP (Pensión):** 10% (obligatorio) + comisión de la administradora (ej: ~1.15%).
+  - **Base:** Salario Bruto, con tope de ~84.3 UF.
+- **Salud (FONASA o ISAPRE):** 7% (obligatorio).
+  - **Base:** Salario Bruto, con el mismo tope de ~84.3 UF.
+- *El simulador usa 10% y 7% para simplificar (no incluye la comisión de la AFP).*
+
+### 🇨🇱 {T["rules_er"]}
+- **Seguro de Cesantía:** 2.4%.
+  - **Base:** Salario Bruto, con tope de ~126.6 UF.
+- **SIS (Seguro de Invalidez):** ~1.53% (varía por licitación).
+
+#### {T['cost_header_13th']} y {T['cost_header_vacation']} (Req 5)
+- **Aguinaldo (13º):** No es obligatorio por ley (común en sector público, pero opcional/negociado en privado).
+- El factor de meses usado para el costo es `12.00`.
+""")
+
+    elif country == "Argentina":
+        if idioma == "Português":
+            st.markdown(f"""
+### 🇦🇷 {T["rules_emp"]}
+- **Jubilación (SIPA):** 11%.
+- **Obra Social (Saúde):** 3%.
+- **PAMI (INSSJP):** 3%.
+- **Base:** Total das contribuições (17%) aplicado sobre o Salário Bruto, com teto salarial.
+
+### 🇦🇷 {T["rules_er"]}
+- **Contribuições Patronais:** Um total de ~18% (varia por setor/tamanho da empresa).
+- **Base:** Salário Bruto, também com teto.
+
+#### {T['cost_header_13th']} e {T['cost_header_vacation']} (Req 5)
+- **SAC (Sueldo Anual Complementario):** É o 13º salário, pago em duas parcelas (meio do ano e fim do ano).
+- O fator de meses `13.00` (12 + 1) reflete essa base de custo anual.
+- Os encargos patronais incidem sobre o SAC.
+""")
+        elif idioma == "English":
+            st.markdown(f"""
+### 🇦🇷 {T["rules_emp"]}
+- **Jubilación (SIPA - Pension):** 11%.
+- **Obra Social (Health Care):** 3%.
+- **PAMI (INSSJP):** 3%.
+- **Base:** Total contributions (17%) applied to Gross Salary, with a salary cap.
+
+### 🇦🇷 {T["rules_er"]}
+- **Employer Contributions:** A total of ~18% (varies by industry/company size).
+- **Base:** Gross Salary, also with a salary cap.
+
+#### {T['cost_header_13th']} & {T['cost_header_vacation']} (Req 5)
+- **SAC (Sueldo Anual Complementario):** This is the 13th salary, paid in two installments (mid-year and end-of-year).
+- The `13.00` months factor (12 + 1) reflects this annual cost base.
+- Employer contributions apply to the SAC.
+""")
+        else: # Español
+            st.markdown(f"""
+### 🇦🇷 {T["rules_emp"]}
+- **Jubilación (SIPA):** 11%.
+- **Obra Social:** 3%.
+- **PAMI (INSSJP):** 3%.
+- **Base:** Total de contribuciones (17%) aplicado sobre el Salario Bruto, con tope salarial.
+
+### 🇦🇷 {T["rules_er"]}
+- **Contribuciones Patronales:** Un total de ~18% (varía por sector/tamaño de empresa).
+- **Base:** Salario Bruto, también con tope salarial.
+
+#### {T['cost_header_13th']} y {T['cost_header_vacation']} (Req 5)
+- **SAC (Sueldo Anual Complementario):** Es el 13º salario, pagado en dos cuotas (mitad de año y fin de año).
+- El factor de meses `13.00` (12 + 1) refleja esta base de costo anual.
+- Las contribuciones patronales se aplican sobre el SAC.
+""")
+
+    elif country == "Colômbia":
+        if idioma == "Português":
+            st.markdown(f"""
+### 🇨🇴 {T["rules_emp"]}
+- **Salud (EPS):** 4%. **Base:** Salário Bruto.
+- **Pensión:** 4%. **Base:** Salário Bruto.
+
+### 🇨🇴 {T["rules_er"]}
+- **Salud (EPS):** 8.5%. **Base:** Salário Bruto.
+- **Pensión:** 12%. **Base:** Salário Bruto.
+- **Outros Custos:** O empregador também paga "Parafiscales" (ICBF, SENA, Caja de Compensación ~9%) e "Prestaciones Sociales" (Cesantías, Intereses, Dotación).
+- *Nota: O simulador simplifica, incluindo apenas Saúde e Pensão nos encargos.*
+
+#### {T['cost_header_13th']} e {T['cost_header_vacation']} (Req 5)
+- **Prima de Servicios:** É o 13º salário, pago em duas parcelas (Junho/Dezembro).
+- O fator de meses `13.00` (12 + 1) reflete essa base de custo.
+- **Cesantías:** É um custo adicional separado (1 salário por ano) depositado em um fundo para o empregado.
+""")
+        elif idioma == "English":
+            st.markdown(f"""
+### 🇨🇴 {T["rules_emp"]}
+- **Salud (EPS - Health):** 4%. **Base:** Gross Salary.
+- **Pensión (Pension):** 4%. **Base:** Gross Salary.
+
+### 🇨🇴 {T["rules_er"]}
+- **Salud (EPS):** 8.5%. **Base:** Gross Salary.
+- **Pensión:** 12%. **Base:** Gross Salary.
+- **Other Costs:** The employer also pays "Parafiscales" (ICBF, SENA, Compensation Fund ~9%) and "Prestaciones Sociales" (Severance, Interest, etc.).
+- *Note: The simulator simplifies this, including only Health and Pension in the charges.*
+
+#### {T['cost_header_13th']} & {T['cost_header_vacation']} (Req 5)
+- **Prima de Servicios:** This is the 13th salary, paid in two installments (June/December).
+- The `13.00` months factor (12 + 1) reflects this cost base.
+- **Cesantías (Severance):** This is a separate additional cost (1 salary per year) deposited into a fund for the employee.
+""")
+        else: # Español
+            st.markdown(f"""
+### 🇨🇴 {T["rules_emp"]}
+- **Salud (EPS):** 4%. **Base:** Salario Bruto.
+- **Pensión:** 4%. **Base:** Salario Bruto.
+
+### 🇨🇴 {T["rules_er"]}
+- **Salud (EPS):** 8.5%. **Base:** Salario Bruto.
+- **Pensión:** 12%. **Base:** Salario Bruto.
+- **Otros Costos:** El empleador también paga "Parafiscales" (ICBF, SENA, Caja de Compensación ~9%) y "Prestaciones Sociales" (Cesantías, Intereses, Dotación).
+- *Nota: El simulador simplifica esto, incluyendo solo Salud y Pensión en los cargos.*
+
+#### {T['cost_header_13th']} y {T['cost_header_vacation']} (Req 5)
+- **Prima de Servicios:** Es el 13º salario, pagado en dos cuotas (Junio/Diciembre).
+- El factor de meses `13.00` (12 + 1) refleja esta base de costo.
+- **Cesantías:** Es un costo adicional separado (1 salario por año) depositado en un fondo para el empleado.
+""")
+
+    elif country == "Canadá":
+        if idioma == "Português":
+            st.markdown(f"""
+### 🇨🇦 {T["rules_emp"]}
+- **CPP (Canada Pension Plan):** 5.95%.
+  - **Base:** Salário Bruto, aplicado *após* uma isenção básica ($3,500/ano) e *até* um teto anual (YMPE - $68,500 em 2024).
+- **EI (Employment Insurance):** 1.63%.
+  - **Base:** Salário Bruto, até um teto de ganhos ($63,200 em 2024).
+- **Income Tax (Imposto de Renda):** Progressivo (Federal + Provincial).
+- *Nota: O simulador usa taxas fixas (5.95%, 1.63%, 15%) como uma **simplificação extrema**. O cálculo real é muito mais complexo.*
+
+### 🇨🇦 {T["rules_er"]}
+- **CPP Match:** 5.95%. **Base:** Mesma base e teto do empregado.
+- **EI Match:** 1.4x a cota do empregado (~2.28%). **Base:** Mesma base e teto do empregado.
+
+#### {T['cost_header_13th']} e {T['cost_header_vacation']} (Req 5)
+- **13º Salário:** Não é obrigatório por lei.
+- **Férias:** Obrigatório por lei (ex: 2 semanas), e o pagamento de férias ("vacation pay") é tipicamente 4% do salário.
+- O fator de meses usado para custo é `12.00` (o "vacation pay" é geralmente pago no lugar do salário durante as férias, ou como um adicional).
+""")
+        elif idioma == "English":
+            st.markdown(f"""
+### 🇨🇦 {T["rules_emp"]}
+- **CPP (Canada Pension Plan):** 5.95%.
+  - **Base:** Gross Salary, applied *after* a basic exemption ($3,500/year) and *up to* an annual cap (YMPE - $68,500 in 2024).
+- **EI (Employment Insurance):** 1.63%.
+  - **Base:** Gross Salary, up to a maximum insurable earnings cap ($63,200 in 2024).
+- **Income Tax:** Progressive (Federal + Provincial).
+- *Note: The simulator uses flat rates (5.95%, 1.63%, 15%) as an **extreme simplification**. The real calculation is much more complex.*
+
+### 🇨🇦 {T["rules_er"]}
+- **CPP Match:** 5.95%. **Base:** Same base and cap as the employee.
+- **EI Match:** 1.4x the employee's rate (~2.28%). **Base:** Same base and cap as the employee.
+
+#### {T['cost_header_13th']} & {T['cost_header_vacation']} (Req 5)
+- **13th Salary:** Not mandatory by law.
+- **Vacation:** Mandatory by law (e.g., 2 weeks), and "vacation pay" is typically 4% of earnings.
+- The months factor used for cost is `12.00` (vacation pay is often paid in lieu of salary during time off, or as a top-up).
+""")
+        else: # Español
+            st.markdown(f"""
+### 🇨🇦 {T["rules_emp"]}
+- **CPP (Canada Pension Plan):** 5.95%.
+  - **Base:** Salario Bruto, aplicado *después* de una exención básica ($3,500/año) y *hasta* un tope anual (YMPE - $68,500 en 2024).
+- **EI (Employment Insurance):** 1.63%.
+  - **Base:** Salario Bruto, hasta un tope de ganancias asegurables ($63,200 en 2024).
+- **Income Tax (Impuesto de Renta):** Progresivo (Federal + Provincial).
+- *Nota: El simulador usa tasas fijas (5.95%, 1.63%, 15%) como una **simplificación extrema**. El cálculo real es mucho más complejo.*
+
+### 🇨🇦 {T["rules_er"]}
+- **CPP Match:** 5.95%. **Base:** Misma base y tope que el empleado.
+- **EI Match:** 1.4x la tasa del empleado (~2.28%). **Base:** Misma base y tope que el empleado.
+
+#### {T['cost_header_13th']} y {T['cost_header_vacation']} (Req 5)
+- **13º Salario:** No es obligatorio por ley.
+- **Vacaciones:** Obligatorio por ley (ej: 2 semanas), y el pago de vacaciones ("vacation pay") es típicamente el 4% del salario.
+- El factor de meses usado para el costo es `12.00` (el pago de vacaciones se paga en lugar del salario durante el descanso, o como un adicional).
 """)
 
 # =========================== REGRAS DE CÁLCULO DO STI ==================
