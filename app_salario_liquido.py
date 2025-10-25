@@ -584,7 +584,7 @@ if menu == T["menu_calc"]:
         st.write("")
         st.markdown(f"**💼 {T['fgts_deposit']}:** {fmt_money(calc['fgts'], symbol)}")
 
-    # ---------- Composição da Remuneração Total Anual ----------
+        # ---------- Composição da Remuneração Total Anual ----------
     st.write("---")
     st.subheader(T["annual_comp_title"])
 
@@ -592,11 +592,10 @@ if menu == T["menu_calc"]:
     salario_anual = salario * months
     total_anual = salario_anual + bonus_anual
 
-    # Validação do bônus vs STI range (inclui caso especial "Others" com teto ≤)
+    # --- Validação do bônus vs STI range
     min_pct, max_pct = get_sti_range(area, level)
     bonus_pct = (bonus_anual / salario_anual) if salario_anual > 0 else 0.0
     pct_txt = f"{bonus_pct*100:.1f}%"
-    # Texto da faixa
     if level == "Others":
         faixa_txt = f"≤ {(max_pct or 0)*100:.0f}%"
         dentro = bonus_pct <= (max_pct or 0)
@@ -604,79 +603,103 @@ if menu == T["menu_calc"]:
         faixa_txt = f"{min_pct*100:.0f}% – {max_pct*100:.0f}%"
         dentro = (bonus_pct >= min_pct) and (bonus_pct <= max_pct)
     cor = "#1976d2" if dentro else "#d32f2f"
-    status_txt = ("Dentro do range" if idioma=="Português" else
-                  "Within range" if idioma=="English" else
-                  "Dentro del rango")
-
-    # ---- 3 cards anuais lado a lado
-    st.markdown("<div class='annual-cards-grid'>", unsafe_allow_html=True)
-    st.markdown(
-        f"<div class='metric-card compact'>"
-        f"  <h4>📅 {T['annual_salary']} — ({T['months_factor']}: {months})</h4>"
-        f"  <h3>{fmt_money(salario_anual, symbol)}</h3>"
-        f"</div>", unsafe_allow_html=True
+    status_txt = (
+        "Dentro do range" if idioma == "Português"
+        else "Within range" if idioma == "English"
+        else "Dentro del rango"
     )
 
-    # Card do bônus com mensagem STI exibindo '≤' quando Others
-    if level == "Others":
-        sti_line = f"STI ratio do bônus: <strong>{pct_txt}</strong> — <strong>{status_txt}</strong> (≤ {(max_pct or 0)*100:.0f} %) — <em>{area} • {level}</em>"
-    else:
-        sti_line = f"STI ratio do bônus: <strong>{pct_txt}</strong> — <strong>{status_txt}</strong> ({faixa_txt}) — <em>{area} • {level}</em>"
+    # ---- Layout: cards à esquerda + gráfico à direita
+    col_cards, col_chart = st.columns([1.6, 1.4])
 
-    st.markdown(
-        f"<div class='metric-card compact'>"
-        f"  <h4>🎯 {T['annual_bonus']}</h4>"
-        f"  <h3>{fmt_money(bonus_anual, symbol)}</h3>"
-        f"  <div class='sti-note' style='margin-top:6px; font-size:12px; color:{cor}'>{sti_line}</div>"
-        f"</div>", unsafe_allow_html=True
-    )
+    with col_cards:
+        st.markdown("""
+        <style>
+        .annual-grid {display:flex; flex-direction:column; gap:10px;}
+        .annual-row {display:grid; grid-template-columns:1fr auto; align-items:center;
+                     background:#fff; border-radius:12px; box-shadow:0 2px 6px rgba(0,0,0,0.06);
+                     padding:10px 14px;}
+        .annual-row h4 {margin:0; font-size:13px; color:#0a3d62;}
+        .annual-row h3 {margin:0; font-size:17px; color:#0a3d62; text-align:right;}
+        .sti-note {margin-top:4px; font-size:12px;}
+        </style>
+        """, unsafe_allow_html=True)
 
-    st.markdown(
-        f"<div class='metric-card compact'>"
-        f"  <h4>💼 {T['annual_total']}</h4>"
-        f"  <h3>{fmt_money(total_anual, symbol)}</h3>"
-        f"</div>", unsafe_allow_html=True
-    )
-    st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown("<div class='annual-grid'>", unsafe_allow_html=True)
 
-    # ---- Gráfico pizza abaixo dos cards, com legenda embaixo (sem sobrepor)
-    chart_df = pd.DataFrame({
-        "Componente": [T["annual_salary"], T["annual_bonus"]],
-        "Valor": [salario_anual, bonus_anual]
-    })
-
-    base = (
-        alt.Chart(chart_df)
-        .transform_joinaggregate(Total='sum(Valor)')
-        .transform_calculate(Percent='datum.Valor / datum.Total')
-    )
-
-    pie = (
-        base.mark_arc(innerRadius=70, outerRadius=120)
-        .encode(
-            theta=alt.Theta('Valor:Q', stack=True),
-            color=alt.Color('Componente:N',
-                legend=alt.Legend(orient='bottom', direction='horizontal', title=None, columns=2, labelLimit=300)
-            ),
-            tooltip=[alt.Tooltip('Componente:N'), alt.Tooltip('Valor:Q', format=",.2f"), alt.Tooltip('Percent:Q', format=".1%")]
+        # --- Linha 1: Salário Anual
+        st.markdown(
+            f"<div class='annual-row'>"
+            f"  <div><h4>📅 {T['annual_salary']} — ({T['months_factor']}: {months})</h4></div>"
+            f"  <div><h3>{fmt_money(salario_anual, symbol)}</h3></div>"
+            f"</div>",
+            unsafe_allow_html=True
         )
-    )
 
-    labels = (
-        base.transform_filter(alt.datum.Percent >= 0.01)
-        .mark_text(radius=95, fontWeight='bold', color='white')
-        .encode(theta=alt.Theta('Valor:Q', stack=True), text=alt.Text('Percent:Q', format='.1%'))
-    )
+        # --- Linha 2: Bônus + ratio STI
+        if level == "Others":
+            sti_line = f"STI ratio do bônus: <strong>{pct_txt}</strong> — <strong>{status_txt}</strong> (≤ {(max_pct or 0)*100:.0f} %) — <em>{area} • {level}</em>"
+        else:
+            sti_line = f"STI ratio do bônus: <strong>{pct_txt}</strong> — <strong>{status_txt}</strong> ({faixa_txt}) — <em>{area} • {level}</em>"
+        st.markdown(
+            f"<div class='annual-row'>"
+            f"  <div><h4>🎯 {T['annual_bonus']}<br>"
+            f"  <span class='sti-note' style='color:{cor}'>{sti_line}</span></h4></div>"
+            f"  <div><h3>{fmt_money(bonus_anual, symbol)}</h3></div>"
+            f"</div>",
+            unsafe_allow_html=True
+        )
 
-    chart = (
-        alt.layer(pie, labels)
-        .properties(width=480, height=320, title=T["pie_title"])
-        .configure_legend(orient="bottom", padding=12)
-        .configure_view(strokeWidth=0)
-        .configure(padding={"left": 0, "right": 0, "top": 8, "bottom": 80})
-    )
+        # --- Linha 3: Total
+        st.markdown(
+            f"<div class='annual-row'>"
+            f"  <div><h4>💼 {T['annual_total']}</h4></div>"
+            f"  <div><h3>{fmt_money(total_anual, symbol)}</h3></div>"
+            f"</div>",
+            unsafe_allow_html=True
+        )
 
-    st.altair_chart(chart, use_container_width=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    # ---- Coluna com gráfico à direita
+    with col_chart:
+        chart_df = pd.DataFrame({
+            "Componente": [T["annual_salary"], T["annual_bonus"]],
+            "Valor": [salario_anual, bonus_anual]
+        })
+        base = (
+            alt.Chart(chart_df)
+            .transform_joinaggregate(Total='sum(Valor)')
+            .transform_calculate(Percent='datum.Valor / datum.Total')
+        )
+        pie = (
+            base.mark_arc(innerRadius=70, outerRadius=110)
+            .encode(
+                theta=alt.Theta('Valor:Q', stack=True),
+                color=alt.Color('Componente:N',
+                    legend=alt.Legend(orient='bottom', direction='horizontal', title=None,
+                                      columns=2, labelLimit=300)
+                ),
+                tooltip=[
+                    alt.Tooltip('Componente:N'),
+                    alt.Tooltip('Valor:Q', format=",.2f"),
+                    alt.Tooltip('Percent:Q', format=".1%")
+                ]
+            )
+        )
+        labels = (
+            base.transform_filter(alt.datum.Percent >= 0.01)
+            .mark_text(radius=85, fontWeight='bold', color='white')
+            .encode(theta=alt.Theta('Valor:Q', stack=True), text=alt.Text('Percent:Q', format='.1%'))
+        )
+        chart = (
+            alt.layer(pie, labels)
+            .properties(width=360, height=300, title=T["pie_title"])
+            .configure_legend(orient="bottom", padding=8)
+            .configure_view(strokeWidth=0)
+        )
+        st.altair_chart(chart, use_container_width=True)
+
 
 # =========================== REGRAS DE CONTRIBUIÇÕES ===================
 elif menu == T["menu_rules"]:
