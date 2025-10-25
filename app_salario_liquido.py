@@ -887,11 +887,72 @@ with col_chart:
 
 
 # =========================== REGRAS DE CONTRIBUIÇÕES ===================
+ # --- Coluna 3: gráfico ---
+    with col3:
+        chart_df = pd.DataFrame(
+            {
+                "Componente": [T["annual_salary"], T["annual_bonus"]],
+                "Valor": [salario_anual, bonus_anual],
+            }
+        )
+
+        base = (
+            alt.Chart(chart_df)
+            .transform_joinaggregate(Total="sum(Valor)")
+            .transform_calculate(Percent="datum.Valor / datum.Total")
+        )
+
+        pie = base.mark_arc(innerRadius=70, outerRadius=110).encode(
+            theta=alt.Theta("Valor:Q", stack=True),
+            color=alt.Color(
+                "Componente:N",
+                legend=alt.Legend(
+                    orient="bottom",
+                    direction="horizontal",
+                    columns=2,
+                    title=None,
+                    labelLimit=200,
+                    labelFontSize=11,
+                    symbolSize=90,
+                ),
+            ),
+            tooltip=[
+                alt.Tooltip("Componente:N"),
+                alt.Tooltip("Valor:Q", format=",.2f"),
+                alt.Tooltip("Percent:Q", format=".1%"),
+            ],
+        )
+
+        labels = (
+            base.transform_filter(alt.datum.Percent >= 0.01)
+            .mark_text(radius=80, fontWeight="bold", color="white")
+            .encode(
+                theta=alt.Theta("Valor:Q", stack=True),
+                text=alt.Text("Percent:Q", format=".1%"),
+            )
+        )
+
+        chart = (
+            alt.layer(pie, labels)
+            .properties(width=340, height=260, title=T["pie_title"])
+            .configure_legend(
+                orient="bottom",
+                direction="horizontal",
+                columns=2,
+                title=None,
+                labelFontSize=11,
+                padding=6,
+            )
+            .configure_view(strokeWidth=0)
+        )
+
+        st.altair_chart(chart, use_container_width=True)
+
+# =========================== REGRAS DE CONTRIBUIÇÕES ===================
 elif menu == T["menu_rules"]:
     st.subheader(T["rules_expanded"])
     if idioma == "Português":
         st.markdown(f"""
-        
 ### 🇧🇷 Brasil
 **Empregado – INSS (progressivo)**  
 Soma por faixas até o salário, com **teto de contribuição**.  
@@ -1047,6 +1108,12 @@ elif menu == T["menu_rules_sti"]:
 # ========================= CUSTO DO EMPREGADOR ========================
 else:
     salario = st.number_input(f"{T['salary']} ({symbol})", min_value=0.0, value=10000.0, step=100.0, key="salary_cost")
+    anual, mult, df_cost, months = calc_employer_cost(country, salario, tables_ext=COUNTRY_TABLES)
+    st.markdown(f"**{T['employer_cost_total']}:** {fmt_money(anual, symbol)}  \n**Equivalente:** {mult:.3f} × (12 meses)  \n**{T['months_factor']}:** {months}")
+    if not df_cost.empty:
+        st.dataframe(df_cost, use_container_width=True)
+    else:
+        st.info("Sem encargos configurados para este país (no JSON).")
     anual, mult, df_cost, months = calc_employer_cost(country, salario, tables_ext=COUNTRY_TABLES)
     st.markdown(f"**{T['employer_cost_total']}:** {fmt_money(anual, symbol)}  \n**Equivalente:** {mult:.3f} × (12 meses)  \n**{T['months_factor']}:** {months}")
     if not df_cost.empty:
