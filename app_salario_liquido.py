@@ -964,14 +964,6 @@ with col3:
         )
 
         st.altair_chart(chart, use_container_width=True)
-#🧩 Resumo do que esse bloco faz:
-Todos os três with colX: têm exatamente a mesma indentação.
-
-Todos os st.markdown(""" estão fechados com """).
-
-O elif menu == ... vem logo depois, sem nenhum espaço antes (coluna 0).
-
-Depois que colar esse trecho, o IndentationError desaparece.
 
 # =========================== REGRAS DE CONTRIBUIÇÕES ===================
 elif menu == T["menu_rules"]:
