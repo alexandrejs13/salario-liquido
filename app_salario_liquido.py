@@ -887,9 +887,9 @@ with col_chart:
 
 
 # =========================== REGRAS DE CONTRIBUIÇÕES ===================
+
 elif menu == T["menu_rules"]:
     st.subheader(T["rules_expanded"])
-    # Textos por idioma
     if idioma == "Português":
         st.markdown(f"""
 ### 🇧🇷 Brasil
@@ -900,101 +900,80 @@ Faixas vigentes (ex.): 7,5% até 1.412; 9% até 2.666,68; 12% até 4.000,03; 14%
 
 **Empregado – IRRF (progressivo com dedução)**  
 Base = salário bruto − INSS − **{fmt_money(BR_IRRF_TBL['deducao_dependente'],'R$')}** por dependente.  
-Aplica-se a alíquota e dedução fixa da faixa.  
-**Exemplo**: salário 4.000, 0 dep. ⇒ base = 4.000 − INSS. Sobre a base, aplicar tabela (7,5% a 27,5%) menos dedução fixa da faixa.
+Aplica-se a alíquota e dedução fixa da faixa.
 
 **Empregador**  
 INSS Patronal (~20%), RAT (~2%), Sistema S (~5,8%), **FGTS 8%**. Em geral incidem em 13º e férias (meses ~ **13,33**).
-
----
-
+""")
+        st.markdown("""
 ### 🇺🇸 Estados Unidos
 **Employee**  
 - FICA: 6,2% (até wage base anual federal).  
 - Medicare: 1,45% (sem teto).  
-- State Tax: conforme estado (0%–~8%); configurável no app.
-
-**Exemplo**: salário US$ 10.000 (estado 5%) ⇒ FICA 620, Medicare 145, State 500 ⇒ total **US$ 1.265**.
+- State Tax: conforme estado (0%–~8%).
 
 **Employer**  
 Contribuições espelhadas (FICA/Medicare) + SUTA (média ~2%).
-
----
-
+""")
+        st.markdown("""
 ### 🇲🇽 México
-**Empleado**: ISR (progressivo), IMSS ~5%, INFONAVIT ~5% (valores aproximados, variam por base e salário).  
+**Empleado**: ISR (progressivo), IMSS ~5%, INFONAVIT ~5%.  
 **Empleador**: IMSS patronal ~7%, INFONAVIT ~5%. **Aguinaldo** ⇒ meses ~**12,5**.
-
----
-
+""")
+        st.markdown("""
 ### 🇨🇱 Chile
-**Trabajador**: AFP ~10% (fundo), Salud ~7% (Isapre/Fonasa).  
-**Empleador**: Seguro de cesantía ~2,4% (contrato indefinido).
-
----
-
+**Trabajador**: AFP ~10%, Salud ~7%.  
+**Empleador**: Seguro de cesantía ~2,4%.
+""")
+        st.markdown("""
 ### 🇦🇷 Argentina
 **Empleado**: Jubilación 11%, Obra Social 3%, PAMI 3%.  
-**Empleador**: Contribuciones ~18% (promédio setorial). **SAC (13º)** ⇒ meses **13**.
-
----
-
+**Empleador**: Contribuciones ~18%. **SAC (13º)** ⇒ meses **13**.
+""")
+        st.markdown("""
 ### 🇨🇴 Colômbia
 **Trabajador**: Salud 4%, Pensión 4%.  
 **Empleador**: Salud 8,5%, Pensión 12%. **Prima de servicios** ⇒ meses **13**.
-
----
-
+""")
+        st.markdown("""
 ### 🇨🇦 Canadá
 **Employee**: CPP ~5,95%, EI ~1,63% (até limites).  
-**Employer**: CPP ~5,95%, EI ~2,28%. Meses **12** (sem 13º).
+**Employer**: CPP ~5,95%, EI ~2,28%. Meses **12**.
 """)
 
     elif idioma == "English":
         st.markdown(f"""
 ### 🇧🇷 Brazil
-**Employee – Social Security (INSS, progressive):** tiered brackets with a contribution cap.  
-**Example:** BRL 4,000 ⇒ apply each bracket rate up to salary (cap applies).
-
+**Employee – Social Security (INSS, progressive):** tiered brackets with a cap.  
 **Employee – Income Tax (IRRF):** Base = Gross − INSS − **{BR_IRRF_TBL['deducao_dependente']}** per dependent.  
-Apply bracket rate minus fixed deduction.
-
-**Employer:** Employer social security (~20%), risk (RAT ~2%), “System S” (~5.8%), **FGTS 8%**. Often applies to 13th salary and vacations (≈ **13.33 months**).
-
----
-
+**Employer:** Social security (~20%), risk (~2%), System S (~5.8%), **FGTS 8%** (often on 13th/vacations).
+""")
+        st.markdown("""
 ### 🇺🇸 United States
-**Employee:** FICA 6.2%, Medicare 1.45%, State Tax per state (0–~8%).  
-**Example:** US$10,000 in a 5% state ⇒ total deductions ≈ US$1,265.
-
+**Employee:** FICA 6.2%, Medicare 1.45%, state tax varies (0–~8%).  
 **Employer:** Mirrors FICA/Medicare + SUTA (~2% avg).
-
----
-
+""")
+        st.markdown("""
 ### 🇲🇽 Mexico
 **Employee:** ISR (progressive), IMSS ~5%, INFONAVIT ~5%.  
-**Employer:** IMSS ~7%, INFONAVIT ~5%. Aguinaldo ⇒ months ≈ **12.5**.
-
----
-
+**Employer:** IMSS ~7%, INFONAVIT ~5%. Aguinaldo ⇒ ~12.5 months.
+""")
+        st.markdown("""
 ### 🇨🇱 Chile
 **Employee:** AFP ~10%, Health ~7%.  
 **Employer:** Unemployment insurance ~2.4%.
-
----
-
+""")
+        st.markdown("""
 ### 🇦🇷 Argentina
 **Employee:** Retirement 11%, Health 3%, PAMI 3%.  
-**Employer:** Contributions ~18%. SAC (13th) ⇒ **13 months**.
-
----
-
+**Employer:** ~18%. SAC ⇒ **13 months**.
+""")
+        st.markdown("""
 ### 🇨🇴 Colombia
 **Employee:** Health 4%, Pension 4%.  
 **Employer:** Health 8.5%, Pension 12%. “Prima de servicios” ⇒ **13 months**.
-
----
-
+""")
+        st.markdown("""
 ### 🇨🇦 Canada
 **Employee:** CPP ~5.95%, EI ~1.63% (to limits).  
 **Employer:** CPP ~5.95%, EI ~2.28%. Months **12**.
@@ -1003,49 +982,74 @@ Apply bracket rate minus fixed deduction.
     else:  # Español
         st.markdown(f"""
 ### 🇧🇷 Brasil
-**Trabajador – INSS (progresivo):** por tramos con tope de contribución.  
-**Ejemplo:** BRL 4.000 ⇒ aplicar cada tramo hasta el salario (con tope).
-
-**Trabajador – IRRF:** Base = Bruto − INSS − **{BR_IRRF_TBL['deducao_dependente']}** por dependiente.  
-Aplicar tasa del tramo menos deducción fija.
-
-**Empleador:** Aportes ~20%, riesgo (RAT ~2%), “Sistema S” ~5,8%, **FGTS 8%**. Suele aplicar a 13º y vacaciones (≈ **13,33 meses**).
-
----
-
+**Trabajador – INSS (progresivo)** con tope.  
+**Trabajador – IRRF**: Base = Bruto − INSS − **{BR_IRRF_TBL['deducao_dependente']}** por dependiente.  
+**Empleador:** ~20% seguridad social, ~2% riesgo, ~5,8% Sistema S, **FGTS 8%** (13º/vacaciones).
+""")
+        st.markdown("""
 ### 🇺🇸 Estados Unidos
-**Empleado:** FICA 6,2%, Medicare 1,45%, impuesto estatal (0–~8%).  
-**Ejemplo:** US$10.000 con 5% estatal ⇒ deducciones ≈ US$1.265.
-
-**Empleador:** Aportes espejo (FICA/Medicare) + SUTA (~2% promedio).
-
----
-
+**Empleado:** FICA 6,2%, Medicare 1,45%, impuesto estatal 0–~8%.  
+**Empleador:** Espejo + SUTA (~2%).
+""")
+        st.markdown("""
 ### 🇲🇽 México
 **Empleado:** ISR (progresivo), IMSS ~5%, INFONAVIT ~5%.  
 **Empleador:** IMSS ~7%, INFONAVIT ~5%. Aguinaldo ⇒ **12,5 meses**.
-
----
-
+""")
+        st.markdown("""
 ### 🇨🇱 Chile
 **Trabajador:** AFP ~10%, Salud ~7%.  
 **Empleador:** Seguro de cesantía ~2,4%.
-
----
-
+""")
+        st.markdown("""
 ### 🇦🇷 Argentina
 **Empleado:** Jubilación 11%, Obra Social 3%, PAMI 3%.  
-**Empleador:** Contribuciones ~18%. SAC (13º) ⇒ **13 meses**.
-
----
-
+**Empleador:** ~18%. SAC ⇒ **13 meses**.
+""")
+        st.markdown("""
 ### 🇨🇴 Colombia
 **Trabajador:** Salud 4%, Pensión 4%.  
 **Empleador:** Salud 8,5%, Pensión 12%. “Prima de servicios” ⇒ **13 meses**.
-
----
-
-### 🇨🇦 Canadá
-**Empleado:** CPP ~5,95%, EI ~1,63% (hasta topes).  
-**Empleador:** CPP ~5,95%, EI ~2,28%. Meses **12**.
 """)
+        st.markdown("""
+### 🇨🇦 Canadá
+**Empleado:** CPP ~5,95%, EI ~1,63% (topes).  
+**Empleador:** CPP ~5,95%, EI ~2,28%. **12 meses**.
+""")
+
+# =========================== REGRAS DE CÁLCULO DO STI ==================
+elif menu == T["menu_rules_sti"]:
+    st.markdown("#### Non Sales")
+    df_ns = pd.DataFrame([
+        {"Career Level":"CEO","STI %":"100%"},
+        {"Career Level":"Members of the GEB","STI %":"50–80%"},
+        {"Career Level":"Executive Manager","STI %":"45–70%"},
+        {"Career Level":"Senior Group Manager","STI %":"40–60%"},
+        {"Career Level":"Group Manager","STI %":"30–50%"},
+        {"Career Level":"Lead Expert / Program Manager","STI %":"25–40%"},
+        {"Career Level":"Senior Manager","STI %":"20–40%"},
+        {"Career Level":"Senior Expert / Senior Project Manager","STI %":"15–35%"},
+        {"Career Level":"Manager / Selected Expert / Project Manager","STI %":"10–30%"},
+        {"Career Level":"Others","STI %":"≤ 10%"},
+    ])
+    st.table(df_ns)
+
+    st.markdown("#### Sales")
+    df_s = pd.DataFrame([
+        {"Career Level":"Executive Manager / Senior Group Manager","STI %":"45–70%"},
+        {"Career Level":"Group Manager / Lead Sales Manager","STI %":"35–50%"},
+        {"Career Level":"Senior Manager / Senior Sales Manager","STI %":"25–45%"},
+        {"Career Level":"Manager / Selected Sales Manager","STI %":"20–35%"},
+        {"Career Level":"Others","STI %":"≤ 15%"},
+    ])
+    st.table(df_s)
+
+# ========================= CUSTO DO EMPREGADOR ========================
+else:
+    salario = st.number_input(f"{T['salary']} ({symbol})", min_value=0.0, value=10000.0, step=100.0, key="salary_cost")
+    anual, mult, df_cost, months = calc_employer_cost(country, salario, tables_ext=COUNTRY_TABLES)
+    st.markdown(f"**{T['employer_cost_total']}:** {fmt_money(anual, symbol)}  \n**Equivalente:** {mult:.3f} × (12 meses)  \n**{T['months_factor']}:** {months}")
+    if not df_cost.empty:
+        st.dataframe(df_cost, use_container_width=True)
+    else:
+        st.info("Sem encargos configurados para este país (no JSON).")
