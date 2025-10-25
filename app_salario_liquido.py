@@ -757,7 +757,7 @@ if menu == T["menu_calc"]:
         st.altair_chart(chart, use_container_width=True)
 
     # ================= CENTER COLUMN (values only)
-        with col2:
+with col2:
         st.markdown("""
         <style>
         .value-block {display:flex; flex-direction:column; gap:8px;}
