@@ -966,7 +966,7 @@ with col3:
         st.altair_chart(chart, use_container_width=True)
 
 # =========================== REGRAS DE CONTRIBUIÇÕES ===================
-elif menu == T["menu_rules"]:
+    elif menu == T["menu_rules"]:
     st.subheader(T["rules_expanded"])
     if idioma == "Português":
         st.markdown(f"""
