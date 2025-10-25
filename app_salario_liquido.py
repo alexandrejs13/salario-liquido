@@ -77,18 +77,22 @@ section[data-testid="stSidebar"] .stButton > button:hover{ background:#f5f8ff !i
 /* Espaço extra abaixo do gráfico para legenda */
 .vega-embed{ padding-bottom: 16px; }
 
-/* CSS dos Cards Anuais (Req 4) */
+/* CSS dos Cards Anuais (Ajuste de Altura) */
 .annual-card-base { /* Base comum para label e value */
     background: #fff;
     border-radius: 10px;
     box-shadow: 0 1px 4px rgba(0,0,0,.06);
     padding: 10px 15px;
     margin-bottom: 8px; /* Espaçamento entre linhas */
-    min-height: 70px; /* Altura mínima p/ alinhar */
+    border-left: 5px solid #0a3d62; /* Cor principal */
+
+    /* SUGESTÃO LAYOUT: Altura igual e Centralização */
+    min-height: 85px; /* Altura mínima p/ acomodar o card de Bônus */
     display: flex;
     flex-direction: column;
-    justify-content: center; /* Alinha verticalmente */
-    border-left: 5px solid #0a3d62; /* Cor principal */
+    justify-content: center; /* Alinha verticalmente o conteúdo */
+    box-sizing: border-box;
+    /* Fim da Sugestão */
 }
 .annual-card-label {
     /* Herda .annual-card-base */
@@ -102,7 +106,7 @@ section[data-testid="stSidebar"] .stButton > button:hover{ background:#f5f8ff !i
 .annual-card-label h4,
 .annual-card-value h3 {
     margin: 0;
-    font-size: 16px; /* Req 3: Mesmo tamanho */
+    font-size: 16px; /* REQ: Mesmo tamanho de fonte */
     color: #0a3d62;
 }
 .annual-card-label h4 {
@@ -151,6 +155,7 @@ I18N = {
         "annual_comp_title": "Composição da Remuneração Total Anual Bruta",
         "calc_params_title": "Parâmetros de Cálculo da Remuneração",
         "monthly_comp_title": "Remuneração Mensal Bruta e Líquida",
+        # REQ 3 (Textos dos cards)
         "annual_salary": "📅 Salário Anual (Salário × Meses do País)",
         "annual_bonus": "🎯 Bônus Anual",
         "annual_total": "💼 Remuneração Total Anual",
@@ -222,6 +227,7 @@ I18N = {
         "annual_comp_title": "Total Annual Gross Compensation",
         "calc_params_title": "Compensation Calculation Parameters",
         "monthly_comp_title": "Monthly Gross and Net Compensation",
+        # REQ 3 (Textos dos cards)
         "annual_salary": "📅 Annual Salary (Salary × Country Months)",
         "annual_bonus": "🎯 Annual Bonus",
         "annual_total": "💼 Total Annual Compensation",
@@ -293,6 +299,7 @@ I18N = {
         "annual_comp_title": "Composición de la Remuneración Anual Bruta",
         "calc_params_title": "Parámetros de Cálculo de Remuneración",
         "monthly_comp_title": "Remuneración Mensual Bruta y Neta",
+        # REQ 3 (Textos dos cards)
         "annual_salary": "📅 Salario Anual (Salario × Meses del País)",
         "annual_bonus": "🎯 Bono Anual",
         "annual_total": "💼 Remuneración Anual Total",
@@ -835,7 +842,7 @@ if menu == T["menu_calc"]:
     cc1.markdown(
         f"<div class='metric-card' style='border-left: 5px solid #28a745; background: #e6ffe6;'><h4>💰 {T['tot_earnings']}</h4><h3>{fmt_money(calc['total_earn'], symbol)}</h3></div>", unsafe_allow_html=True)
     cc2.markdown(
-        f"<div class'metric-card' style='border-left: 5px solid #dc3545; background: #ffe6e6;'><h4>📉 {T['tot_deductions']}</h4><h3>{fmt_money(calc['total_ded'], symbol)}</h3></div>", unsafe_allow_html=True)
+        f"<div class='metric-card' style='border-left: 5px solid #dc3545; background: #ffe6e6;'><h4>📉 {T['tot_deductions']}</h4><h3>{fmt_money(calc['total_ded'], symbol)}</h3></div>", unsafe_allow_html=True)
     cc3.markdown(
         f"<div class='metric-card' style='border-left: 5px solid #007bff; background: #e6f7ff;'><h4>💵 {T['net']}</h4><h3>{fmt_money(calc['net'], symbol)}</h3></div>", unsafe_allow_html=True)
 
@@ -869,7 +876,13 @@ if menu == T["menu_calc"]:
     # Cor de fundo (Req 4)
     bg_cor = "#e6f7ff" if dentro else "#ffe6e6"
     
-    # Linha de status do STI
+    # Linha de status do STI (com tradução)
+    sti_line = (
+        f"{T['annual_bonus']} ratio: <strong>{pct_txt}</strong> — "
+        f"<strong>{status_txt}</strong> ({faixa_txt}) — "
+        f"<em>{area_display} • {level_display}</em>"
+    )
+    # Correção para usar a chave I18N correta
     sti_line = (
         f"STI ratio do bônus: <strong>{pct_txt}</strong> — "
         f"<strong>{status_txt}</strong> ({faixa_txt}) — "
