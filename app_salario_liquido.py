@@ -887,10 +887,9 @@ with col_chart:
 
 
 # =========================== REGRAS DE CONTRIBUIÇÕES ===================
-
 elif menu == T["menu_rules"]:
     st.subheader(T["rules_expanded"])
-    if idioma == "Português":
+if idioma == "Português":
         st.markdown(f"""
 ### 🇧🇷 Brasil
 **Empregado – INSS (progressivo)**  
