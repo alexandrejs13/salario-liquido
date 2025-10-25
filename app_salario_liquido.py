@@ -891,6 +891,7 @@ elif menu == T["menu_rules"]:
     st.subheader(T["rules_expanded"])
     if idioma == "Português":
         st.markdown(f"""
+        
 ### 🇧🇷 Brasil
 **Empregado – INSS (progressivo)**  
 Soma por faixas até o salário, com **teto de contribuição**.  
