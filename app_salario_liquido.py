@@ -584,7 +584,7 @@ if menu == T["menu_calc"]:
         st.write("")
         st.markdown(f"**💼 {T['fgts_deposit']}:** {fmt_money(calc['fgts'], symbol)}")
 
-        # ---------- Composição da Remuneração Total Anual ----------
+           # ---------- Composição da Remuneração Total Anual ----------
     st.write("---")
     st.subheader(T["annual_comp_title"])
 
@@ -609,7 +609,7 @@ if menu == T["menu_calc"]:
         else "Dentro del rango"
     )
 
-    # ---- Layout: títulos à esquerda, valores à direita, gráfico ao lado
+    # ---- Layout: títulos à esquerda, valores à direita, gráfico à direita
     col_left, col_values, col_chart = st.columns([1.7, 0.9, 1.6])
 
     # ================= LEFT COLUMN (títulos e descrições)
@@ -634,15 +634,12 @@ if menu == T["menu_calc"]:
 
         st.markdown("<div class='annual-block'>", unsafe_allow_html=True)
 
-        # --- Salário anual
         st.markdown(
             f"<div class='annual-item'>"
             f"<h4>📅 {T['annual_salary']} — ({T['months_factor']}: {months})</h4>"
-            f"</div>",
-            unsafe_allow_html=True
+            f"</div>", unsafe_allow_html=True
         )
 
-        # --- Bônus anual + STI ratio
         if level == "Others":
             sti_line = f"STI ratio do bônus: <strong>{pct_txt}</strong> — <strong>{status_txt}</strong> (≤ {(max_pct or 0)*100:.0f} %) — <em>{area} • {level}</em>"
         else:
@@ -652,16 +649,13 @@ if menu == T["menu_calc"]:
             f"<div class='annual-item'>"
             f"<h4>🎯 {T['annual_bonus']}<br>"
             f"<span class='sti-note' style='color:{cor}'>{sti_line}</span></h4>"
-            f"</div>",
-            unsafe_allow_html=True
+            f"</div>", unsafe_allow_html=True
         )
 
-        # --- Total
         st.markdown(
             f"<div class='annual-item'>"
             f"<h4>💼 {T['annual_total']}</h4>"
-            f"</div>",
-            unsafe_allow_html=True
+            f"</div>", unsafe_allow_html=True
         )
 
         st.markdown("</div>", unsafe_allow_html=True)
@@ -686,7 +680,7 @@ if menu == T["menu_calc"]:
         st.markdown(f"<div class='value-card'><h3>{fmt_money(total_anual, symbol)}</h3></div>", unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
 
-    # ================= RIGHT COLUMN (gráfico)
+    # ================= RIGHT COLUMN (gráfico único)
     with col_chart:
         chart_df = pd.DataFrame({
             "Componente": [T["annual_salary"], T["annual_bonus"]],
@@ -710,7 +704,7 @@ if menu == T["menu_calc"]:
                         direction='horizontal',
                         columns=2,
                         title=None,
-                        labelLimit=200,
+                        labelLimit=250,
                         labelFontSize=11,
                         symbolSize=90
                     )
@@ -726,10 +720,7 @@ if menu == T["menu_calc"]:
         labels = (
             base.transform_filter(alt.datum.Percent >= 0.01)
             .mark_text(radius=80, fontWeight='bold', color='white')
-            .encode(
-                theta=alt.Theta('Valor:Q', stack=True),
-                text=alt.Text('Percent:Q', format='.1%')
-            )
+            .encode(theta=alt.Theta('Valor:Q', stack=True), text=alt.Text('Percent:Q', format='.1%'))
         )
 
         chart = (
@@ -737,17 +728,17 @@ if menu == T["menu_calc"]:
             .properties(width=340, height=260, title=T["pie_title"])
             .configure_legend(
                 orient="bottom",
-                title=None,
                 direction="horizontal",
                 columns=2,
-                labelLimit=250,
-                padding=8,
-                labelFontSize=11
+                title=None,
+                labelFontSize=11,
+                padding=6
             )
             .configure_view(strokeWidth=0)
         )
 
         st.altair_chart(chart, use_container_width=True)
+
 
 
 
