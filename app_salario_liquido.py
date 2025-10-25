@@ -828,7 +828,7 @@ with col2:
 
 
     # ================= CENTER COLUMN (values only)
-    with col_values:
+with col_values:
         st.markdown("""
         <style>
         .value-block {display:flex; flex-direction:column; gap:12px;}
