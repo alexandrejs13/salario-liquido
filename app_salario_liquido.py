@@ -847,7 +847,7 @@ with col_values:
         st.markdown("</div>", unsafe_allow_html=True)
 
     # ================= RIGHT COLUMN (chart)
-    with col_chart:
+with col_chart:
         chart_df = pd.DataFrame({
             "Componente": [T["annual_salary"], T["annual_bonus"]],
             "Valor": [salario_anual, bonus_anual]
