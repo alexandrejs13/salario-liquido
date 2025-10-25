@@ -842,10 +842,9 @@ with col_chart:
 
 
 # =========================== REGRAS DE CONTRIBUIÇÕES ===================
- col1, col2, col3 = st.columns([1.7, 0.9, 1.5])
 
     # --- Coluna 1: títulos e descrições ---
-    with col1:
+with col1:
         st.markdown(
             """
             <style>
@@ -884,7 +883,7 @@ with col_chart:
         st.markdown("</div>", unsafe_allow_html=True)
 
     # --- Coluna 2: valores ---
-    with col2:
+with col2:
         st.markdown(
             """
             <style>
@@ -906,7 +905,7 @@ with col_chart:
         st.markdown("</div>", unsafe_allow_html=True)
 
     # --- Coluna 3: gráfico ---
-    with col3:
+with col3:
         chart_df = pd.DataFrame(
             {
                 "Componente": [T["annual_salary"], T["annual_bonus"]],
