@@ -1,6 +1,7 @@
 {
   "vigencia": "2025-01-01",
   "teto_contribuicao": 1146.68,
+  "teto_base": 8157.41,
   "faixas": [
     { "ate": 1412.00, "aliquota": 0.075 },
     { "ate": 2666.68, "aliquota": 0.09 },
