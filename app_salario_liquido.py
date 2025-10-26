@@ -1,7 +1,7 @@
 # -------------------------------------------------------------
-# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.20)
+# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.17)
 # Tema azul plano, multilíngue, responsivo e com STI corrigido
-# (Correção NameError: STI_I18N_KEYS + Correção Ordem Sidebar)
+# (Correção Crítica: Ordem de Carregamento/Sidebar + JSONs)
 # -------------------------------------------------------------
 
 import streamlit as st
@@ -17,6 +17,7 @@ import os # Essencial para caminhos de arquivo
 st.set_page_config(page_title="Simulador de Salário Líquido", layout="wide")
 
 # ======================== HELPERS INICIAIS (Formatação) =========================
+# (Definidos antes para serem usados nos Defaults)
 def fmt_money(v: float, sym: str) -> str:
     return f"{sym} {v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
@@ -27,10 +28,11 @@ def fmt_percent(v: float) -> str:
     if v is None: return ""
     return f"{v:.2f}%"
 
+# Variável global temporária para o código do país, será definida na sidebar
 _COUNTRY_CODE_FOR_FMT = "Brasil" 
 
 def fmt_cap(cap_value: Any, sym: str = None) -> str:
-    global _COUNTRY_CODE_FOR_FMT
+    global _COUNTRY_CODE_FOR_FMT # Usa a global definida mais tarde
     country_code = _COUNTRY_CODE_FOR_FMT
     if cap_value is None: return "—"
     if isinstance(cap_value, str): return cap_value
@@ -45,6 +47,9 @@ UMA_DIARIA_MX = 108.57
 MX_IMSS_CAP_MONTHLY = 25 * UMA_DIARIA_MX * 30.4
 
 # ======================== CARREGAMENTO DE CONFIGS JSON LOCAIS =========================
+# REQ 1 (Correção): Usar o caminho absoluto do script para encontrar os JSONs
+# Nota: __file__ pode não funcionar no Streamlit Cloud,
+# é mais seguro assumir que estão no diretório atual ('.')
 try:
     CONFIG_DIR = os.path.dirname(os.path.abspath(__file__))
 except NameError:
@@ -57,6 +62,11 @@ US_STATES_FILE = os.path.join(CONFIG_DIR, "us_state_tax_rates.json")
 COUNTRY_TABLES_FILE = os.path.join(CONFIG_DIR, "country_tables.json")
 BR_INSS_FILE = os.path.join(CONFIG_DIR, "br_inss.json")
 BR_IRRF_FILE = os.path.join(CONFIG_DIR, "br_irrf.json")
+
+# (Assume que custos_empregador.json está no country_tables.json ou não existe)
+# Se `custos_empregador.json` for separado, adicione-o aqui:
+# EMPLOYER_COST_FILE = os.path.join(CONFIG_DIR, "custos_empregador.json")
+
 
 def load_json(filepath, default_value={}):
     if not os.path.exists(filepath):
@@ -89,6 +99,7 @@ EMPLOYER_COST_DEFAULT_FALLBACK = {
     "Canadá": [ {"nome": "CPP (ER)", "percentual": 5.95, "base": "Salário", "ferias": False, "decimo": False, "bonus": True, "obs": f"Teto {fmt_money(ANNUAL_CAPS['CA_CPP_YMPEx1'], 'CAD$')}", "teto": ANNUAL_CAPS["CA_CPP_YMPEx1"]}, {"nome": "CPP2 (ER)", "percentual": 4.0, "base": "Salário", "ferias": False, "decimo": False, "bonus": True, "obs": f"Teto {fmt_money(ANNUAL_CAPS['CA_CPP_YMPEx2'], 'CAD$')}", "teto": ANNUAL_CAPS["CA_CPP_YMPEx2"]}, {"nome": "EI (ER)", "percentual": 2.28, "base": "Salário", "ferias": False, "decimo": False, "bonus": True, "obs": f"Teto {fmt_money(ANNUAL_CAPS['CA_EI_MIE'], 'CAD$')}", "teto": ANNUAL_CAPS["CA_EI_MIE"]} ]
 }
 REMUN_MONTHS_DEFAULT_FALLBACK = { "Brasil": 13.33, "México": 12.50, "Chile": 12.00, "Argentina": 13.00, "Colômbia": 14.00, "Estados Unidos": 12.00, "Canadá": 12.00 }
+# Agora sim, COUNTRY_TABLES_FALLBACK pode ser definido
 COUNTRY_TABLES_FALLBACK = {"TABLES": TABLES_DEFAULT_FALLBACK, "EMPLOYER_COST": EMPLOYER_COST_DEFAULT_FALLBACK, "REMUN_MONTHS": REMUN_MONTHS_DEFAULT_FALLBACK}
 
 
@@ -105,8 +116,10 @@ COUNTRY_TABLES_DATA = load_json(COUNTRY_TABLES_FILE, COUNTRY_TABLES_FALLBACK)
 if "countries" in COUNTRIES_DATA:
     COUNTRIES = COUNTRIES_DATA.get("countries", {})
 else:
-    COUNTRIES = COUNTRIES_DATA
-if not COUNTRIES: COUNTRIES = COUNTRIES_FALLBACK["countries"]
+    COUNTRIES = COUNTRIES_DATA # Assume que a raiz é o dicionário de países
+
+if not COUNTRIES: # Se ainda estiver vazio, usa o fallback final
+    COUNTRIES = COUNTRIES_FALLBACK["countries"]
 
 COUNTRY_BENEFITS = {k: v.get("benefits", {}) for k, v in COUNTRIES.items()}
 STI_RANGES = STI_CONFIG.get("STI_RANGES", {})
@@ -360,7 +373,6 @@ with st.sidebar:
     st.markdown(f"<h3 style='margin-bottom: 0.5rem;'>{T.get('country', 'País')}</h3>", unsafe_allow_html=True)
     country_options = list(COUNTRIES.keys())
     
-    # Se COUNTRIES estiver vazio (falha no load), exibe erro e para
     if not country_options:
         st.error("Erro fatal: Arquivo 'countries.json' não encontrado ou está vazio.")
         st.stop()
@@ -399,15 +411,13 @@ with st.sidebar:
 US_STATE_RATES_LOADED, COUNTRY_TABLES_LOADED, BR_INSS_TBL_LOADED, BR_IRRF_TBL_LOADED = load_tables_data()
 COUNTRY_TABLES = COUNTRY_TABLES_LOADED
 
-# REQ 1 (Correção): Acessa com .get() para evitar KeyError
-country_data = COUNTRIES.get(country)
-if not country_data:
-    st.error(f"Erro interno: Dados para o país '{country}' não encontrados.")
-    st.stop()
+if country not in COUNTRIES:
+     st.error(f"Erro: País '{country}' não encontrado. Verifique 'countries.json'.")
+     st.stop()
      
-symbol = country_data.get("symbol", "$?")
-flag = country_data.get("flag", "🏴‍☠️")
-valid_from = country_data.get("valid_from", "N/A")
+symbol = COUNTRIES[country]["symbol"]
+flag = COUNTRIES[country]["flag"]
+valid_from = COUNTRIES[country]["valid_from"]
 active_menu = st.session_state.active_menu
 
 # ======================= TÍTULO DINÂMICO ==============================
@@ -530,7 +540,7 @@ elif active_menu == T.get("menu_rules"):
     cl_er_contrib = [{"desc": "Seg. Cesantía", "rate": "2.40%", "base": "Sal. Bruto", "obs": f"Teto {ANNUAL_CAPS['CL_TETO_CESANTIA_UF']:.1f} UF"}, {"desc": "SIS", "rate": "1.53%", "base": "Sal. Bruto", "obs": f"Teto {ANNUAL_CAPS['CL_TETO_UF']:.1f} UF"}]
     ar_emp_contrib = [{"desc": "Jubilación", "rate": "11.00%", "base": "Sal. Bruto", "obs": "Com Teto"}, {"desc": "Obra Social", "rate": "3.00%", "base": "Sal. Bruto", "obs": "Com Teto"}, {"desc": "PAMI", "rate": "3.00%", "base": "Sal. Bruto", "obs": "Com Teto"}]
     ar_er_contrib = [{"desc": "Cargas Sociales", "rate": "~23.50%", "base": "Sal. Bruto", "obs": "Com Teto (Média)"}]
-    co_emp_contrib = [{"desc": "Salud", "rate": "4.00%", "base": "Sal. Bruto", "obs": "-"}, {"desc": "Pensión", "rate": "4.00%", "base": "Sal. Bruto", "obs": "-"}]
+    co_emp_contrib = [{"desc": "Salud", "rate": "4.00%", "base": "Sal. Bruto", "obs": "-"}, {"desc": "Pensão", "rate": "4.00%", "base": "Sal. Bruto", "obs": "-"}]
     co_er_contrib = [{"desc": "Salud", "rate": "8.50%", "base": "Sal. Bruto", "obs": "-"}, {"desc": "Pensão", "rate": "12.00%", "base": "Sal. Bruto", "obs": "-"}, {"desc": "Parafiscales", "rate": "9.00%", "base": "Sal. Bruto", "obs": "SENA, ICBF, Caja"}, {"desc": "Cesantías", "rate": "8.33%", "base": "Sal. Bruto", "obs": "1 Salário/Ano"}]
     country_contrib_map = { "Brasil": (br_emp_contrib, br_er_contrib), "Estados Unidos": (us_emp_contrib, us_er_contrib), "Canadá": (ca_emp_contrib, ca_er_contrib), "México": (mx_emp_contrib, mx_er_contrib), "Chile": (cl_emp_contrib, cl_er_contrib), "Argentina": (ar_emp_contrib, ar_er_contrib), "Colômbia": (co_emp_contrib, co_er_contrib), }
     official_links = { "Brasil": "https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/tributos/contribuicoes-previdenciarias", "Estados Unidos": "https://www.irs.gov/businesses/small-businesses-self-employed/employment-tax-rates", "Canadá": "https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/payroll/payroll-deductions-contributions/canada-pension-plan-cpp/cpp-contribution-rates-maximums-exemptions.html", "México": "https://www.sat.gob.mx/consulta/29124/conoce-las-tablas-de-isr", "Chile": "https://www.previred.com/indicadores-previsionales/", "Argentina": "https://www.afip.gob.ar/aportesycontribuciones/", "Colômbia": "https://www.dian.gov.co/normatividad/Paginas/Normatividad.aspx", }
