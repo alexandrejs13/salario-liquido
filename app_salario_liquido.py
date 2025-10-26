@@ -1,7 +1,7 @@
 # -------------------------------------------------------------
-# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.5)
+# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.6)
 # Tema azul plano, multilíngue, responsivo e com STI corrigido
-# (Textos das Regras Restaurados + Ajustes Finais)
+# (Ajustes Finais: Layout Sidebar - Espaçamento, Cor Botões, Mapa Removido)
 # -------------------------------------------------------------
 
 import streamlit as st
@@ -35,20 +35,57 @@ section[data-testid="stSidebar"] h3,
 section[data-testid="stSidebar"] p,
 section[data-testid="stSidebar"] .stMarkdown,
 section[data-testid="stSidebar"] label{ color:#ffffff !important; }
-section[data-testid="stSidebar"] h2 { margin-bottom: 25px !important; }
-section[data-testid="stSidebar"] h3 { margin-bottom: 0.5rem !important; }
+
+/* REQ 1: Espaçamento Títulos Sidebar */
+section[data-testid="stSidebar"] h2 { margin-bottom: 25px !important; } /* Título Principal */
+section[data-testid="stSidebar"] h3 { margin-bottom: 0.5rem !important; margin-top: 1.5rem !important; } /* Títulos 'Idioma', 'País', 'Menu' */
+section[data-testid="stSidebar"] div[data-testid="stSelectbox"] label { /* Remove margem extra do label do selectbox */
+    margin-bottom: 0.5rem !important;
+}
+
+
 section[data-testid="stSidebar"] .stTextInput input,
 section[data-testid="stSidebar"] .stNumberInput input,
 section[data-testid="stSidebar"] .stSelectbox input,
 section[data-testid="stSidebar"] .stSelectbox div[role="combobox"] *,
 section[data-testid="stSidebar"] [data-baseweb="menu"] div[role="option"]{ color:#0b1f33 !important; background:#fff !important; }
 
-/* Botões Menu Sidebar */
-section[data-testid="stSidebar"] .stButton > button{ background: #ffffff !important; border: 1px solid #d0d7de !important; border-radius: 8px !important; font-weight: 600 !important; box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important; color: #0a3d62 !important; width: 100%; margin-bottom: 8px; transition: background 0.2s ease, border-color 0.2s ease; text-align: left; padding-left: 15px !important; }
-section[data-testid="stSidebar"] .stButton > button:hover{ background: #f0f2f6 !important; border-color: #adb5bd !important; }
-section[data-testid="stSidebar"] .stButton > button.active-menu-button { background: #e6f0f8 !important; border-color: #a3c4e3 !important; color: #0a3d62 !important; }
-section[data-testid="stSidebar"] .stButton > button:focus:not(:active) { border-color: #d0d7de !important; box-shadow: 0 0 0 2px rgba(10, 61, 98, 0.1) !important; }
-section[data-testid="stSidebar"] .stButton > button.active-menu-button:focus:not(:active) { border-color: #a3c4e3 !important; box-shadow: 0 0 0 2px rgba(10, 61, 98, 0.2) !important; }
+/* REQ 2: Botões Menu Sidebar (Fundo Branco, Texto Preto/Azul Escuro) */
+section[data-testid="stSidebar"] .stButton > button{
+  background: #ffffff !important;
+  border: 1px solid #d0d7de !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+  color: #0a3d62 !important; /* Cor do texto principal */
+  width: 100%;
+  margin-bottom: 8px;
+  transition: background 0.2s ease, border-color 0.2s ease;
+  text-align: left;
+  padding-left: 15px !important;
+}
+section[data-testid="stSidebar"] .stButton > button:hover{
+  background: #f0f2f6 !important;
+  border-color: #adb5bd !important;
+  color: #0a3d62 !important; /* Garante cor no hover */
+}
+/* Botão Ativo */
+section[data-testid="stSidebar"] .stButton > button.active-menu-button {
+  background: #e6f0f8 !important;
+  border-color: #a3c4e3 !important;
+  color: #0a3d62 !important; /* Garante cor no ativo */
+}
+section[data-testid="stSidebar"] .stButton > button:focus:not(:active) {
+    border-color: #d0d7de !important;
+    box-shadow: 0 0 0 2px rgba(10, 61, 98, 0.1) !important;
+    color: #0a3d62 !important; /* Garante cor no foco */
+}
+section[data-testid="stSidebar"] .stButton > button.active-menu-button:focus:not(:active) {
+    border-color: #a3c4e3 !important;
+    box-shadow: 0 0 0 2px rgba(10, 61, 98, 0.2) !important;
+    color: #0a3d62 !important; /* Garante cor no foco ativo */
+}
+
 
 /* Cards Mensais */
 .metric-card{ background:#fff; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,.06); padding: 8px 12px; text-align:center; transition: all 0.3s ease; min-height: 95px; display: flex; flex-direction: column; justify-content: center; border-left: 5px solid #ccc; }
@@ -80,9 +117,9 @@ section[data-testid="stSidebar"] .stButton > button.active-menu-button:focus:not
 """, unsafe_allow_html=True)
 
 # ============================== I18N ================================
-I18N = { "Português": { "app_title": "Simulador de Salário Líquido e Custo do Empregador", "menu_calc": "Simulador de Remuneração", "menu_rules": "Regras de Contribuições", "menu_rules_sti": "Regras de Cálculo do STI", "menu_cost": "Custo do Empregador", "title_calc": "Simulador de Remuneração", "title_rules": "Regras de Contribuições", "title_rules_sti": "Regras de Cálculo do STI", "title_cost": "Custo do Empregador", "country": "País", "salary": "Salário Bruto", "state": "Estado (EUA)", "state_rate": "State Tax (%)", "dependents": "Dependentes (IR)", "bonus": "Bônus Anual", "earnings": "Proventos", "deductions": "Descontos", "net": "Salário Líquido", "fgts_deposit": "Depósito FGTS", "tot_earnings": "Total de Proventos", "tot_deductions": "Total de Descontos", "valid_from": "Vigência", "rules_emp": "Contribuições do Empregado", "rules_er": "Contribuições do Empregador", "rules_table_desc": "Descrição", "rules_table_rate": "Alíquota (%)", "rules_table_base": "Base de Cálculo", "rules_table_obs": "Observações / Teto", "official_source": "Fonte Oficial", "employer_cost_total": "Custo Total do Empregador", "annual_comp_title": "Composição da Remuneração Total Anual Bruta", "calc_params_title": "Parâmetros de Cálculo da Remuneração", "monthly_comp_title": "Remuneração Mensal Bruta e Líquida", "annual_salary": "📅 Salário Anual", "annual_bonus": "🎯 Bônus Anual", "annual_total": "💼 Remuneração Total Anual", "months_factor": "Meses considerados", "pie_title": "Distribuição Anual: Salário vs Bônus", "reload": "Recarregar tabelas", "source_remote": "Tabelas remotas", "source_local": "Fallback local", "choose_country": "Selecione o país", "menu_title": "Menu", "area": "Área (STI)", "level": "Career Level (STI)", "rules_expanded": "Detalhes das Contribuições Obrigatórias", "sti_area_non_sales": "Não Vendas", "sti_area_sales": "Vendas", "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Membros do GEB", "sti_level_executive_manager": "Gerente Executivo", "sti_level_senior_group_manager": "Gerente de Grupo Sênior", "sti_level_group_manager": "Gerente de Grupo", "sti_level_lead_expert_program_manager": "Especialista Líder / Gerente de Programa", "sti_level_senior_manager": "Gerente Sênior", "sti_level_senior_expert_senior_project_manager": "Especialista Sênior / Gerente de Projeto Sênior", "sti_level_manager_selected_expert_project_manager": "Gerente / Especialista Selecionado / Gerente de Projeto", "sti_level_others": "Outros", "sti_level_executive_manager_senior_group_manager": "Gerente Executivo / Gerente de Grupo Sênior", "sti_level_group_manager_lead_sales_manager": "Gerente de Grupo / Gerente de Vendas Líder", "sti_level_senior_manager_senior_sales_manager": "Gerente Sênior / Gerente de Vendas Sênior", "sti_level_manager_selected_sales_manager": "Gerente / Gerente de Vendas Selecionado", "sti_in_range": "Dentro do range", "sti_out_range": "Fora do range", "cost_header_charge": "Encargo", "cost_header_percent": "Percentual (%)", "cost_header_base": "Base", "cost_header_obs": "Observação", "cost_header_bonus": "Incide Bônus", "cost_header_vacation": "Incide Férias", "cost_header_13th": "Incide 13º", "sti_table_header_level": "Nível de Carreira", "sti_table_header_pct": "STI %" },
-    "English": { "app_title": "Net Salary & Employer Cost Simulator", "menu_calc": "Compensation Simulator", "menu_rules": "Contribution Rules", "menu_rules_sti": "STI Calculation Rules", "menu_cost": "Employer Cost", "title_calc": "Compensation Simulator", "title_rules": "Contribution Rules", "title_rules_sti": "STI Calculation Rules", "title_cost": "Employer Cost", "country": "Country", "salary": "Gross Salary", "state": "State (USA)", "state_rate": "State Tax (%)", "dependents": "Dependents (Tax)", "bonus": "Annual Bonus", "earnings": "Earnings", "deductions": "Deductions", "net": "Net Salary", "fgts_deposit": "FGTS Deposit", "tot_earnings": "Total Earnings", "tot_deductions": "Total Deductions", "valid_from": "Effective Date", "rules_emp": "Employee Contributions", "rules_er": "Employer Contributions", "rules_table_desc": "Description", "rules_table_rate": "Rate (%)", "rules_table_base": "Calculation Base", "rules_table_obs": "Notes / Cap", "official_source": "Official Source", "employer_cost_total": "Total Employer Cost", "annual_comp_title": "Total Annual Gross Compensation", "calc_params_title": "Compensation Calculation Parameters", "monthly_comp_title": "Monthly Gross and Net Compensation", "annual_salary": "📅 Annual Salary", "annual_bonus": "🎯 Annual Bonus", "annual_total": "💼 Total Annual Compensation", "months_factor": "Months considered", "pie_title": "Annual Split: Salary vs Bonus", "reload": "Reload tables", "source_remote": "Remote tables", "source_local": "Local fallback", "choose_country": "Select a country", "menu_title": "Menu", "area": "Area (STI)", "level": "Career Level (STI)", "rules_expanded": "Details of Mandatory Contributions", "sti_area_non_sales": "Non Sales", "sti_area_sales": "Sales", "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Members of the GEB", "sti_level_executive_manager": "Executive Manager", "sti_level_senior_group_manager": "Senior Group Manager", "sti_level_group_manager": "Group Manager", "sti_level_lead_expert_program_manager": "Lead Expert / Program Manager", "sti_level_senior_manager": "Senior Manager", "sti_level_senior_expert_senior_project_manager": "Senior Expert / Senior Project Manager", "sti_level_manager_selected_expert_project_manager": "Manager / Selected Expert / Project Manager", "sti_level_others": "Others", "sti_level_executive_manager_senior_group_manager": "Executive Manager / Senior Group Manager", "sti_level_group_manager_lead_sales_manager": "Group Manager / Lead Sales Manager", "sti_level_senior_manager_senior_sales_manager": "Senior Manager / Senior Sales Manager", "sti_level_manager_selected_sales_manager": "Manager / Selected Sales Manager", "sti_in_range": "Within range", "sti_out_range": "Outside range", "cost_header_charge": "Charge", "cost_header_percent": "Percent (%)", "cost_header_base": "Base", "cost_header_obs": "Observation", "cost_header_bonus": "Applies to Bonus", "cost_header_vacation": "Applies to Vacation", "cost_header_13th": "Applies to 13th", "sti_table_header_level": "Career Level", "sti_table_header_pct": "STI %" },
-    "Español": { "app_title": "Simulador de Salario Neto y Costo del Empleador", "menu_calc": "Simulador de Remuneración", "menu_rules": "Reglas de Contribuciones", "menu_rules_sti": "Reglas de Cálculo del STI", "menu_cost": "Costo del Empleador", "title_calc": "Simulador de Remuneración", "title_rules": "Reglas de Contribuciones", "title_rules_sti": "Reglas de Cálculo del STI", "title_cost": "Costo del Empleador", "country": "País", "salary": "Salario Bruto", "state": "Estado (EE. UU.)", "state_rate": "Impuesto Estatal (%)", "dependents": "Dependientes (Impuesto)", "bonus": "Bono Anual", "earnings": "Ingresos", "deductions": "Descuentos", "net": "Salario Neto", "fgts_deposit": "Depósito de FGTS", "tot_earnings": "Total Ingresos", "tot_deductions": "Total Descuentos", "valid_from": "Vigencia", "rules_emp": "Contribuciones del Empleado", "rules_er": "Contribuciones del Empleador", "rules_table_desc": "Descripción", "rules_table_rate": "Tasa (%)", "rules_table_base": "Base de Cálculo", "rules_table_obs": "Notas / Tope", "official_source": "Fuente Oficial", "employer_cost_total": "Costo Total del Empleador", "annual_comp_title": "Composición de la Remuneración Anual Bruta", "calc_params_title": "Parámetros de Cálculo de Remuneración", "monthly_comp_title": "Remuneración Mensual Bruta y Neta", "annual_salary": "📅 Salario Anual", "annual_bonus": "🎯 Bono Anual", "annual_total": "💼 Remuneración Anual Total", "months_factor": "Meses considerados", "pie_title": "Distribución Anual: Salario vs Bono", "reload": "Recargar tablas", "source_remote": "Tablas remotas", "source_local": "Copia local", "choose_country": "Seleccione un país", "menu_title": "Menú", "area": "Área (STI)", "level": "Career Level (STI)", "rules_expanded": "Detalles de las Contribuciones Obligatorias", "sti_area_non_sales": "No Ventas", "sti_area_sales": "Ventas", "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Miembros del GEB", "sti_level_executive_manager": "Gerente Ejecutivo", "sti_level_senior_group_manager": "Gerente de Grupo Sénior", "sti_level_group_manager": "Gerente de Grupo", "sti_level_lead_expert_program_manager": "Experto Líder / Gerente de Programa", "sti_level_senior_manager": "Gerente Sénior", "sti_level_senior_expert_senior_project_manager": "Experto Sénior / Gerente de Proyecto Sénior", "sti_level_manager_selected_expert_project_manager": "Gerente / Experto Seleccionado / Gerente de Proyecto", "sti_level_others": "Otros", "sti_level_executive_manager_senior_group_manager": "Gerente Ejecutivo / Gerente de Grupo Sénior", "sti_level_group_manager_lead_sales_manager": "Gerente de Grupo / Gerente de Ventas Líder", "sti_level_senior_manager_senior_sales_manager": "Gerente Sénior / Gerente de Ventas Sénior", "sti_level_manager_selected_sales_manager": "Gerente / Gerente de Ventas Seleccionado", "sti_in_range": "Dentro del rango", "sti_out_range": "Fuera del rango", "cost_header_charge": "Encargo", "cost_header_percent": "Percentual (%)", "cost_header_base": "Base", "cost_header_obs": "Observación", "cost_header_bonus": "Incide Bono", "cost_header_vacation": "Incide Vacaciones", "cost_header_13th": "Incide 13º", "sti_table_header_level": "Nivel de Carrera", "sti_table_header_pct": "STI %" }
+I18N = { "Português": { "app_title": "Simulador de Salário Líquido e Custo do Empregador", "menu_calc": "Simulador de Remuneração", "menu_rules": "Regras de Contribuições", "menu_rules_sti": "Regras de Cálculo do STI", "menu_cost": "Custo do Empregador", "title_calc": "Simulador de Remuneração", "title_rules": "Regras de Contribuições", "title_rules_sti": "Regras de Cálculo do STI", "title_cost": "Custo do Empregador", "country": "País", "salary": "Salário Bruto", "state": "Estado (EUA)", "state_rate": "State Tax (%)", "dependents": "Dependentes (IR)", "bonus": "Bônus Anual", "earnings": "Proventos", "deductions": "Descontos", "net": "Salário Líquido", "fgts_deposit": "Depósito FGTS", "tot_earnings": "Total de Proventos", "tot_deductions": "Total de Descontos", "valid_from": "Vigência", "rules_emp": "Contribuições do Empregado", "rules_er": "Contribuições do Empregador", "rules_table_desc": "Descrição", "rules_table_rate": "Alíquota (%)", "rules_table_base": "Base de Cálculo", "rules_table_obs": "Observações / Teto", "official_source": "Fonte Oficial", "employer_cost_total": "Custo Total do Empregador", "annual_comp_title": "Composição da Remuneração Total Anual Bruta", "calc_params_title": "Parâmetros de Cálculo da Remuneração", "monthly_comp_title": "Remuneração Mensal Bruta e Líquida", "annual_salary": "📅 Salário Anual", "annual_bonus": "🎯 Bônus Anual", "annual_total": "💼 Remuneração Total Anual", "months_factor": "Meses considerados", "pie_title": "Distribuição Anual: Salário vs Bônus", "reload": "Recarregar tabelas", "source_remote": "Tabelas remotas", "source_local": "Fallback local", "choose_country": "Selecione o país", "menu_title": "Menu", "language_title": "🌐 Idioma / Language / Idioma", "area": "Área (STI)", "level": "Career Level (STI)", "rules_expanded": "Detalhes das Contribuições Obrigatórias", "sti_area_non_sales": "Não Vendas", "sti_area_sales": "Vendas", "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Membros do GEB", "sti_level_executive_manager": "Gerente Executivo", "sti_level_senior_group_manager": "Gerente de Grupo Sênior", "sti_level_group_manager": "Gerente de Grupo", "sti_level_lead_expert_program_manager": "Especialista Líder / Gerente de Programa", "sti_level_senior_manager": "Gerente Sênior", "sti_level_senior_expert_senior_project_manager": "Especialista Sênior / Gerente de Projeto Sênior", "sti_level_manager_selected_expert_project_manager": "Gerente / Especialista Selecionado / Gerente de Projeto", "sti_level_others": "Outros", "sti_level_executive_manager_senior_group_manager": "Gerente Executivo / Gerente de Grupo Sênior", "sti_level_group_manager_lead_sales_manager": "Gerente de Grupo / Gerente de Vendas Líder", "sti_level_senior_manager_senior_sales_manager": "Gerente Sênior / Gerente de Vendas Sênior", "sti_level_manager_selected_sales_manager": "Gerente / Gerente de Vendas Selecionado", "sti_in_range": "Dentro do range", "sti_out_range": "Fora do range", "cost_header_charge": "Encargo", "cost_header_percent": "Percentual (%)", "cost_header_base": "Base", "cost_header_obs": "Observação", "cost_header_bonus": "Incide Bônus", "cost_header_vacation": "Incide Férias", "cost_header_13th": "Incide 13º", "sti_table_header_level": "Nível de Carreira", "sti_table_header_pct": "STI %" },
+    "English": { "app_title": "Net Salary & Employer Cost Simulator", "menu_calc": "Compensation Simulator", "menu_rules": "Contribution Rules", "menu_rules_sti": "STI Calculation Rules", "menu_cost": "Employer Cost", "title_calc": "Compensation Simulator", "title_rules": "Contribution Rules", "title_rules_sti": "STI Calculation Rules", "title_cost": "Employer Cost", "country": "Country", "salary": "Gross Salary", "state": "State (USA)", "state_rate": "State Tax (%)", "dependents": "Dependents (Tax)", "bonus": "Annual Bonus", "earnings": "Earnings", "deductions": "Deductions", "net": "Net Salary", "fgts_deposit": "FGTS Deposit", "tot_earnings": "Total Earnings", "tot_deductions": "Total Deductions", "valid_from": "Effective Date", "rules_emp": "Employee Contributions", "rules_er": "Employer Contributions", "rules_table_desc": "Description", "rules_table_rate": "Rate (%)", "rules_table_base": "Calculation Base", "rules_table_obs": "Notes / Cap", "official_source": "Official Source", "employer_cost_total": "Total Employer Cost", "annual_comp_title": "Total Annual Gross Compensation", "calc_params_title": "Compensation Calculation Parameters", "monthly_comp_title": "Monthly Gross and Net Compensation", "annual_salary": "📅 Annual Salary", "annual_bonus": "🎯 Annual Bonus", "annual_total": "💼 Total Annual Compensation", "months_factor": "Months considered", "pie_title": "Annual Split: Salary vs Bonus", "reload": "Reload tables", "source_remote": "Remote tables", "source_local": "Local fallback", "choose_country": "Select a country", "menu_title": "Menu", "language_title": "🌐 Idioma / Language / Idioma", "area": "Area (STI)", "level": "Career Level (STI)", "rules_expanded": "Details of Mandatory Contributions", "sti_area_non_sales": "Non Sales", "sti_area_sales": "Sales", "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Members of the GEB", "sti_level_executive_manager": "Executive Manager", "sti_level_senior_group_manager": "Senior Group Manager", "sti_level_group_manager": "Group Manager", "sti_level_lead_expert_program_manager": "Lead Expert / Program Manager", "sti_level_senior_manager": "Senior Manager", "sti_level_senior_expert_senior_project_manager": "Senior Expert / Senior Project Manager", "sti_level_manager_selected_expert_project_manager": "Manager / Selected Expert / Project Manager", "sti_level_others": "Others", "sti_level_executive_manager_senior_group_manager": "Executive Manager / Senior Group Manager", "sti_level_group_manager_lead_sales_manager": "Group Manager / Lead Sales Manager", "sti_level_senior_manager_senior_sales_manager": "Senior Manager / Senior Sales Manager", "sti_level_manager_selected_sales_manager": "Manager / Selected Sales Manager", "sti_in_range": "Within range", "sti_out_range": "Outside range", "cost_header_charge": "Charge", "cost_header_percent": "Percent (%)", "cost_header_base": "Base", "cost_header_obs": "Observation", "cost_header_bonus": "Applies to Bonus", "cost_header_vacation": "Applies to Vacation", "cost_header_13th": "Applies to 13th", "sti_table_header_level": "Career Level", "sti_table_header_pct": "STI %" },
+    "Español": { "app_title": "Simulador de Salario Neto y Costo del Empleador", "menu_calc": "Simulador de Remuneración", "menu_rules": "Reglas de Contribuciones", "menu_rules_sti": "Reglas de Cálculo del STI", "menu_cost": "Costo del Empleador", "title_calc": "Simulador de Remuneración", "title_rules": "Reglas de Contribuciones", "title_rules_sti": "Reglas de Cálculo del STI", "title_cost": "Costo del Empleador", "country": "País", "salary": "Salario Bruto", "state": "Estado (EE. UU.)", "state_rate": "Impuesto Estatal (%)", "dependents": "Dependientes (Impuesto)", "bonus": "Bono Anual", "earnings": "Ingresos", "deductions": "Descuentos", "net": "Salario Neto", "fgts_deposit": "Depósito de FGTS", "tot_earnings": "Total Ingresos", "tot_deductions": "Total Descuentos", "valid_from": "Vigencia", "rules_emp": "Contribuciones del Empleado", "rules_er": "Contribuciones del Empleador", "rules_table_desc": "Descripción", "rules_table_rate": "Tasa (%)", "rules_table_base": "Base de Cálculo", "rules_table_obs": "Notas / Tope", "official_source": "Fuente Oficial", "employer_cost_total": "Costo Total del Empleador", "annual_comp_title": "Composición de la Remuneración Anual Bruta", "calc_params_title": "Parámetros de Cálculo de Remuneración", "monthly_comp_title": "Remuneración Mensual Bruta y Neta", "annual_salary": "📅 Salario Anual", "annual_bonus": "🎯 Bono Anual", "annual_total": "💼 Remuneración Anual Total", "months_factor": "Meses considerados", "pie_title": "Distribución Anual: Salario vs Bono", "reload": "Recargar tablas", "source_remote": "Tablas remotas", "source_local": "Copia local", "choose_country": "Seleccione un país", "menu_title": "Menú", "language_title": "🌐 Idioma / Language / Idioma", "area": "Área (STI)", "level": "Career Level (STI)", "rules_expanded": "Detalles de las Contribuciones Obligatorias", "sti_area_non_sales": "No Ventas", "sti_area_sales": "Ventas", "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Miembros del GEB", "sti_level_executive_manager": "Gerente Ejecutivo", "sti_level_senior_group_manager": "Gerente de Grupo Sénior", "sti_level_group_manager": "Gerente de Grupo", "sti_level_lead_expert_program_manager": "Experto Líder / Gerente de Programa", "sti_level_senior_manager": "Gerente Sénior", "sti_level_senior_expert_senior_project_manager": "Experto Sénior / Gerente de Proyecto Sénior", "sti_level_manager_selected_expert_project_manager": "Gerente / Experto Seleccionado / Gerente de Proyecto", "sti_level_others": "Otros", "sti_level_executive_manager_senior_group_manager": "Gerente Ejecutivo / Gerente de Grupo Sénior", "sti_level_group_manager_lead_sales_manager": "Gerente de Grupo / Gerente de Ventas Líder", "sti_level_senior_manager_senior_sales_manager": "Gerente Sénior / Gerente de Ventas Sénior", "sti_level_manager_selected_sales_manager": "Gerente / Gerente de Ventas Seleccionado", "sti_in_range": "Dentro del rango", "sti_out_range": "Fuera del rango", "cost_header_charge": "Encargo", "cost_header_percent": "Percentual (%)", "cost_header_base": "Base", "cost_header_obs": "Observación", "cost_header_bonus": "Incide Bono", "cost_header_vacation": "Incide Vacaciones", "cost_header_13th": "Incide 13º", "sti_table_header_level": "Nivel de Carrera", "sti_table_header_pct": "STI %" }
 }
 
 # ====================== PAÍSES / MOEDAS / BANDEIRAS =====================
@@ -132,11 +169,9 @@ STI_LEVEL_OPTIONS = { "Non Sales": [ "CEO", "Members of the GEB", "Executive Man
 STI_I18N_KEYS = { "CEO": "sti_level_ceo", "Members of the GEB": "sti_level_members_of_the_geb", "Executive Manager": "sti_level_executive_manager", "Senior Group Manager": "sti_level_senior_group_manager", "Group Manager": "sti_level_group_manager", "Lead Expert / Program Manager": "sti_level_lead_expert_program_manager", "Senior Manager": "sti_level_senior_manager", "Senior Expert / Senior Project Manager": "sti_level_senior_expert_senior_project_manager", "Manager / Selected Expert / Project Manager": "sti_level_manager_selected_expert_project_manager", "Others": "sti_level_others", "Executive Manager / Senior Group Manager": "sti_level_executive_manager_senior_group_manager", "Group Manager / Lead Sales Manager": "sti_level_group_manager_lead_sales_manager", "Senior Manager / Senior Sales Manager": "sti_level_senior_manager_senior_sales_manager", "Manager / Selected Sales Manager": "sti_level_manager_selected_sales_manager" }
 
 # REQ 5: Mapa Américas (SVG Novo - Mais detalhado)
-MAPA_AMERICAS_B64 = "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMDAgNDUwIiBzdHlsZT0iYmFja2dyb3VuZDp0cmFuc3BhcmVudDsiPgogIDxwYXRoIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMSIgZmlsbD0ibm9uZSIgZD0iTTEyMCA1MCBDMTAwIDUwIDgwIDYwIDcwIDgwIEM2MCAxMDAgNjAgMTIwIDcwIDE0MCBDODAgMTYwIDEwMCAxNzAgMTIwIDE3NSBDMTQwIDE4MCAxNjAgMTgwIDE4MCAxNzUgQzIwMCAxNzAgMjIwIDE2MCAyMzAgMTQ1IEMyNDAgMTMwIDI0NSAxMTAgMjQwIDkwIEMyMzUgNzAgMjI1IDUwIDIwNSAzNSBDMTg1IDIwIDE1NSAxNSAxMjAgMjAgQzExNSAyMiAxMTAgMjUgMTA1IDMwIEwxMDUgMzAgTDEwNyAzMiBM MTEwIDM1IEwxMTUgNDAgTDEyMCA0NSBaIE0xODAgMTg1IEMxNjAgMTkwIDE0NSAyMDAgMTM1IDIxNSBDMTI1IDIzMCAxMjAgMjUwIDEyNSAyNzAgQzEzMCAyOTAgMTQwIDMwNSAxNTUgMzIwIEMxNzAgMzM1IDE4NSAzNDUgMTk1IDM1NSBDMjA1IDM2NSAyMTAgMzc1IDIxMCAzOTAgQzIxMCA0MDUgMjA1IDQxNSAyMDAgNDI1IEwxOTggNDMwIEwxOTggNDM1IEwyMDAgNDQwIEwyMDUgNDQwIEwyMTAgNDM1IEwyMTUgNDMwIEwyMjAgNDIwIEwyMjAgNDA1IEwyMjUgMzk1IEwyMzAgMzg1IEwyMzUgMzcwIEwyNDAgMzU1IEwyNDAgMzQwIEwyMzUgMzI1IEwyMjUgMzEwIEwyMTAgMjk1IEwxOTUgMjg1IEwxODAgMjc1IEwxNzAgMjY1IEwxNjUgMjU1IEwxNjUgMjQ1IEwxNzAgMjM1IEwxODAgMjI1IEwxOTAgMjE1IEwyMDAgMjA1IEwyMDUgMTk1IEwxODAgMTg1IFoiLz4KPC9zdmc+Cg=="
+MAPA_AMERICAS_B64 = "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MDAgNzAwIiBzdHlsZT0iYmFja2dyb3VuZDp0cmFuc3BhcmVudDsiPgogIDxwYXRoIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIiBkPSJNMTkwIDIwIEMxNzAgMzAgMTQwIDQwIDEyMCA1MCBDMTAwIDYwIDgwIDcwIDcwIDkwIEM2MCAxMTAgNjAgMTQwIDgwIDE2MCBDMTAwIDE4MCAxMjAgMTkwIDE0MCAyMDAgQzE2MCAyMTAgMTgwIDIxNSAyMDAgMjIwIEMyMjAgMjI1IDI0MCAyMzAgMjYwIDIzMCBDMjgwIDIzMCAzMDAgMjI1IDMxNSAyMTUgQzMzMCAyMDUgMzQwIDE5MCAzNTAgMTcwIEMzNjAgMTUwIDM2NSAxMzAgMzYwIDExMCBDMzU1IDkwIDM0MCA3MCAzMjAgNTUgQzMwMCA0MCAyNzAgMzAgMjQwIDI1IEwyMDAgMjAgQzE5NSAyMCAxOTIgMjAgMTkwIDIwIFogTTI2MCAyNDAgQzI0MCAyNTAgMjMwIDI2NSAyMjAgMjgwIEMyMTAgMjk1IDIwNSAzMTAgMjA1IDMyNSBDMjA1IDM0MCAyMTAgMzU1IDIyMCAzNzAgQzIzMCAzODUgMjQ1IDQwMCAyNjAgNDEwIEMyNzUgNDIwIDI5MCA0MjUgMzA1IDQzMCBDMzIwIDQzNSAzMzUgNDM1IDM0NSA0MzAgQzM1NSA0MjUgMzYwIDQxNSAzNjAgNDAwIEMzNjAgMzg1IDM1NSAzNzAgMzQ1IDM1NSBDMzM1IDM0MCAzMjAgMzI1IDMwNSAzMTAgQzI5MCAyOTUgMjc1IDI4MCAyNjAgMjY1IEwyNjAgMjQwIFoiLz4KPC9zdmc+Cg=="
 
 # ============================== (Restante dos HELPERS) ===============================
-# (Funções: get_sti_range, calc_inss_progressivo, calc_irrf, br_net, generic_net, us_net, ca_net, calc_country_net, calc_employer_cost, get_sti_area_map, get_sti_level_map, fetch_json_no_cache, load_tables)
-# - O código dessas funções permanece o mesmo da versão v2025.50.3
 
 def get_sti_range(area: str, level: str) -> Tuple[float, float]:
     area_tbl = STI_RANGES.get(area, {})
@@ -177,7 +212,7 @@ def br_net(salary: float, dependentes: int, br_inss_tbl: Dict[str, Any], br_irrf
 def generic_net(salary: float, rates: Dict[str, float], country_code: str):
     lines = [("Base", salary, 0.0)]; total_earn = salary; total_ded = 0.0
     for k, aliq in rates.items():
-        if k == "CPP2" and country_code == "Canadá": continue # Ignora CPP2 aqui
+        if k == "CPP2" and country_code == "Canadá": continue
         v = salary * float(aliq); total_ded += v; lines.append((k, 0.0, v))
     net = total_earn - total_ded
     return lines, total_earn, total_ded, net
@@ -246,7 +281,7 @@ def calc_employer_cost(country: str, salary: float, bonus: float, T: Dict[str, s
         base_calc_anual = salario_anual_base if country in ["Estados Unidos", "Canadá"] else salario_anual_beneficios
         if incide_bonus: base_calc_anual += bonus
         if teto is not None and isinstance(teto, (int, float)):
-            if country == "Chile" and isinstance(teto, float) and teto < 200: pass # Ignora teto UF
+            if country == "Chile" and isinstance(teto, float) and teto < 200: pass
             elif item.get("nome") == "CPP2 (ER)": base_calc_anual = max(0, min(base_calc_anual, teto) - min(base_calc_anual, ANNUAL_CAPS["CA_CPP_YMPEx1"]))
             else: base_calc_anual = min(base_calc_anual, teto)
         custo_item = base_calc_anual * perc; total_cost_items.append(custo_item)
@@ -279,8 +314,12 @@ def load_tables():
 # ============================== SIDEBAR ===============================
 with st.sidebar:
     st.markdown("<h2 style='color:white; text-align:center; font-size:20px; margin-bottom: 25px;'>Simulador de Remuneração<br>(Região das Americas)</h2>", unsafe_allow_html=True)
-    idioma = st.selectbox(label="🌐 Idioma / Language / Idioma", options=list(I18N.keys()), index=0, key="lang_select", label_visibility="visible")
+
+    # REQ 1: Adiciona Título H3 para Idioma
+    st.markdown(f"<h3 style='margin-bottom: 0.5rem;'>{I18N['Português']['language_title']}</h3>", unsafe_allow_html=True) # Usa chave fixa para o título multi-idioma
+    idioma = st.selectbox(label="Language Select", options=list(I18N.keys()), index=0, key="lang_select", label_visibility="collapsed") # Label oculta
     T = I18N[idioma]
+
     st.markdown(f"<h3 style='margin-bottom: 0.5rem;'>{T['country']}</h3>", unsafe_allow_html=True)
     country = st.selectbox(T["choose_country"], list(COUNTRIES.keys()), index=0, key="country_select", label_visibility="collapsed")
 
@@ -299,13 +338,14 @@ with st.sidebar:
         # Aplica classe CSS ao botão ativo (usando CSS global)
         active_class_name = "active-menu-button" if is_active else ""
         # St.button não aceita 'class', então usamos o key e o CSS global
+        # A cor do texto é definida no CSS global
         if cols[0].button(option, key=button_key, use_container_width=True):
              if not is_active:
                  st.session_state.active_menu = option
                  st.rerun()
 
-    # REQ 5: Mapa Américas
-    st.markdown(f'<div style="text-align: center;"><img src="data:image/svg+xml;base64,{MAPA_AMERICAS_B64}" style="width:80%; max-width: 150px; height:auto; padding-top: 30px; opacity: 0.8;"></div>', unsafe_allow_html=True)
+    # REQ 5: Mapa Américas (Removido st.markdown("---"))
+    st.markdown(f'<div style="text-align: center; margin-top: 30px;"><img src="data:image/svg+xml;base64,{MAPA_AMERICAS_B64}" style="width:70%; max-width: 120px; height:auto; opacity: 0.8;"></div>', unsafe_allow_html=True) # Reduzido um pouco o tamanho
 
 US_STATE_RATES, COUNTRY_TABLES, BR_INSS_TBL, BR_IRRF_TBL = load_tables()
 
@@ -449,11 +489,13 @@ elif active_menu == T["menu_rules"]:
 
     # --- Explicações Detalhadas (REQ 4: Restaurado) ---
     st.markdown("---") # Divisor antes das explicações
+
+    # Brasil
     if country == "Brasil":
         if idioma == "Português":
             st.markdown(f"""
             **{T["rules_emp"]} - Explicação:**
-            - **INSS:** Calculado de forma progressiva sobre faixas salariais. Cada faixa tem sua alíquota (7.5% a 14%). A contribuição total é a soma do valor calculado em cada faixa, limitada ao teto de contribuição.
+            - **INSS:** Calculado de forma progressiva sobre faixas salariais. Cada faixa tem sua alíquota (7.5% a 14%). A contribuição total é a soma do valor calculado em cada faixa, limitada ao teto de contribuição. Exemplo: Salário R$ 4.000 ⇒ (1412 * 7.5%) + ((2666.68 - 1412) * 9%) + ((4000 - 2666.68) * 12%).
             - **IRRF:** Calculado sobre o Salário Bruto após deduzir o INSS e um valor fixo por dependente. Aplica-se a alíquota da faixa correspondente e subtrai-se a parcela a deduzir.
 
             **{T["rules_er"]} - Explicação:**
@@ -461,7 +503,7 @@ elif active_menu == T["menu_rules"]:
             - **FGTS:** Depósito mensal de 8% sobre o Salário Bruto em uma conta vinculada ao empregado.
 
             **{T['cost_header_13th']} e {T['cost_header_vacation']}:**
-            - O custo anual inclui 13º (1 salário) e Férias (1 salário + 1/3). O fator `13.33` reflete isso. Encargos incidem sobre essa base ampliada.
+            - O custo anual inclui 13º Salário (1 salário extra) e Férias (1 salário + 1/3 de bônus constitucional). O fator `13.33` reflete isso. Encargos incidem sobre essa base ampliada.
             """)
         else: # English/Español
             st.markdown(f"""
@@ -476,183 +518,194 @@ elif active_menu == T["menu_rules"]:
             **{T['cost_header_13th']} & {T['cost_header_vacation']}:**
             - Annual cost includes 13th Salary (1 extra) and Vacation (1 salary + 1/3 bonus). The `13.33` factor reflects this. Employer charges apply to this extended base.
             """)
+    # Estados Unidos
     elif country == "Estados Unidos":
         if idioma == "Português":
             st.markdown(f"""
             **{T["rules_emp"]} - Explicação:**
-            - **FICA (Social Security):** 6.2% sobre o Salário Bruto, limitado ao teto anual.
+            - **FICA (Social Security):** 6.2% sobre o Salário Bruto, limitado ao teto anual ({fmt_money(ANNUAL_CAPS['US_FICA'], 'US$')}).
             - **Medicare:** 1.45% sobre o Salário Bruto total, sem teto.
-            - **State Tax:** Varia conforme o estado.
+            - **State Tax:** Varia conforme o estado (0% a ~10%+).
 
             **{T["rules_er"]} - Explicação:**
-            - **FICA & Medicare Match:** O empregador paga os mesmos valores e percentuais que o empregado, respeitando o mesmo teto do FICA.
-            - **SUTA/FUTA:** Imposto de desemprego calculado sobre uma base salarial baixa (primeiros milhares de dólares anuais).
+            - **FICA & Medicare Match:** O empregador paga os mesmos valores e percentuais que o empregado, respeitando o teto do FICA.
+            - **SUTA/FUTA:** Imposto de desemprego (federal + estadual) calculado sobre uma base salarial baixa (ex: primeiros ${fmt_money(ANNUAL_CAPS['US_SUTA_BASE'], '')}/ano), resultando em custo baixo para salários altos.
 
             **{T['cost_header_13th']} e {T['cost_header_vacation']}:**
-            - Não há 13º obrigatório. Férias (PTO) são benefício sem encargos adicionais diretos. Fator `12.00`.
+            - Não há 13º obrigatório. Férias (PTO) são benefício. Fator `12.00`.
             """)
         else: # English/Español
             st.markdown(f"""
             **{T["rules_emp"]} - Explanation:**
-            - **FICA (Social Security):** 6.2% on Gross Salary, up to the annual wage base limit.
+            - **FICA (Social Security):** 6.2% on Gross Salary, up to the annual wage base limit ({fmt_money(ANNUAL_CAPS['US_FICA'], 'US$')}).
             - **Medicare:** 1.45% on total Gross Salary (no cap).
-            - **State Tax:** Varies by state.
+            - **State Tax:** Varies by state (0% to ~10%+).
 
             **{T["rules_er"]} - Explanation:**
             - **FICA & Medicare Match:** Employer pays the same rates as the employee, subject to the same FICA cap.
-            - **SUTA/FUTA:** Unemployment tax calculated on a low wage base (first few thousand dollars annually).
+            - **SUTA/FUTA:** Unemployment tax (federal + state) calculated on a low wage base (e.g., first ${fmt_money(ANNUAL_CAPS['US_SUTA_BASE'], '')}/year), resulting in low cost for high salaries.
 
             **{T['cost_header_13th']} & {T['cost_header_vacation']}:**
-            - No mandatory 13th salary. Vacation (PTO) is a benefit without direct additional payroll taxes. Factor `12.00`.
+            - No mandatory 13th salary. Vacation (PTO) is a benefit. Factor `12.00`.
             """)
+    # Canadá
     elif country == "Canadá":
          if idioma == "Português":
              st.markdown(f"""
             **{T["rules_emp"]} - Explicação:**
-            - **CPP:** 5.95% sobre o Salário Bruto entre a isenção básica e o Teto 1 (YMPE).
-            - **CPP2:** 4.0% sobre o Salário Bruto entre o Teto 1 (YMPE) e o Teto 2 (YMPE2).
-            - **EI:** 1.63% sobre o Salário Bruto até o teto de ganhos seguráveis (MIE).
-            - **Income Tax:** Imposto de renda progressivo Federal e Provincial (complexo).
+            - **CPP:** 5.95% sobre o Salário Bruto entre a isenção básica ({fmt_money(ANNUAL_CAPS['CA_CPP_EXEMPT'], 'CAD$')}/ano) e o Teto 1 (YMPE - {fmt_money(ANNUAL_CAPS['CA_CPP_YMPEx1'], 'CAD$')}).
+            - **CPP2:** 4.0% sobre o Salário Bruto entre o Teto 1 e o Teto 2 (YMPE2 - {fmt_money(ANNUAL_CAPS['CA_CPP_YMPEx2'], 'CAD$')}).
+            - **EI:** 1.63% sobre o Salário Bruto até o teto (MIE - {fmt_money(ANNUAL_CAPS['CA_EI_MIE'], 'CAD$')}).
+            - **Income Tax:** Imposto de renda progressivo Federal e Provincial (cálculo complexo, simplificado no simulador).
 
             **{T["rules_er"]} - Explicação:**
-            - **CPP/CPP2 Match:** Empregador paga o mesmo valor que o empregado.
-            - **EI Match:** Empregador paga 1.4 vezes a contribuição do empregado.
+            - **CPP/CPP2 Match:** Empregador paga o mesmo valor que o empregado, sobre as mesmas bases e tetos.
+            - **EI Match:** Empregador paga 1.4 vezes a contribuição do empregado (2.28%), sobre a mesma base e teto.
 
             **{T['cost_header_13th']} e {T['cost_header_vacation']}:**
-            - Não há 13º obrigatório. Pagamento de férias (4%) usualmente substitui salário ou é adicional. Fator `12.00`.
+            - Não há 13º obrigatório. Férias pagas (ex: 4% do salário) são obrigatórias. Fator `12.00`.
             """)
          else: # English/Español
              st.markdown(f"""
             **{T["rules_emp"]} - Explanation:**
-            - **CPP:** 5.95% on Gross Salary between the basic exemption and Cap 1 (YMPE).
-            - **CPP2:** 4.0% on Gross Salary between Cap 1 (YMPE) and Cap 2 (YMPE2).
-            - **EI:** 1.63% on Gross Salary up to the maximum insurable earnings (MIE).
-            - **Income Tax:** Progressive Federal and Provincial income tax (complex).
+            - **CPP:** 5.95% on Gross Salary between the basic exemption ({fmt_money(ANNUAL_CAPS['CA_CPP_EXEMPT'], 'CAD$')}/year) and Cap 1 (YMPE - {fmt_money(ANNUAL_CAPS['CA_CPP_YMPEx1'], 'CAD$')}).
+            - **CPP2:** 4.0% on Gross Salary between Cap 1 and Cap 2 (YMPE2 - {fmt_money(ANNUAL_CAPS['CA_CPP_YMPEx2'], 'CAD$')}).
+            - **EI:** 1.63% on Gross Salary up to the maximum insurable earnings (MIE - {fmt_money(ANNUAL_CAPS['CA_EI_MIE'], 'CAD$')}).
+            - **Income Tax:** Progressive Federal and Provincial income tax (complex calculation, simplified in simulator).
 
             **{T["rules_er"]} - Explanation:**
-            - **CPP/CPP2 Match:** Employer pays the same amount as the employee.
-            - **EI Match:** Employer pays 1.4 times the employee's contribution.
+            - **CPP/CPP2 Match:** Employer pays the same amount as the employee, on the same bases and caps.
+            - **EI Match:** Employer pays 1.4 times the employee's contribution (2.28%), on the same base and cap.
 
             **{T['cost_header_13th']} & {T['cost_header_vacation']}:**
-            - No mandatory 13th salary. Vacation pay (4%) usually replaces salary or is paid on top. Factor `12.00`.
+            - No mandatory 13th salary. Paid vacation (e.g., 4% of earnings) is mandatory. Factor `12.00`.
             """)
+    # México
     elif country == "México":
         if idioma == "Português":
             st.markdown(f"""
             **{T["rules_emp"]} - Explicação (Simplificada):**
-            - **ISR:** Imposto de renda progressivo.
-            - **IMSS:** Contribuição para seguridade social.
-            - *Simulador usa taxas fixas.*
+            - **ISR:** Imposto de renda progressivo complexo baseado em tabelas mensais/anuais.
+            - **IMSS:** Contribuição para seguridade social (doenças, maternidade, invalidez, etc.), com taxas variáveis e teto.
+            - *Simulador usa taxas fixas como aproximação.*
 
             **{T["rules_er"]} - Explicação:**
-            - **IMSS, INFONAVIT, SAR:** Contribuições patronais para seguridade social, habitação e aposentadoria, calculadas sobre o Salário Base de Contribuição (SBC), que integra salário, benefícios e parte do 13º/férias, com tetos.
-            - **ISN:** Imposto estadual sobre a folha.
+            - **IMSS, INFONAVIT, SAR:** Contribuições patronais para seguridade social, habitação e aposentadoria. Calculadas sobre o Salário Base de Contribuição (SBC), que integra salário e benefícios, sujeito a tetos (ex: 25 UMA).
+            - **ISN:** Imposto estadual sobre a folha (2-3% dependendo do estado).
 
             **{T['cost_header_13th']} e {T['cost_header_vacation']}:**
-            - **Aguinaldo (13º):** Mínimo 15 dias. Fator `12.50`.
-            - **Prima Vacacional:** 25% sobre dias de férias. Encargos incidem sobre a base integrada.
+            - **Aguinaldo (13º):** Obrigatório, mínimo de 15 dias de salário. Fator `12.50`.
+            - **Prima Vacacional:** 25% pagos sobre o salário dos dias de férias anuais (progressivo com tempo de serviço). Encargos incidem sobre a base integrada.
             """)
         else: # English/Español
              st.markdown(f"""
             **{T["rules_emp"]} - Explanation (Simplified):**
-            - **ISR:** Progressive income tax.
-            - **IMSS:** Social security contribution.
-            - *Simulator uses flat rates.*
+            - **ISR:** Complex progressive income tax based on monthly/annual tables.
+            - **IMSS:** Social security contribution (illness, maternity, disability, etc.), with variable rates and caps.
+            - *Simulator uses flat rates as an approximation.*
 
             **{T["rules_er"]} - Explanation:**
-            - **IMSS, INFONAVIT, SAR:** Employer contributions for social security, housing, and retirement, calculated on the Contribution Base Salary (SBC), which includes salary, benefits, and part of 13th/vacation pay, subject to caps.
-            - **ISN:** State payroll tax.
+            - **IMSS, INFONAVIT, SAR:** Employer contributions for social security, housing, and retirement. Calculated on the Contribution Base Salary (SBC), which integrates salary and benefits, subject to caps (e.g., 25 UMA).
+            - **ISN:** State payroll tax (2-3% depending on the state).
 
             **{T['cost_header_13th']} & {T['cost_header_vacation']}:**
-            - **Aguinaldo (13th):** Minimum 15 days. Factor `12.50`.
-            - **Prima Vacacional (Vacation Bonus):** 25% on vacation days. Charges apply to the integrated base.
+            - **Aguinaldo (13th):** Mandatory, minimum 15 days of salary. Factor `12.50`.
+            - **Prima Vacacional (Vacation Bonus):** 25% paid on annual vacation days (progressive with seniority). Charges apply to the integrated base.
             """)
+    # Chile
     elif country == "Chile":
         if idioma == "Português":
             st.markdown(f"""
             **{T["rules_emp"]} - Explicação:**
-            - **AFP:** 10% + comissão (~1.15%) para fundo de pensão. Base com teto em UF.
-            - **Saúde:** 7% para FONASA ou ISAPRE. Base com teto em UF.
+            - **AFP:** 10% (obrigatório) + comissão da administradora (~1.15%) para fundo de pensão individual. Base: Renda imponível, com teto em UF.
+            - **Saúde:** 7% (obrigatório) para sistema público (FONASA) ou privado (ISAPRE). Base: Renda imponível, com mesmo teto em UF.
 
             **{T["rules_er"]} - Explicação:**
-            - **Seguro de Cesantía:** 2.4% para seguro desemprego. Base com teto em UF.
-            - **SIS:** ~1.53% para seguro de invalidez. Base com teto em UF.
+            - **Seguro de Cesantía:** 2.4% para conta individual do trabalhador (contrato indefinido). Base: Renda imponível, com teto em UF.
+            - **SIS:** ~1.53% (pago pelo empregador) para seguro de invalidez e sobrevivência. Base: Renda imponível, com teto em UF.
 
             **{T['cost_header_13th']} e {T['cost_header_vacation']}:**
-            - Aguinaldo (13º) não obrigatório. Fator `12.00`.
+            - Aguinaldo (13º) não é obrigatório por lei no setor privado. Férias legais são de 15 dias úteis/ano. Fator `12.00`.
             """)
         else: # English/Español
              st.markdown(f"""
             **{T["rules_emp"]} - Explanation:**
-            - **AFP:** 10% + fee (~1.15%) for pension fund. Base capped in UF.
-            - **Health:** 7% for FONASA or ISAPRE. Base capped in UF.
+            - **AFP:** 10% (mandatory) + admin fee (~1.15%) for individual pension fund. Base: Taxable income, capped in UF.
+            - **Health:** 7% (mandatory) for public (FONASA) or private (ISAPRE) system. Base: Taxable income, with the same cap in UF.
 
             **{T["rules_er"]} - Explanation:**
-            - **Seguro de Cesantía:** 2.4% for unemployment insurance. Base capped in UF.
-            - **SIS:** ~1.53% for disability insurance. Base capped in UF.
+            - **Seguro de Cesantía:** 2.4% for employee's individual account (indefinite contract). Base: Taxable income, capped in UF.
+            - **SIS:** ~1.53% (paid by employer) for disability and survival insurance. Base: Taxable income, capped in UF.
 
             **{T['cost_header_13th']} & {T['cost_header_vacation']}:**
-            - Aguinaldo (13th) not mandatory. Factor `12.00`.
+            - Aguinaldo (13th) is not mandatory by law in the private sector. Legal vacation is 15 working days/year. Factor `12.00`.
             """)
+    # Argentina
     elif country == "Argentina":
          if idioma == "Português":
              st.markdown(f"""
             **{T["rules_emp"]} - Explicação:**
-            - **Jubilación, Obra Social, PAMI:** Total de 17% sobre o Salário Bruto, limitado por um teto.
+            - **Jubilación (SIPA), Obra Social, PAMI (INSSJP):** Total de 17% sobre a remuneração bruta, limitado por um teto máximo imponível (atualizado periodicamente).
 
             **{T["rules_er"]} - Explicação:**
-            - **Cargas Sociales:** Conjunto de contribuições patronais (~23.5%) sobre o Salário Bruto, também com teto.
+            - **Cargas Sociales:** Conjunto de contribuições patronais (para SIPA, PAMI, FNE, Obra Social, etc.) que somam aproximadamente 23-27% (dependendo do setor/tamanho da empresa, usamos 23.5% como média). Base: Remuneração bruta, também com teto.
 
             **{T['cost_header_13th']} e {T['cost_header_vacation']}:**
-            - **SAC (13º):** Pago em duas metades. Fator `13.00`. Encargos incidem sobre o SAC.
+            - **SAC (13º):** Equivalente a 1 salário anual, pago em duas parcelas (junho e dezembro). Fator `13.00`. As Cargas Sociales incidem sobre o SAC.
             """)
          else: # English/Español
              st.markdown(f"""
             **{T["rules_emp"]} - Explanation:**
-            - **Jubilación, Obra Social, PAMI:** Total of 17% on Gross Salary, subject to a cap.
+            - **Jubilación (SIPA), Obra Social, PAMI (INSSJP):** Total of 17% on gross remuneration, subject to a maximum taxable cap (updated periodically).
 
             **{T["rules_er"]} - Explanation:**
-            - **Cargas Sociales:** Set of employer contributions (~23.5%) on Gross Salary, also subject to a cap.
+            - **Cargas Sociales:** Set of employer contributions (for SIPA, PAMI, FNE, Obra Social, etc.) totaling approximately 23-27% (depending on sector/company size, we use 23.5% as average). Base: Gross remuneration, also capped.
 
             **{T['cost_header_13th']} & {T['cost_header_vacation']}:**
-            - **SAC (13th):** Paid in two installments. Factor `13.00`. Employer charges apply to SAC.
+            - **SAC (13th):** Equivalent to 1 annual salary, paid in two installments (June and December). Factor `13.00`. Employer charges apply to SAC.
             """)
+    # Colômbia
     elif country == "Colômbia":
          if idioma == "Português":
              st.markdown(f"""
             **{T["rules_emp"]} - Explicação:**
-            - **Salud & Pensión:** 4% cada sobre o Salário Bruto.
+            - **Salud (EPS):** 4% sobre o Ingreso Base de Cotización (IBC), geralmente o Salário Bruto.
+            - **Pensión:** 4% sobre o IBC.
 
             **{T["rules_er"]} - Explicação:**
-            - **Salud & Pensión:** 8.5% e 12% respectivamente sobre o Salário Bruto.
-            - **Parafiscales:** 9% sobre Salário Bruto (SENA, ICBF, Caja).
-            - **Cesantías:** 8.33% (1/12) sobre Salário Bruto, depositado em fundo.
+            - **Salud (EPS):** 8.5% sobre o IBC.
+            - **Pensión:** 12% sobre o IBC.
+            - **Parafiscales:** 9% sobre a folha (SENA 2%, ICBF 3%, Caja de Compensación 4%), para salários acima de 10 salários mínimos.
+            - **Cesantías:** 8.33% (1/12) sobre o salário anual + auxílios, depositado em fundo para o empregado.
 
             **{T['cost_header_13th']} e {T['cost_header_vacation']}:**
-            - **Prima (13º):** 1 salário/ano.
-            - **Cesantías:** 1 salário/ano (custo adicional).
-            - Fator de meses `14.00` reflete Salário + Prima + Cesantías como base de custo anual para encargos.
+            - **Prima de Servicios (13º):** 1 salário/ano, pago em duas parcelas.
+            - **Cesantías:** 1 salário/ano (custo adicional significativo).
+            - Fator de meses `14.00` usado para refletir a base anual (12 Sal + 1 Prima + 1 Cesantías) sobre a qual incidem alguns encargos.
             """)
          else: # English/Español
              st.markdown(f"""
             **{T["rules_emp"]} - Explanation:**
-            - **Salud & Pensión:** 4% each on Gross Salary.
+            - **Salud (EPS - Health):** 4% on the Contribution Base Income (IBC), usually Gross Salary.
+            - **Pensión (Pension):** 4% on IBC.
 
             **{T["rules_er"]} - Explanation:**
-            - **Salud & Pensión:** 8.5% and 12% respectively on Gross Salary.
-            - **Parafiscales:** 9% on Gross Salary (SENA, ICBF, Caja).
-            - **Cesantías:** 8.33% (1/12) on Gross Salary, deposited into a fund.
+            - **Salud (EPS):** 8.5% on IBC.
+            - **Pensión:** 12% on IBC.
+            - **Parafiscales:** 9% on payroll (SENA 2%, ICBF 3%, Compensation Fund 4%), for salaries above 10 minimum wages.
+            - **Cesantías:** 8.33% (1/12) on annual salary + allowances, deposited into a fund for the employee.
 
             **{T['cost_header_13th']} & {T['cost_header_vacation']}:**
-            - **Prima (13th):** 1 salary/year.
-            - **Cesantías:** 1 salary/year (additional cost).
-            - Months factor `14.00` reflects Salary + Prima + Cesantías as the annual cost base for charges.
+            - **Prima de Servicios (13th):** 1 salary/year, paid in two installments.
+            - **Cesantías:** 1 salary/year (significant additional cost).
+            - Months factor `14.00` reflects the annual base (12 Sal + 1 Prima + 1 Cesantías) on which some charges apply.
             """)
+
 
     # --- Vigência e Link ---
     st.write("")
     st.markdown(f"**{T['valid_from']}:** {valid_from}")
-    st.markdown(f"[{T['official_source']}]({link})")
+    st.markdown(f"[{T['official_source']}]({link})", unsafe_allow_html=True) # Permite link
 
 
 # =========================== REGRAS DE CÁLCULO DO STI ==================
