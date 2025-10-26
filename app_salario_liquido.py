@@ -1,7 +1,7 @@
 # -------------------------------------------------------------
-# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.8)
+# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.9)
 # Tema azul plano, multilíngue, responsivo e com STI corrigido
-# (Ajustes Finais: Layout Cards/Sidebar/Botões Corrigidos/Mapa Novo/Regras Texto OK)
+# (Correção FORÇADA Cor Botões + Restauro Texto Regras + Ajustes Finais Layout)
 # -------------------------------------------------------------
 
 import streamlit as st
@@ -35,22 +35,18 @@ section[data-testid="stSidebar"] h3,
 section[data-testid="stSidebar"] p,
 section[data-testid="stSidebar"] .stMarkdown,
 section[data-testid="stSidebar"] label{ color:#ffffff !important; }
-
-/* REQ 1 (v anterior): Espaçamento Títulos Sidebar */
-section[data-testid="stSidebar"] h2 { margin-bottom: 25px !important; } /* Título Principal */
-section[data-testid="stSidebar"] h3 { margin-bottom: 0.5rem !important; margin-top: 1rem !important; } /* Títulos 'Idioma', 'País', 'Menu' */
-section[data-testid="stSidebar"] div[data-testid="stSelectbox"] label { margin-bottom: 0.5rem !important; } /* Ajusta label selectbox */
-section[data-testid="stSidebar"] div[data-testid="stSelectbox"] > div[data-baseweb="select"] { margin-top: 0 !important; } /* Remove espaço extra selectbox */
-
-
+section[data-testid="stSidebar"] h2 { margin-bottom: 25px !important; }
+section[data-testid="stSidebar"] h3 { margin-bottom: 0.5rem !important; margin-top: 1rem !important; }
+section[data-testid="stSidebar"] div[data-testid="stSelectbox"] label { margin-bottom: 0.5rem !important; }
+section[data-testid="stSidebar"] div[data-testid="stSelectbox"] > div[data-baseweb="select"] { margin-top: 0 !important; }
 section[data-testid="stSidebar"] .stTextInput input,
 section[data-testid="stSidebar"] .stNumberInput input,
 section[data-testid="stSidebar"] .stSelectbox input,
 section[data-testid="stSidebar"] .stSelectbox div[role="combobox"] *,
 section[data-testid="stSidebar"] [data-baseweb="menu"] div[role="option"]{ color:#0b1f33 !important; background:#fff !important; }
 
-/* REQ 3: Botões Menu Sidebar (Fundo Branco, Texto Preto/Azul Escuro GARANTIDO) */
-section[data-testid="stSidebar"] .stButton > button{
+/* REQ 3 (v. anterior): Botões Menu Sidebar (FORÇAR TEXTO PRETO/AZUL) */
+section[data-testid="stSidebar"] .stButton button {
   background: #ffffff !important;
   border: 1px solid #d0d7de !important;
   border-radius: 8px !important;
@@ -63,35 +59,35 @@ section[data-testid="stSidebar"] .stButton > button{
   text-align: left;
   padding-left: 15px !important;
 }
-section[data-testid="stSidebar"] .stButton > button:hover{
+section[data-testid="stSidebar"] .stButton button:hover {
   background: #f0f2f6 !important;
   border-color: #adb5bd !important;
-  color: #0a3d62 !important; /* Garante cor no hover */
+  color: #0a3d62 !important; /* FORÇADO Azul Escuro */
 }
-/* Botão Ativo (Streamlit type=primary deve cuidar disso, mas forçamos a cor) */
+/* Botão Ativo (Streamlit type=primary) */
 section[data-testid="stSidebar"] .stButton button[kind="primary"] {
-    color: #0a3d62 !important; /* Garante cor texto no botão primário */
     background: #e6f0f8 !important; /* Fundo azul claro para ativo */
     border-color: #a3c4e3 !important;
+    color: #0a3d62 !important; /* FORÇADO Azul Escuro */
 }
 section[data-testid="stSidebar"] .stButton button[kind="primary"]:hover {
     background: #dbe9f6 !important; /* Hover sutil para ativo */
     border-color: #8cb8dd !important;
+    color: #0a3d62 !important; /* FORÇADO Azul Escuro */
 }
-
-section[data-testid="stSidebar"] .stButton > button:focus:not(:active) {
+section[data-testid="stSidebar"] .stButton button:focus:not(:active) {
     border-color: #d0d7de !important;
     box-shadow: 0 0 0 2px rgba(10, 61, 98, 0.1) !important;
-    color: #0a3d62 !important; /* Garante cor no foco */
+    color: #0a3d62 !important; /* FORÇADO Azul Escuro */
 }
 section[data-testid="stSidebar"] .stButton button[kind="primary"]:focus:not(:active) {
     border-color: #a3c4e3 !important;
     box-shadow: 0 0 0 2px rgba(10, 61, 98, 0.2) !important;
-    color: #0a3d62 !important; /* Garante cor no foco ativo */
+    color: #0a3d62 !important; /* FORÇADO Azul Escuro */
 }
 
 
-/* REQ 1: Cards Mensais (Altura = Anual, Espaço Título/Valor) */
+/* REQ 1 (v. anterior): Cards Mensais (Altura = Anual, Espaço Título/Valor) */
 .metric-card{
     background:#fff;
     border-radius:10px;
@@ -107,7 +103,7 @@ section[data-testid="stSidebar"] .stButton button[kind="primary"]:focus:not(:act
 }
 .metric-card:hover{ box-shadow:0 6px 16px rgba(0,0,0,0.1); transform: translateY(-2px); }
 .metric-card h4{ margin:0; font-size:17px; font-weight: 600; color:#0a3d62; }
-.metric-card h3{ margin: 2px 0 0; color:#0a3d62; font-size:17px; font-weight: 700; } /* Margem superior reduzida */
+.metric-card h3{ margin: 2px 0 0; color:#0a3d62; font-size:17px; font-weight: 700; } /* Margem superior ajustada */
 
 /* Tabela */
 .table-wrap{ background:#fff; border:1px solid #d0d7de; border-radius:8px; overflow:hidden; }
@@ -128,7 +124,8 @@ section[data-testid="stSidebar"] .stButton button[kind="primary"]:focus:not(:act
 .annual-card-value h3 { margin: 0; font-size: 17px; color: #0a3d62; }
 .annual-card-label h4 { font-weight: 600; }
 .annual-card-value h3 { font-weight: 700; }
-.annual-card-label .sti-note { display: block; font-size: 14px; font-weight: 400; line-height: 1.3; margin-top: 2px; } /* REQ 3: Nota mais próxima */
+/* REQ 3 (v. anterior): Nota mais próxima */
+.annual-card-label .sti-note { display: block; font-size: 14px; font-weight: 400; line-height: 1.3; margin-top: 2px; } /* margin-top reduzida */
 </style>
 """, unsafe_allow_html=True)
 
@@ -160,11 +157,8 @@ def fmt_cap(cap_value: Any, sym: str = None, country_code: str = None) -> str:
     if cap_value is None: return "—"
     if isinstance(cap_value, str): return cap_value
     if isinstance(cap_value, (int, float)):
-        # Adiciona verificação do country_code antes de formatar como UF
-        # Precisa da variável global `country` para funcionar aqui, idealmente seria passada como parâmetro
-        # Usando uma solução temporária verificando a chave UF
-        is_chile_uf = (country_code == "Chile" and cap_value < 200) # Heurística simples
-        if is_chile_uf: return f"~{cap_value:.1f} UF"
+        # Precisa da variável global `country` aqui
+        if country_code == "Chile" and cap_value < 200: return f"~{cap_value:.1f} UF"
         return fmt_money(cap_value, sym if sym else "")
     return str(cap_value)
 
@@ -280,18 +274,19 @@ def calc_employer_cost(country_code: str, salary: float, bonus: float, T: Dict[s
     benefits = COUNTRY_BENEFITS.get(country_code, {"ferias": False, "decimo": False})
 
     df = pd.DataFrame(enc_list)
+    df_display = pd.DataFrame() # Inicializa df_display
     if not df.empty:
         df_display = df.copy()
         df_display[T["cost_header_charge"]] = df_display["nome"]
         df_display[T["cost_header_percent"]] = df_display["percentual"].apply(lambda p: f"{p:.2f}%")
         df_display[T["cost_header_base"]] = df_display["base"]
+        # Passa country_code para fmt_cap
         df_display[T["cost_header_obs"]] = df_display.apply(lambda row: fmt_cap(row.get('teto'), COUNTRIES[country_code]['symbol'], country_code) if row.get('teto') is not None else row['obs'], axis=1)
         df_display[T["cost_header_bonus"]] = ["✅" if b else "❌" for b in df_display["bonus"]]
         cols = [T["cost_header_charge"], T["cost_header_percent"], T["cost_header_base"], T["cost_header_bonus"], T["cost_header_obs"]]
         if benefits.get("ferias", False): df_display[T["cost_header_vacation"]] = ["✅" if b else "❌" for b in df_display["ferias"]]; cols.insert(3, T["cost_header_vacation"])
         if benefits.get("decimo", False): df_display[T["cost_header_13th"]] = ["✅" if b else "❌" for b in df_display["decimo"]]; insert_pos = 4 if benefits.get("ferias", False) else 3; cols.insert(insert_pos, T["cost_header_13th"])
         df_display = df_display[cols]
-    else: df_display = pd.DataFrame()
 
     salario_anual_base = salary * 12.0; salario_anual_beneficios = salary * months; total_cost_items = []
     for index, item in df.iterrows():
@@ -299,13 +294,15 @@ def calc_employer_cost(country_code: str, salary: float, bonus: float, T: Dict[s
         base_calc_anual = salario_anual_base if country_code in ["Estados Unidos", "Canadá"] else salario_anual_beneficios
         if incide_bonus: base_calc_anual += bonus
         if teto is not None and isinstance(teto, (int, float)):
-            if country_code == "Chile" and isinstance(teto, float) and teto < 200: pass
+             # Passa country_code para fmt_cap (na verificação)
+            if country_code == "Chile" and teto < 200: pass
             elif item.get("nome") == "CPP2 (ER)": base_calc_anual = max(0, min(base_calc_anual, teto) - min(base_calc_anual, ANNUAL_CAPS["CA_CPP_YMPEx1"]))
             else: base_calc_anual = min(base_calc_anual, teto)
         custo_item = base_calc_anual * perc; total_cost_items.append(custo_item)
     total_encargos = sum(total_cost_items); custo_total_anual = (salary * months) + bonus + total_encargos
     mult = (custo_total_anual / salario_anual_base) if salario_anual_base > 0 else 0.0
     return custo_total_anual, mult, df_display, months
+
 
 def get_sti_area_map(T: Dict[str, str]) -> Tuple[List[str], Dict[str, str]]:
     display_list = [T["sti_area_non_sales"], T["sti_area_sales"]]; keys = ["Non Sales", "Sales"]
@@ -331,10 +328,10 @@ def load_tables():
 
 # ============================== SIDEBAR ===============================
 with st.sidebar:
-    # REQ 5: Título Traduzido
+    # REQ 5 (v. anterior): Título Traduzido
     st.markdown(f"<h2 style='color:white; text-align:center; font-size:20px; margin-bottom: 25px;'>{I18N['Português']['sidebar_title']}</h2>", unsafe_allow_html=True)
 
-    # REQ 1: Título H3 para Idioma
+    # REQ 1 (v. anterior): Título H3 para Idioma
     st.markdown(f"<h3 style='margin-bottom: 0.5rem;'>{I18N['Português']['language_title']}</h3>", unsafe_allow_html=True)
     idioma = st.selectbox(label="Language Select", options=list(I18N.keys()), index=0, key="lang_select", label_visibility="collapsed")
     T = I18N[idioma] # Atualiza T após seleção de idioma
@@ -342,7 +339,7 @@ with st.sidebar:
     st.markdown(f"<h3 style='margin-bottom: 0.5rem;'>{T['country']}</h3>", unsafe_allow_html=True)
     country = st.selectbox(T["choose_country"], list(COUNTRIES.keys()), index=0, key="country_select", label_visibility="collapsed")
 
-    # REQ 3: Título do Menu
+    # REQ 3 (v. anterior): Título do Menu
     st.markdown(f"<h3 style='margin-top: 1.5rem; margin-bottom: 0.5rem;'>{T['menu_title']}</h3>", unsafe_allow_html=True)
 
     menu_options = [T["menu_calc"], T["menu_rules"], T["menu_rules_sti"], T["menu_cost"]]
@@ -353,14 +350,15 @@ with st.sidebar:
     cols = button_container.columns(1)
     for i, option in enumerate(menu_options):
         is_active = (st.session_state.active_menu == option)
-        button_key = f"menu_btn_{option.replace(' ', '_').lower()}_{i}" # Chave ainda mais única
+        button_key = f"menu_btn_{option.replace(' ', '_').lower()}_{i}"
         button_type = "primary" if is_active else "secondary"
+        # O CSS global agora força a cor do texto
         if cols[0].button(option, key=button_key, use_container_width=True, type=button_type):
              if not is_active:
                  st.session_state.active_menu = option
                  st.rerun()
 
-    # REQ 5: Mapa Removido
+    # REQ 5 (v. anterior): Mapa Removido
 
 US_STATE_RATES, COUNTRY_TABLES, BR_INSS_TBL, BR_IRRF_TBL = load_tables()
 
@@ -436,7 +434,7 @@ if active_menu == T["menu_calc"]:
     cc2.markdown(f"<div class='metric-card' style='border-left-color: #dc3545; background: #ffe6e6;'><h4>📉 {T['tot_deductions']}</h4><h3>{fmt_money(calc['total_ded'], symbol)}</h3></div>", unsafe_allow_html=True)
     cc3.markdown(f"<div class='metric-card' style='border-left-color: #007bff; background: #e6f7ff;'><h4>💵 {T['net']}</h4><h3>{fmt_money(calc['net'], symbol)}</h3></div>", unsafe_allow_html=True)
 
-    st.write("") # REQ 2: Espaço antes do FGTS
+    st.write("") # Espaço antes do FGTS
     if country == "Brasil": st.markdown(f"**💼 {T['fgts_deposit']}:** {fmt_money(calc['fgts'], symbol)}")
 
     st.write("---")
@@ -461,7 +459,7 @@ if active_menu == T["menu_calc"]:
     c2.markdown(f"<div class='annual-card-base annual-card-value' style='border-left-color: #0a3d62; background: #e6f0f8;'><h3>{fmt_money(total_anual, symbol)}</h3></div>", unsafe_allow_html=True)
 
     st.write("---")
-    # REQ 3: Adiciona Título do Gráfico
+    # REQ 3 (v. anterior): Adiciona Título do Gráfico
     st.subheader(T["pie_chart_title_dist"])
     chart_df = pd.DataFrame({"Componente": [T["annual_salary"].split(" (")[0], T["annual_bonus"]], "Valor": [salario_anual, bonus_anual]})
     base = alt.Chart(chart_df).transform_joinaggregate(Total="sum(Valor)").transform_calculate(Percent="datum.Valor / datum.Total")
@@ -502,7 +500,7 @@ elif active_menu == T["menu_rules"]:
 
     # (Textos detalhados restaurados aqui)
     if country == "Brasil":
-        if idioma == "Português": st.markdown(f""" **{T["rules_emp"]} - Explicação:**\n- **INSS:** Calculado de forma progressiva sobre faixas salariais (7.5% a 14%). A contribuição total é a soma do valor calculado em cada faixa, limitada ao teto de contribuição.\n- **IRRF:** Calculado sobre o Salário Bruto após deduzir o INSS e um valor fixo por dependente. Aplica-se a alíquota da faixa (0% a 27.5%) e subtrai-se a parcela a deduzir.\n\n**{T["rules_er"]} - Explicação:**\n- **INSS Patronal, RAT, Sistema S:** Percentuais aplicados sobre o total da folha.\n- **FGTS:** Depósito mensal de 8% sobre o Salário Bruto.\n\n**{T['cost_header_13th']} e {T['cost_header_vacation']}:**\n- Custo anual inclui 13º (1 salário) e Férias (1 salário + 1/3). Fator `13.33`. Encargos incidem sobre a base ampliada.""", unsafe_allow_html=True)
+        if idioma == "Português": st.markdown(f""" **{T["rules_emp"]} - Explicação:**\n- **INSS:** Calculado de forma progressiva sobre faixas salariais (7.5% a 14%). A contribuição total é a soma do valor calculado em cada faixa, limitada ao teto de contribuição.\n- **IRRF:** Calculado sobre o Salário Bruto após deduzir o INSS e um valor fixo por dependente. Aplica-se a alíquota da faixa (0% a 27.5%) e subtrai-se a parcela a deduzir.\n\n**{T["rules_er"]} - Explicação:**\n- **INSS Patronal, RAT, Sistema S:** Percentuais aplicados sobre o total da folha.\n- **FGTS:** Depósito mensal de 8% sobre o Salário Bruto.\n\n**{T['cost_header_13th']} e {T['cost_header_vacation']}:**\n- Custo anual inclui 13º (1 salário) e Férias (1 salário + 1/3). Fator `13.33`. Encargos incidem sobre essa base ampliada.""", unsafe_allow_html=True)
         else: st.markdown(f""" **{T["rules_emp"]} - Explanation:**\n- **INSS:** Progressive rate (7.5% to 14%) on brackets, capped.\n- **IRRF:** Progressive rate (0% to 27.5%) on (Gross - INSS - Dep. Allowance) minus deduction.\n\n**{T["rules_er"]} - Explanation:**\n- **INSS Patronal, RAT, Sistema S:** Percentages on total payroll.\n- **FGTS:** 8% deposit.\n\n**{T['cost_header_13th']} & {T['cost_header_vacation']}:**\n- Annual cost factor `13.33` includes 13th Salary and Vacation + 1/3 bonus. Charges apply to this base.""", unsafe_allow_html=True)
     elif country == "Estados Unidos":
         if idioma == "Português": st.markdown(f""" **{T["rules_emp"]} - Explicação:**\n- **FICA (Social Security):** 6.2% sobre Sal. Bruto, até teto anual ({fmt_money(ANNUAL_CAPS['US_FICA'], 'US$')}).\n- **Medicare:** 1.45% sobre Sal. Bruto total.\n- **State Tax:** Varia por estado.\n\n**{T["rules_er"]} - Explicação:**\n- **FICA & Medicare Match:** Empregador paga o mesmo que o empregado.\n- **SUTA/FUTA:** Desemprego sobre base baixa (~{fmt_money(ANNUAL_CAPS['US_SUTA_BASE'], 'US$')}).\n\n**{T['cost_header_13th']} e {T['cost_header_vacation']}:**\n- Não obrigatórios. Fator `12.00`.""", unsafe_allow_html=True)
