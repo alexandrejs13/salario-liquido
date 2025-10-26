@@ -1,6 +1,6 @@
 # -------------------------------------------------------------
-# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.26 - FIX NAVEGAÇÃO CRÍTICA)
-# Correção: Lógica de controle de fluxo na Sidebar para forçar navegação entre abas.
+# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.27 - FIX FINAL NAMEERROR)
+# Correção: Movidas todas as funções de formatação para o ABSOLUTO TOPO do script.
 # -------------------------------------------------------------
 
 import streamlit as st
@@ -14,6 +14,34 @@ import json
 import os 
 
 st.set_page_config(page_title="Simulador de Salário Líquido", layout="wide")
+
+# ======================== HELPERS INICIAIS (Formatação - NOVO TOPO ABSOLUTO) =========================
+# Variável global temporária para o código do país, será definida na sidebar
+_COUNTRY_CODE_FOR_FMT = "Brasil" 
+
+def fmt_money(v: float, sym: str) -> str:
+    """Formata um float como moeda no padrão brasileiro (1.000,00)."""
+    return f"{sym} {v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+def money_or_blank(v: float, sym: str) -> str:
+    """Retorna a string formatada ou vazia se o valor for zero."""
+    return "" if abs(v) < 1e-9 else fmt_money(v, sym)
+
+def fmt_percent(v: float) -> str:
+    """Formata um float como porcentagem."""
+    if v is None: return ""
+    return f"{v:.2f}%"
+
+def fmt_cap(cap_value: Any, sym: str = None) -> str:
+    """Formata tetos, lidando com UF (Chile) e moedas."""
+    global _COUNTRY_CODE_FOR_FMT 
+    country_code = _COUNTRY_CODE_FOR_FMT
+    if cap_value is None: return "—"
+    if isinstance(cap_value, str): return cap_value
+    if isinstance(cap_value, (int, float)):
+        if country_code == "Chile" and cap_value < 200: return f"~{cap_value:.1f} UF"
+        return fmt_money(cap_value, sym if sym else "")
+    return str(cap_value)
 
 # ======================== CONSTANTES e TETOS GLOBAIS =========================
 ANNUAL_CAPS = { "US_FICA": 168600.0, "US_SUTA_BASE": 7000.0, "CA_CPP_YMPEx1": 68500.0, "CA_CPP_YMPEx2": 73200.0, "CA_CPP_EXEMPT": 3500.0, "CA_EI_MIE": 63200.0, "CL_TETO_UF": 84.3, "CL_TETO_CESANTIA_UF": 126.6, }
@@ -473,7 +501,7 @@ if active_menu == T.get("menu_calc"):
         
         cols = st.columns(4) 
         salario = cols[0].number_input("Salário", min_value=0.0, value=10000.0, step=100.0, key="salary_input", help=T.get("salary_tooltip"), label_visibility="collapsed")
-        dependentes = cols[1].number_input("Dependentes", min_value=0, value=0, step=1, key="dep_input", help=T.get("dependentes_tooltip"), label_visibility="collapsed")
+        dependentes = cols[1].number_input("Dependentes", min_value=0, value=0, step=1, key="dep_input", help=T.get("dependents_tooltip"), label_visibility="collapsed")
         other_deductions = cols[2].number_input("Outras Deduções", min_value=0.0, value=0.0, step=10.0, key="other_ded_input", help=T.get("other_deductions_tooltip"), label_visibility="collapsed")
         bonus_anual = cols[3].number_input("Bônus Anual", min_value=0.0, value=0.0, step=100.0, key="bonus_input", help=T.get("bonus_tooltip"), label_visibility="collapsed")
         
