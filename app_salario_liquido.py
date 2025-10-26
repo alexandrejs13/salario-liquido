@@ -1,6 +1,6 @@
 # -------------------------------------------------------------
-# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.24 - FIX NAVEGAÇÃO)
-# Correção: O st.radio agora define o st.session_state e a variável local para navegação.
+# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.25 - FIX CRÍTICO MONEY_OR_BLANK)
+# Correção: Movidas funções de formatação para o escopo global para resolver NameError/Pandas apply.
 # -------------------------------------------------------------
 
 import streamlit as st
@@ -14,6 +14,31 @@ import json
 import os 
 
 st.set_page_config(page_title="Simulador de Salário Líquido", layout="wide")
+
+# ======================== HELPERS INICIAIS (Formatação - MOVIDOS PARA O TOPO) =========================
+# Variável global temporária para o código do país, será definida na sidebar
+_COUNTRY_CODE_FOR_FMT = "Brasil" 
+
+def fmt_money(v: float, sym: str) -> str:
+    return f"{sym} {v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+def money_or_blank(v: float, sym: str) -> str:
+    # A variável 'symbol' é passada como argumento (sym)
+    return "" if abs(v) < 1e-9 else fmt_money(v, sym)
+
+def fmt_percent(v: float) -> str:
+    if v is None: return ""
+    return f"{v:.2f}%"
+
+def fmt_cap(cap_value: Any, sym: str = None) -> str:
+    global _COUNTRY_CODE_FOR_FMT 
+    country_code = _COUNTRY_CODE_FOR_FMT
+    if cap_value is None: return "—"
+    if isinstance(cap_value, str): return cap_value
+    if isinstance(cap_value, (int, float)):
+        if country_code == "Chile" and cap_value < 200: return f"~{cap_value:.1f} UF"
+        return fmt_money(cap_value, sym if sym else "")
+    return str(cap_value)
 
 # ======================== CONSTANTES e TETOS GLOBAIS =========================
 ANNUAL_CAPS = { "US_FICA": 168600.0, "US_SUTA_BASE": 7000.0, "CA_CPP_YMPEx1": 68500.0, "CA_CPP_YMPEx2": 73200.0, "CA_CPP_EXEMPT": 3500.0, "CA_EI_MIE": 63200.0, "CL_TETO_UF": 84.3, "CL_TETO_CESANTIA_UF": 126.6, }
@@ -432,7 +457,7 @@ else: title = T.get("title_cost", "Cost")
 st.markdown(f"<div class='country-header'><div class='country-title'>{title}</div><div class='country-flag'>{flag}</div></div>", unsafe_allow_html=True)
 st.write("---")
 
-# ========================= SIMULADOR DE REMUNERAÇÃO (REFINADO) ==========================
+# ========================= SIMULADOR DE REMUNERAÇÃO (REFINADO E CONSOLIDADO) ==========================
 if active_menu == T.get("menu_calc"):
     area_options_display, area_display_map = get_sti_area_map(T)
     st.subheader(T.get("calc_params_title", "Parameters"))
@@ -477,7 +502,7 @@ if active_menu == T.get("menu_calc"):
         </div>
         """, unsafe_allow_html=True)
         
-        r1, r2, _ = st.columns([1, 1.5, 1.5]) # Larguras desiguais para STI
+        r1, r2, _ = st.columns([1, 1.5, 1.5]) # Larguras desiguais para STI para acomodar textos longos
         area_display = r1.selectbox("Área STI", area_options_display, index=0, key="sti_area", help=T.get("sti_area_tooltip"), label_visibility="collapsed")
         area = area_display_map.get(area_display, "Non Sales")
         level_options_display, level_display_map = get_sti_level_map(area, T)
@@ -544,7 +569,7 @@ if active_menu == T.get("menu_calc"):
         other_deductions = c2.number_input("Outras Ded.", min_value=0.0, value=0.0, step=10.0, key="other_ded_input", help=T.get("other_deductions_tooltip"), label_visibility="collapsed")
         bonus_anual = c3.number_input("Bônus Anual", min_value=0.0, value=0.0, step=100.0, key="bonus_input", help=T.get("bonus_tooltip"), label_visibility="collapsed")
         
-        # RÓTULOS STI em uma nova linha de 4 colunas (usando 2 colunas vazias)
+        # RÓTULOS LINHA 2 (STI)
         st.markdown(f"""
         <div style="display: flex; justify-content: space-between; margin-top: 1rem;">
             <div style="width: 25%;"><h5>{get_sti_area_label(T)}</h5></div>
@@ -565,7 +590,6 @@ if active_menu == T.get("menu_calc"):
 
     st.subheader(T.get("monthly_comp_title", "Monthly Comp"))
     
-    # É necessário usar a variável final de dependentes
     dependentes = dependentes_fixed
 
     calc = calc_country_net(country, salario, other_deductions, state_code=state_code, state_rate=state_rate, dependentes=dependentes, tables_ext=COUNTRY_TABLES, br_inss_tbl=BR_INSS_TBL, br_irrf_tbl=BR_IRRF_TBL)
