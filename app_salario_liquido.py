@@ -1,7 +1,7 @@
 # -------------------------------------------------------------
-# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.17)
+# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.18)
 # Tema azul plano, multilíngue, responsivo e com STI corrigido
-# (Correção Crítica: Ordem de Carregamento/Sidebar + JSONs)
+# (Correção Crítica: NameError na definição de Fallbacks)
 # -------------------------------------------------------------
 
 import streamlit as st
@@ -45,11 +45,10 @@ UMA_DIARIA_MX = 108.57
 MX_IMSS_CAP_MONTHLY = 25 * UMA_DIARIA_MX * 30.4
 
 # ======================== CARREGAMENTO DE CONFIGS JSON LOCAIS =========================
-# Tenta encontrar o diretório do script. Se falhar (ex: Streamlit Cloud), usa o diretório atual '.'
 try:
     CONFIG_DIR = os.path.dirname(os.path.abspath(__file__))
 except NameError:
-    CONFIG_DIR = "."
+    CONFIG_DIR = "." 
 
 I18N_FILE = os.path.join(CONFIG_DIR, "i18n.json")
 COUNTRIES_FILE = os.path.join(CONFIG_DIR, "countries.json")
@@ -87,7 +86,12 @@ EMPLOYER_COST_DEFAULT_FALLBACK = {
 }
 BR_INSS_FALLBACK = { "vigencia": "2025-01-01", "teto_contribuicao": 1146.68, "teto_base": 8157.41, "faixas": [ {"ate": 1412.00, "aliquota": 0.075}, {"ate": 2666.68, "aliquota": 0.09}, {"ate": 4000.03, "aliquota": 0.12}, {"ate": 8157.41, "aliquota": 0.14} ] }
 BR_IRRF_FALLBACK = { "vigencia": "2025-01-01", "deducao_dependente": 189.59, "faixas": [ {"ate": 2259.20, "aliquota": 0.00,  "deducao": 0.00}, {"ate": 2826.65, "aliquota": 0.075, "deducao": 169.44}, {"ate": 3751.05, "aliquota": 0.15,  "deducao": 381.44}, {"ate": 4664.68, "aliquota": 0.225, "deducao": 662.77}, {"ate": 999999999.0, "aliquota": 0.275, "deducao": 896.00} ] }
-COUNTRY_TABLES_FALLBACK = {"TABLES": TABLES_DEFAULT_FALLBACK, "EMPLOYER_COST": EMPLOYER_COST_DEFAULT_FALLBACK, "REMUN_MONTHS": REMUN_MONTHS_DEFAULT_FALLBACK}
+# **CORREÇÃO: Definir dicionários de componentes antes de usá-los**
+TABLES_DEFAULT = TABLES_FALLBACK
+EMPLOYER_COST_DEFAULT = EMPLOYER_COST_FALLBACK
+REMUN_MONTHS_DEFAULT = REMUN_MONTHS_DEFAULT_FALLBACK
+COUNTRY_TABLES_FALLBACK = {"TABLES": TABLES_DEFAULT, "EMPLOYER_COST": EMPLOYER_COST_DEFAULT, "REMUN_MONTHS": REMUN_MONTHS_DEFAULT}
+
 
 # --- Carrega Configurações ---
 I18N = load_json(I18N_FILE, I18N_FALLBACK)
@@ -99,12 +103,10 @@ BR_IRRF_TBL = load_json(BR_IRRF_FILE, BR_IRRF_FALLBACK)
 COUNTRY_TABLES_DATA = load_json(COUNTRY_TABLES_FILE, COUNTRY_TABLES_FALLBACK)
 
 # --- Extrai Dados Carregados ---
-# REQ 1 (Correção): Carrega COUNTRIES corretamente, checando por 'countries' ou usando a raiz
 if "countries" in COUNTRIES_DATA:
     COUNTRIES = COUNTRIES_DATA.get("countries", {})
 else:
-    COUNTRIES = COUNTRIES_DATA # Assume que o JSON raiz é o dicionário de países
-
+    COUNTRIES = COUNTRIES_DATA # Assume que a raiz é o dicionário de países
 COUNTRY_BENEFITS = {k: v.get("benefits", {}) for k, v in COUNTRIES.items()}
 STI_RANGES = STI_CONFIG.get("STI_RANGES", {})
 STI_LEVEL_OPTIONS = STI_CONFIG.get("STI_LEVEL_OPTIONS", {})
@@ -122,7 +124,6 @@ def load_tables_data():
 
 
 # ============================== (Restante dos HELPERS - Cálculo) ===============================
-# (Funções: get_sti_range, calc_inss_progressivo, etc. como antes)
 def get_sti_range(area: str, level: str) -> Tuple[float, float]:
     area_tbl = STI_RANGES.get(area, {})
     rng = area_tbl.get(level)
@@ -293,7 +294,8 @@ with st.sidebar:
     st.markdown(f"<h3 style='margin-bottom: 0.5rem;'>{T.get('country', 'País')}</h3>", unsafe_allow_html=True)
     country_options = list(COUNTRIES.keys())
     if not country_options:
-        st.error("Erro: Nenhum país carregado. Verifique o arquivo 'countries.json'.")
+        # Erro fatal se COUNTRIES não for carregado
+        st.error("Erro: Arquivo 'countries.json' não encontrado ou vazio.")
         st.stop()
     
     default_country = "Brasil" if "Brasil" in country_options else country_options[0]
@@ -391,153 +393,4 @@ if active_menu == T.get("menu_calc"):
         level_display = r2.selectbox(T.get("level", "Level"), level_options_display, index=level_default_index, key="sti_level", help=T.get("sti_level_tooltip"))
         level = level_display_map.get(level_display, level_options_display[level_default_index] if level_options_display else "Others")
         dependentes = 0
-        state_code, state_rate = None, None
-
-    st.subheader(T.get("monthly_comp_title", "Monthly Comp"))
-    
-    calc = calc_country_net(country, salario, other_deductions, state_code=state_code, state_rate=state_rate, dependentes=dependentes, tables_ext=COUNTRY_TABLES, br_inss_tbl=BR_INSS_TBL, br_irrf_tbl=BR_IRRF_TBL)
-    df_detalhe = pd.DataFrame(calc["lines"], columns=["Descrição", T.get("earnings","Earnings"), T.get("deductions","Deductions")])
-    df_detalhe[T.get("earnings","Earnings")] = df_detalhe[T.get("earnings","Earnings")].apply(lambda v: money_or_blank(v, symbol))
-    df_detalhe[T.get("deductions","Deductions")] = df_detalhe[T.get("deductions","Deductions")].apply(lambda v: money_or_blank(v, symbol))
-    st.markdown("<div class='table-wrap'>", unsafe_allow_html=True); st.table(df_detalhe); st.markdown("</div>", unsafe_allow_html=True)
-
-    cc1, cc2, cc3 = st.columns(3)
-    cc1.markdown(f"<div class='metric-card' style='border-left-color: #28a745; background: #e6ffe6;'><h4>💰 {T.get('tot_earnings','Total Earnings')}</h4><h3>{fmt_money(calc['total_earn'], symbol)}</h3></div>", unsafe_allow_html=True)
-    cc2.markdown(f"<div class='metric-card' style='border-left-color: #dc3545; background: #ffe6e6;'><h4>📉 {T.get('tot_deductions','Total Deductions')}</h4><h3>{fmt_money(calc['total_ded'], symbol)}</h3></div>", unsafe_allow_html=True)
-    cc3.markdown(f"<div class='metric-card' style='border-left-color: #007bff; background: #e6f7ff;'><h4>💵 {T.get('net','Net Salary')}</h4><h3>{fmt_money(calc['net'], symbol)}</h3></div>", unsafe_allow_html=True)
-
-    st.write("")
-    if country == "Brasil": st.markdown(f"**💼 {T.get('fgts_deposit','FGTS')}:** {fmt_money(calc['fgts'], symbol)}")
-
-    st.write("---")
-    st.subheader(T.get("annual_comp_title", "Annual Comp"))
-    months = COUNTRY_TABLES.get("REMUN_MONTHS", {}).get(country, REMUN_MONTHS_DEFAULT.get(country, 12.0))
-    salario_anual = salario * months
-    total_anual = salario_anual + bonus_anual
-    min_pct, max_pct = get_sti_range(area, level)
-    bonus_pct = (bonus_anual / salario_anual) if salario_anual > 0 else 0.0
-    pct_txt = f"{bonus_pct*100:.1f}%"
-    faixa_txt = f"≤ {(max_pct or 0)*100:.0f}%" if level == "Others" else f"{min_pct*100:.0f}% – {max_pct*100:.0f}%"
-    dentro = (bonus_pct <= (max_pct or 0)) if level == "Others" else (min_pct <= bonus_pct <= max_pct)
-    cor = "#1976d2" if dentro else "#d32f2f"; status_txt = T.get("sti_in_range", "In") if dentro else T.get("sti_out_range", "Out"); bg_cor = "#e6f7ff" if dentro else "#ffe6e6"
-    sti_line = f"STI ratio do bônus: <strong>{pct_txt}</strong> — <strong>{status_txt}</strong> ({faixa_txt}) — <em>{area_display} • {level_display}</em>"
-
-    c1, c2 = st.columns(2)
-    c1.markdown(f"<div class='annual-card-base annual-card-label' style='border-left-color: #28a745; background: #e6ffe6;'><h4>{T.get('annual_salary','Annual Sal.')}</h4><span class='sti-note'>({T.get('months_factor','Months')}: {months})</span></div>", unsafe_allow_html=True)
-    c1.markdown(f"<div class='annual-card-base annual-card-label' style='border-left-color: {cor}; background: {bg_cor};'><h4>{T.get('annual_bonus','Annual Bonus')}</h4><span class='sti-note' style='color:{cor}'>{sti_line}</span></div>", unsafe_allow_html=True)
-    c1.markdown(f"<div class='annual-card-base annual-card-label' style='border-left-color: #0a3d62; background: #e6f0f8;'><h4>{T.get('annual_total','Annual Total')}</h4></div>", unsafe_allow_html=True)
-    c2.markdown(f"<div class='annual-card-base annual-card-value' style='border-left-color: #28a745; background: #e6ffe6;'><h3>{fmt_money(salario_anual, symbol)}</h3></div>", unsafe_allow_html=True)
-    c2.markdown(f"<div class='annual-card-base annual-card-value' style='border-left-color: {cor}; background: {bg_cor};'><h3>{fmt_money(bonus_anual, symbol)}</h3></div>", unsafe_allow_html=True)
-    c2.markdown(f"<div class='annual-card-base annual-card-value' style='border-left-color: #0a3d62; background: #e6f0f8;'><h3>{fmt_money(total_anual, symbol)}</h3></div>", unsafe_allow_html=True)
-
-    st.write("---")
-    st.subheader(T.get("pie_chart_title_dist", "Distribution"))
-    chart_df = pd.DataFrame({"Componente": [T.get('annual_salary','Annual Sal.').split(" (")[0], T.get('annual_bonus','Annual Bonus')], "Valor": [salario_anual, bonus_anual]})
-    base = alt.Chart(chart_df).transform_joinaggregate(Total="sum(Valor)").transform_calculate(Percent="datum.Valor / datum.Total")
-    pie = base.mark_arc(innerRadius=70, outerRadius=110).encode(theta=alt.Theta("Valor:Q", stack=True), color=alt.Color("Componente:N", legend=alt.Legend(orient="bottom", direction="horizontal", title=None, labelLimit=250, labelFontSize=15, symbolSize=90)), tooltip=[alt.Tooltip("Componente:N"), alt.Tooltip("Valor:Q", format=",.2f"), alt.Tooltip("Percent:Q", format=".1%"),])
-    labels = base.transform_filter(alt.datum.Percent >= 0.01).mark_text(radius=80, fontWeight="bold", color="white").encode(theta=alt.Theta("Valor:Q", stack=True), text=alt.Text("Percent:Q", format=".1%"))
-    chart = alt.layer(pie, labels).properties(title="").configure_legend(orient="bottom", title=None, labelLimit=250).configure_view(strokeWidth=0).resolve_scale(color='independent')
-    st.altair_chart(chart, use_container_width=True)
-
-# =========================== REGRAS DE CONTRIBUIÇÕES ===================
-elif active_menu == T.get("menu_rules"):
-    st.subheader(T.get("rules_expanded", "Details"))
-    
-    # Adiciona verificações para tabelas BR (que podem falhar o load)
-    br_inss_base_teto = BR_INSS_TBL.get('teto_base', 0) if isinstance(BR_INSS_TBL, dict) else 0
-    br_inss_contrib_teto = BR_INSS_TBL.get('teto_contribuicao', 0) if isinstance(BR_INSS_TBL, dict) else 0
-    br_irrf_dep_deducao = BR_IRRF_TBL.get('deducao_dependente', 0) if isinstance(BR_IRRF_TBL, dict) else 0
-
-    br_emp_contrib = [ {"desc": "INSS", "rate": "7.5% - 14% (Prog.)", "base": "Salário Bruto", "obs": f"Teto Base {fmt_money(br_inss_base_teto, 'R$')}, Teto Contrib. {fmt_money(br_inss_contrib_teto, 'R$')}"}, {"desc": "IRRF", "rate": "0% - 27.5% (Prog.)", "base": "Salário Bruto - INSS - Dep.", "obs": f"Ded. Dep. {fmt_money(br_irrf_dep_deducao, 'R$')}"} ]
-    br_er_contrib = [ {"desc": "INSS Patronal", "rate": "20.00%", "base": "Folha", "obs": "Regra Geral"}, {"desc": "RAT/FAP", "rate": "~2.00%", "base": "Folha", "obs": "Varia (1% a 3%)"}, {"desc": "Sistema S", "rate": "~5.80%", "base": "Folha", "obs": "Terceiros"}, {"desc": "FGTS", "rate": "8.00%", "base": "Folha", "obs": "Depósito (Custo)"} ]
-    us_emp_contrib = [ {"desc": "FICA (Social Sec.)", "rate": "6.20%", "base": "Sal. Bruto", "obs": f"Teto Anual {fmt_money(ANNUAL_CAPS['US_FICA'], 'US$')}"}, {"desc": "Medicare", "rate": "1.45%", "base": "Sal. Bruto", "obs": "Sem teto"}, {"desc": "State Tax", "rate": "Varia (0-8%+)","base": "Sal. Bruto", "obs": "Depende do Estado"} ]
-    us_er_contrib = [ {"desc": "FICA Match", "rate": "6.20%", "base": "Sal. Bruto", "obs": f"Teto Anual {fmt_money(ANNUAL_CAPS['US_FICA'], 'US$')}"}, {"desc": "Medicare Match", "rate": "1.45%", "base": "Sal. Bruto", "obs": "Sem teto"}, {"desc": "SUTA/FUTA", "rate": "~2.00%", "base": "Sal. Bruto", "obs": f"Teto Base ~{fmt_money(ANNUAL_CAPS['US_SUTA_BASE'], 'US$')}"} ]
-    ca_emp_contrib = [ {"desc": "CPP", "rate": fmt_percent(CA_CPP_EI_DEFAULT['cpp_rate']*100), "base": "Sal. Bruto (c/ Isenção)", "obs": f"Teto {fmt_money(ANNUAL_CAPS['CA_CPP_YMPEx1'], 'CAD$')}"}, {"desc": "CPP2", "rate": fmt_percent(CA_CPP_EI_DEFAULT['cpp2_rate']*100), "base": "Sal. Bruto (pós Teto 1)", "obs": f"Teto {fmt_money(ANNUAL_CAPS['CA_CPP_YMPEx2'], 'CAD$')}"}, {"desc": "EI", "rate": fmt_percent(CA_CPP_EI_DEFAULT['ei_rate']*100), "base": "Sal. Bruto", "obs": f"Teto {fmt_money(ANNUAL_CAPS['CA_EI_MIE'], 'CAD$')}"}, {"desc": "Income Tax", "rate": "Prog. Federal+Prov.", "base": "Renda Tributável", "obs": "Complexo"} ]
-    ca_er_contrib = [ {"desc": "CPP Match", "rate": fmt_percent(CA_CPP_EI_DEFAULT['cpp_rate']*100), "base": "Sal. Bruto (c/ Isenção)", "obs": f"Teto {fmt_money(ANNUAL_CAPS['CA_CPP_YMPEx1'], 'CAD$')}"}, {"desc": "CPP2 Match", "rate": fmt_percent(CA_CPP_EI_DEFAULT['cpp2_rate']*100), "base": "Sal. Bruto (pós Teto 1)", "obs": f"Teto {fmt_money(ANNUAL_CAPS['CA_CPP_YMPEx2'], 'CAD$')}"}, {"desc": "EI Match", "rate": fmt_percent(CA_CPP_EI_DEFAULT['ei_rate']*100 * 1.4), "base": "Sal. Bruto", "obs": f"Teto {fmt_money(ANNUAL_CAPS['CA_EI_MIE'], 'CAD$')}"} ]
-    mx_emp_contrib = [{"desc": "ISR", "rate": "~15% (Simpl.)", "base": "Sal. Bruto", "obs": "Progressivo"}, {"desc": "IMSS", "rate": "~5% (Simpl.)", "base": "Sal. Bruto", "obs": f"Com Teto (~{fmt_money(MX_IMSS_CAP_MONTHLY, 'MX$')} /mês)"}]
-    mx_er_contrib = [{"desc": "IMSS", "rate": "~7% (Simpl.)", "base": "SBC", "obs": "Complexo"}, {"desc": "INFONAVIT", "rate": "5.00%", "base": "SBC", "obs": "Habitação"}, {"desc": "SAR", "rate": "2.00%", "base": "SBC", "obs": "Aposentadoria"}, {"desc": "ISN", "rate": "~2.5%", "base": "Folha", "obs": "Imposto Estadual"}]
-    cl_emp_contrib = [{"desc": "AFP", "rate": "~11.15%", "base": "Sal. Bruto", "obs": f"10% + Comissão (Teto {ANNUAL_CAPS['CL_TETO_UF']:.1f} UF)"}, {"desc": "Saúde", "rate": "7.00%", "base": "Sal. Bruto", "obs": f"Teto {ANNUAL_CAPS['CL_TETO_UF']:.1f} UF"}]
-    cl_er_contrib = [{"desc": "Seg. Cesantía", "rate": "2.40%", "base": "Sal. Bruto", "obs": f"Teto {ANNUAL_CAPS['CL_TETO_CESANTIA_UF']:.1f} UF"}, {"desc": "SIS", "rate": "1.53%", "base": "Sal. Bruto", "obs": f"Teto {ANNUAL_CAPS['CL_TETO_UF']:.1f} UF"}]
-    ar_emp_contrib = [{"desc": "Jubilación", "rate": "11.00%", "base": "Sal. Bruto", "obs": "Com Teto"}, {"desc": "Obra Social", "rate": "3.00%", "base": "Sal. Bruto", "obs": "Com Teto"}, {"desc": "PAMI", "rate": "3.00%", "base": "Sal. Bruto", "obs": "Com Teto"}]
-    ar_er_contrib = [{"desc": "Cargas Sociales", "rate": "~23.50%", "base": "Sal. Bruto", "obs": "Com Teto (Média)"}]
-    co_emp_contrib = [{"desc": "Salud", "rate": "4.00%", "base": "Sal. Bruto", "obs": "-"}, {"desc": "Pensión", "rate": "4.00%", "base": "Sal. Bruto", "obs": "-"}]
-    co_er_contrib = [{"desc": "Salud", "rate": "8.50%", "base": "Sal. Bruto", "obs": "-"}, {"desc": "Pensão", "rate": "12.00%", "base": "Sal. Bruto", "obs": "-"}, {"desc": "Parafiscales", "rate": "9.00%", "base": "Sal. Bruto", "obs": "SENA, ICBF, Caja"}, {"desc": "Cesantías", "rate": "8.33%", "base": "Sal. Bruto", "obs": "1 Salário/Ano"}]
-    country_contrib_map = { "Brasil": (br_emp_contrib, br_er_contrib), "Estados Unidos": (us_emp_contrib, us_er_contrib), "Canadá": (ca_emp_contrib, ca_er_contrib), "México": (mx_emp_contrib, mx_er_contrib), "Chile": (cl_emp_contrib, cl_er_contrib), "Argentina": (ar_emp_contrib, ar_er_contrib), "Colômbia": (co_emp_contrib, co_er_contrib), }
-    official_links = { "Brasil": "https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/tributos/contribuicoes-previdenciarias", "Estados Unidos": "https://www.irs.gov/businesses/small-businesses-self-employed/employment-tax-rates", "Canadá": "https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/payroll/payroll-deductions-contributions/canada-pension-plan-cpp/cpp-contribution-rates-maximums-exemptions.html", "México": "https://www.sat.gob.mx/consulta/29124/conoce-las-tablas-de-isr", "Chile": "https://www.previred.com/indicadores-previsionales/", "Argentina": "https://www.afip.gob.ar/aportesycontribuciones/", "Colômbia": "https://www.dian.gov.co/normatividad/Paginas/Normatividad.aspx", }
-
-    emp_contrib_data, er_contrib_data = country_contrib_map.get(country, ([], []))
-    link = official_links.get(country, "#")
-    col_map = { "desc": T["rules_table_desc"], "rate": T["rules_table_rate"], "base": T["rules_table_base"], "obs": T["rules_table_obs"] }
-    df_emp = pd.DataFrame(emp_contrib_data).rename(columns=col_map) if emp_contrib_data else pd.DataFrame()
-    df_er = pd.DataFrame(er_contrib_data).rename(columns=col_map) if er_contrib_data else pd.DataFrame()
-
-    if not df_emp.empty: st.markdown(f"#### {T['rules_emp']}"); st.dataframe(df_emp, use_container_width=True, hide_index=True)
-    if not df_er.empty: st.markdown(f"#### {T['rules_er']}"); st.dataframe(df_er, use_container_width=True, hide_index=True)
-    st.markdown("---")
-
-    # --- Explicações Detalhadas ---
-    if country == "Brasil":
-        if idioma == "Português": st.markdown(f""" **{T["rules_emp"]} - Explicação:**\n- **INSS:** Calculado de forma progressiva sobre faixas salariais (7.5% a 14%). A contribuição total é a soma do valor calculado em cada faixa, limitada ao teto de contribuição.\n- **IRRF:** Calculado sobre o Salário Bruto após deduzir o INSS e um valor fixo por dependente. Aplica-se a alíquota da faixa (0% a 27.5%) e subtrai-se a parcela a deduzir.\n\n**{T["rules_er"]} - Explicação:**\n- **INSS Patronal, RAT, Sistema S:** Percentuais aplicados sobre o total da folha.\n- **FGTS:** Depósito mensal de 8% sobre o Salário Bruto.\n\n**{T['cost_header_13th']} e {T['cost_header_vacation']}:**\n- Custo anual inclui 13º (1 salário) e Férias (1 salário + 1/3). Fator `13.33`. Encargos incidem sobre essa base ampliada.""", unsafe_allow_html=True)
-        else: st.markdown(f""" **{T["rules_emp"]} - Explanation:**\n- **INSS:** Progressive rate (7.5% to 14%) on brackets, capped.\n- **IRRF:** Progressive rate (0% to 27.5%) on (Gross - INSS - Dep. Allowance) minus deduction.\n\n**{T["rules_er"]} - Explanation:**\n- **INSS Patronal, RAT, Sistema S:** Percentages on total payroll.\n- **FGTS:** 8% deposit.\n\n**{T['cost_header_13th']} & {T['cost_header_vacation']}:**\n- Annual cost factor `13.33` includes 13th Salary and Vacation + 1/3 bonus. Charges apply to this base.""", unsafe_allow_html=True)
-    elif country == "Estados Unidos":
-        if idioma == "Português": st.markdown(f""" **{T["rules_emp"]} - Explicação:**\n- **FICA (Social Security):** 6.2% sobre Sal. Bruto, até teto anual ({fmt_money(ANNUAL_CAPS['US_FICA'], 'US$')}).\n- **Medicare:** 1.45% sobre Sal. Bruto total.\n- **State Tax:** Varia por estado.\n\n**{T["rules_er"]} - Explicação:**\n- **FICA & Medicare Match:** Empregador paga o mesmo que o empregado.\n- **SUTA/FUTA:** Desemprego sobre base baixa (~{fmt_money(ANNUAL_CAPS['US_SUTA_BASE'], 'US$')}).\n\n**{T['cost_header_13th']} e {T['cost_header_vacation']}:**\n- Não obrigatórios. Fator `12.00`.""", unsafe_allow_html=True)
-        else: st.markdown(f""" **{T["rules_emp"]} - Explanation:**\n- **FICA (Social Security):** 6.2% on Gross Salary, up to cap ({fmt_money(ANNUAL_CAPS['US_FICA'], 'US$')}).\n- **Medicare:** 1.45% on total Gross Salary.\n- **State Tax:** Varies.\n\n**{T["rules_er"]} - Explanation:**\n- **FICA & Medicare Match:** Employer pays the same.\n- **SUTA/FUTA:** Unemployment on low base (~{fmt_money(ANNUAL_CAPS['US_SUTA_BASE'], 'US$')}).\n\n**{T['cost_header_13th']} & {T['cost_header_vacation']}:**\n- Not mandatory. Factor `12.00`.""", unsafe_allow_html=True)
-    elif country == "Canadá":
-         if idioma == "Português": st.markdown(f""" **{T["rules_emp"]} - Explicação:**\n- **CPP:** 5.95% sobre Sal. Bruto (após isenção {fmt_money(ANNUAL_CAPS['CA_CPP_EXEMPT'], 'CAD$')}) até Teto 1 ({fmt_money(ANNUAL_CAPS['CA_CPP_YMPEx1'], 'CAD$')}).\n- **CPP2:** 4.0% sobre Sal. Bruto entre Teto 1 e Teto 2 ({fmt_money(ANNUAL_CAPS['CA_CPP_YMPEx2'], 'CAD$')}).\n- **EI:** 1.63% sobre Sal. Bruto até Teto ({fmt_money(ANNUAL_CAPS['CA_EI_MIE'], 'CAD$')}).\n- **Income Tax:** Progressivo Federal + Provincial (Simplificado no simulador).\n\n**{T["rules_er"]} - Explicação:**\n- **CPP/CPP2 Match:** Empregador paga o mesmo.\n- **EI Match:** Empregador paga 1.4x (2.28%).\n\n**{T['cost_header_13th']} e {T['cost_header_vacation']}:**\n- Não há 13º. Férias pagas são obrigatórias. Fator `12.00`.""", unsafe_allow_html=True)
-         else: st.markdown(f""" **{T["rules_emp"]} - Explanation:**\n- **CPP:** 5.95% on Gross (after exempt {fmt_money(ANNUAL_CAPS['CA_CPP_EXEMPT'], 'CAD$')}) up to Cap 1 ({fmt_money(ANNUAL_CAPS['CA_CPP_YMPEx1'], 'CAD$')}).\n- **CPP2:** 4.0% on Gross between Cap 1 and Cap 2 ({fmt_money(ANNUAL_CAPS['CA_CPP_YMPEx2'], 'CAD$')}).\n- **EI:** 1.63% on Gross up to Cap ({fmt_money(ANNUAL_CAPS['CA_EI_MIE'], 'CAD$')}).\n- **Income Tax:** Progressive Federal + Provincial (Simplified in simulator).\n\n**{T["rules_er"]} - Explanation:**\n- **CPP/CPP2 Match:** Employer pays the same.\n- **EI Match:** Employer pays 1.4x (2.28%).\n\n**{T['cost_header_13th']} & {T['cost_header_vacation']}:**\n- No 13th. Paid vacation mandatory. Factor `12.00`.""", unsafe_allow_html=True)
-    elif country == "México":
-        if idioma == "Português": st.markdown(f""" **{T["rules_emp"]} - Explicação (Simplificada):**\n- **ISR:** Imposto de renda progressivo. Cálculo exato usa tabelas complexas. O simulador usa uma taxa fixa como aproximação.\n- **IMSS:** Seguridade social (doenças, invalidez, etc.). Taxas variam e aplicam-se sobre o Salário Base de Contribuição (SBC), com teto (aprox. 25 UMAs). O simulador usa taxa e teto simplificados.\n\n**{T["rules_er"]} - Explicação:**\n- **IMSS, INFONAVIT, SAR, ISN:** Contribuições patronais sobre SBC (com tetos) e folha.\n\n**{T['cost_header_13th']} e {T['cost_header_vacation']}:**\n- **Aguinaldo (13º):** Mín. 15 dias. Fator `12.50`.\n- **Prima Vacacional:** 25% sobre dias de férias.""", unsafe_allow_html=True)
-        else: st.markdown(f""" **{T["rules_emp"]} - Explanation (Simplified):**\n- **ISR:** Progressive income tax. Exact calculation uses complex tables. Simulator uses a flat rate approximation.\n- **IMSS:** Social security (illness, disability, etc.). Rates vary and apply to the Contribution Base Salary (SBC), capped (approx. 25 UMAs). Simulator uses simplified rate and cap.\n\n**{T["rules_er"]} - Explanation:**\n- **IMSS, INFONAVIT, SAR, ISN:** Contributions on SBC (capped) and payroll.\n\n**{T['cost_header_13th']} & {T['cost_header_vacation']}:**\n- **Aguinaldo (13th):** Min. 15 days. Factor `12.50`.\n- **Prima Vacacional:** 25% on vacation days.""", unsafe_allow_html=True)
-    elif country == "Chile":
-        if idioma == "Português": st.markdown(f""" **{T["rules_emp"]} - Explicação:**\n- **AFP:** 10% + comissão (~1.15%) para pensão. Base com teto em UF.\n- **Saúde:** 7% para FONASA/ISAPRE. Base com teto em UF.\n\n**{T["rules_er"]} - Explicação:**\n- **Seguro de Cesantía:** 2.4%. Base com teto em UF.\n- **SIS:** ~1.53% para invalidez. Base com teto em UF.\n\n**{T['cost_header_13th']} e {T['cost_header_vacation']}:**\n- Aguinaldo não obrigatório. Fator `12.00`.""", unsafe_allow_html=True)
-        else: st.markdown(f""" **{T["rules_emp"]} - Explanation:**\n- **AFP:** 10% + fee (~1.15%) for pension. Base capped in UF.\n- **Health:** 7% for FONASA/ISAPRE. Base capped in UF.\n\n**{T["rules_er"]} - Explanation:**\n- **Seguro de Cesantía:** 2.4%. Base capped in UF.\n- **SIS:** ~1.53% for disability. Base capped in UF.\n\n**{T['cost_header_13th']} & {T['cost_header_vacation']}:**\n- Aguinaldo not mandatory. Factor `12.00`.""", unsafe_allow_html=True)
-    elif country == "Argentina":
-         if idioma == "Português": st.markdown(f""" **{T["rules_emp"]} - Explicação:**\n- **Jubilación, Obra Social, PAMI:** Total 17% sobre Sal. Bruto (com teto).\n\n**{T["rules_er"]} - Explicação:**\n- **Cargas Sociales:** ~23.5% sobre Sal. Bruto (com teto).\n\n**{T['cost_header_13th']} e {T['cost_header_vacation']}:**\n- **SAC (13º):** 1 salário/ano em 2 parcelas. Fator `13.00`. Encargos incidem.""", unsafe_allow_html=True)
-         else: st.markdown(f""" **{T["rules_emp"]} - Explanation:**\n- **Jubilación, Obra Social, PAMI:** Total 17% on Gross Salary (capped).\n\n**{T["rules_er"]} - Explanation:**\n- **Cargas Sociales:** ~23.5% on Gross Salary (capped).\n\n**{T['cost_header_13th']} & {T['cost_header_vacation']}:**\n- **SAC (13th):** 1 salary/year in 2 installments. Factor `13.00`. Charges apply.""", unsafe_allow_html=True)
-    elif country == "Colômbia":
-         if idioma == "Português": st.markdown(f""" **{T["rules_emp"]} - Explicação:**\n- **Salud & Pensión:** 4% cada sobre IBC.\n\n**{T["rules_er"]} - Explicação:**\n- **Salud & Pensión:** 8.5% e 12% sobre IBC.\n- **Parafiscales:** 9% sobre folha (salvo exceções).\n- **Cesantías:** 8.33% (1/12) sobre base anual, depositado em fundo.\n\n**{T['cost_header_13th']} e {T['cost_header_vacation']}:**\n- **Prima (13º):** 1 salário/ano.\n- **Cesantías:** Custo adicional de 1 salário/ano.\n- Fator `14.00` reflete base anual para encargos.""", unsafe_allow_html=True)
-         else: st.markdown(f""" **{T["rules_emp"]} - Explanation:**\n- **Salud & Pensión:** 4% each on IBC.\n\n**{T["rules_er"]} - Explanation:**\n- **Salud & Pensión:** 8.5% and 12% on IBC.\n- **Parafiscales:** 9% on payroll (exceptions apply).\n- **Cesantías:** 8.33% (1/12) on annual base, deposited into fund.\n\n**{T['cost_header_13th']} & {T['cost_header_vacation']}:**\n- **Prima (13th):** 1 salary/year.\n- **Cesantías:** Additional cost of 1 salary/year.\n- Factor `14.00` reflects annual base for charges.""", unsafe_allow_html=True)
-
-    st.write(""); st.markdown(f"**{T['valid_from']}:** {valid_from}"); st.markdown(f"[{T['official_source']}]({link})", unsafe_allow_html=True)
-
-# =========================== REGRAS DE CÁLCULO DO STI ==================
-elif active_menu == T.get("menu_rules_sti"):
-    header_level = T.get("sti_table_header_level", "Level"); header_pct = T.get("sti_table_header_pct", "STI %")
-    st.markdown(f"#### {T.get('sti_area_non_sales', 'Non Sales')}")
-    st.markdown(f"""
-    | {header_level}                                       | {header_pct} |
-    | :--------------------------------------------------- | :------: |
-    | {T.get(STI_I18N_KEYS.get("CEO", ""), "CEO")}                              |   100%   |
-    | {T.get(STI_I18N_KEYS.get("Members of the GEB", ""), "GEB")}                |  50–80%  |
-    | {T.get(STI_I18N_KEYS.get("Executive Manager", ""), "Exec Mgr")}                |  45–70%  |
-    | {T.get(STI_I18N_KEYS.get("Senior Group Manager", ""), "Sr Grp Mgr")}             |  40–60%  |
-    | {T.get(STI_I18N_KEYS.get("Group Manager", ""), "Grp Mgr")}                    |  30–50%  |
-    | {T.get(STI_I18N_KEYS.get("Lead Expert / Program Manager", ""), "Lead Exp")}      |  25–40%  |
-    | {T.get(STI_I18N_KEYS.get("Senior Manager", ""), "Sr Mgr")}                   |  20–40%  |
-    | {T.get(STI_I18N_KEYS.get("Senior Expert / Senior Project Manager", ""), "Sr Exp")} |  15–35%  |
-    | {T.get(STI_I18N_KEYS.get("Manager / Selected Expert / Project Manager", ""), "Mgr/Exp")} |  10–30%  |
-    | {T.get(STI_I18N_KEYS.get("Others", ""), "Others")}                           |  ≤ 10%   |
-    """, unsafe_allow_html=True)
-    st.markdown(f"#### {T.get('sti_area_sales', 'Sales')}")
-    st.markdown(f"""
-    | {header_level}                                       | {header_pct} |
-    | :--------------------------------------------------- | :------: |
-    | {T.get(STI_I18N_KEYS.get("Executive Manager / Senior Group Manager", ""), "Exec/Sr Grp Mgr")} |  45–70%  |
-    | {T.get(STI_I18N_KEYS.get("Group Manager / Lead Sales Manager", ""), "Grp/Lead Sales Mgr")}    |  35–50%  |
-    | {T.get(STI_I18N_KEYS.get("Senior Manager / Senior Sales Manager", ""), "Sr/Sr Sales Mgr")} |  25–45%  |
-    | {T.get(STI_I18N_KEYS.get("Manager / Selected Sales Manager", ""), "Mgr/Sales Mgr")}      |  20–35%  |
-    | {T.get(STI_I18N_KEYS.get("Others", ""), "Others")}                           |  ≤ 15%   |
-    """, unsafe_allow_html=True)
-
-# ========================= CUSTO DO EMPREGADOR ========================
-elif active_menu == T.get("menu_cost"):
-    c1, c2 = st.columns(2)
-    salario = c1.number_input(f"{T.get('salary', 'Salary')} ({symbol})", min_value=0.0, value=10000.0, step=100.0, key="salary_cost")
-    bonus_anual = c2.number_input(f"{T.get('bonus', 'Bonus')} ({symbol})", min_value=0.0, value=0.0, step=100.0, key="bonus_cost_input")
-    st.write("---")
-    anual, mult, df_cost, months = calc_employer_cost(country, salario, bonus_anual, T, tables_ext=COUNTRY_TABLES)
-    st.markdown(f"**{T.get('employer_cost_total', 'Total Cost')} (Salário + Bônus + Encargos):** {fmt_money(anual, symbol)}  \n"
-                f"**Multiplicador de Custo (vs Salário Base 12 meses):** {mult:.3f} × (12 meses)  \n"
-                f"**{T.get('months_factor', 'Months')} (Base Salarial):** {months}")
-    if not df_cost.empty: st.dataframe(df_cost, use_container_width=True, hide_index=True)
-    else: st.info("Sem encargos configurados para este país.")
+        state_code, state
