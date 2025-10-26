@@ -679,8 +679,7 @@ if active_menu == T.get("menu_calc"):
     with col_cards:
         # Cards de Remuneração Anual (Unificados ao estilo metric-card)
         
-        # Corrigido o erro de múltiplas chamadas de st.markdown.
-        # Agora estamos construindo a string completa de uma vez.
+        # CORREÇÃO CRÍTICA: Construindo a string HTML COMPLETA de uma vez.
         html_cards = f"""
         <div class="annual-grid">
             <div class='annual-card-base annual-card-label' style='border-left-color: #0a3d62; background: #e6f0f8;'>
@@ -708,7 +707,7 @@ if active_menu == T.get("menu_calc"):
             </div>
         </div>
         """
-        st.markdown(html_cards, unsafe_allow_html=True) # AQUI ESTÁ A CORREÇÃO DE RENDERIZAÇÃO
+        st.markdown(html_cards, unsafe_allow_html=True)
 
     with col_chart:
         # Gráfico de Pizza (Ocupa a coluna direita)
