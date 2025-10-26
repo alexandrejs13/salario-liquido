@@ -99,7 +99,6 @@ EMPLOYER_COST_DEFAULT_FALLBACK = {
     "Canadá": [ {"nome": "CPP (ER)", "percentual": 5.95, "base": "Salário", "ferias": False, "decimo": False, "bonus": True, "obs": f"Teto {fmt_money(ANNUAL_CAPS['CA_CPP_YMPEx1'], 'CAD$')}", "teto": ANNUAL_CAPS["CA_CPP_YMPEx1"]}, {"nome": "CPP2 (ER)", "percentual": 4.0, "base": "Salário", "ferias": False, "decimo": False, "bonus": True, "obs": f"Teto {fmt_money(ANNUAL_CAPS['CA_CPP_YMPEx2'], 'CAD$')}", "teto": ANNUAL_CAPS["CA_CPP_YMPEx2"]}, {"nome": "EI (ER)", "percentual": 2.28, "base": "Salário", "ferias": False, "decimo": False, "bonus": True, "obs": f"Teto {fmt_money(ANNUAL_CAPS['CA_EI_MIE'], 'CAD$')}", "teto": ANNUAL_CAPS["CA_EI_MIE"]} ]
 }
 REMUN_MONTHS_DEFAULT_FALLBACK = { "Brasil": 13.33, "México": 12.50, "Chile": 12.00, "Argentina": 13.00, "Colômbia": 14.00, "Estados Unidos": 12.00, "Canadá": 12.00 }
-# Agora sim, COUNTRY_TABLES_FALLBACK pode ser definido
 COUNTRY_TABLES_FALLBACK = {"TABLES": TABLES_DEFAULT_FALLBACK, "EMPLOYER_COST": EMPLOYER_COST_DEFAULT_FALLBACK, "REMUN_MONTHS": REMUN_MONTHS_DEFAULT_FALLBACK}
 
 
@@ -378,6 +377,11 @@ with st.sidebar:
     # Atualiza o estado se o idioma mudou
     if idioma != st.session_state.idioma:
         st.session_state.idioma = idioma
+        # Limpa o menu ativo e o país para forçar a recriação com o novo idioma
+        if 'active_menu' in st.session_state:
+            del st.session_state['active_menu']
+        if 'country_select' in st.session_state:
+             del st.session_state['country_select']
         st.rerun()
 
     T = I18N.get(idioma, I18N_FALLBACK["Português"])
@@ -387,6 +391,7 @@ with st.sidebar:
 
     st.markdown(f"<h3 style='margin-bottom: 0.5rem;'>{T.get('country', 'País')}</h3>", unsafe_allow_html=True)
     country_options = list(COUNTRIES.keys())
+    
     if not country_options:
         st.error("Erro fatal: Arquivo 'countries.json' não encontrado ou está vazio.")
         st.stop()
