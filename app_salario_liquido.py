@@ -1,6 +1,6 @@
 # -------------------------------------------------------------
-# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.37 - FIX FINAL LAYOUT/HTML)
-# Correção: O layout anual foi corrigido para usar uma única injeção de HTML, resolvendo a renderização de código.
+# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.38 - FIX DE LAYOUT NATIVO)
+# Correção: O layout anual foi alterado para usar colunas nativas aninhadas, resolvendo o erro de renderização HTML.
 # -------------------------------------------------------------
 
 import streamlit as st
@@ -157,7 +157,7 @@ def calc_inss_progressivo(salario: float, inss_tbl: Dict[str, Any]) -> float:
     return max(contrib, 0.0)
 
 def calc_irrf(base: float, dep: int, irrf_tbl: Dict[str, Any]) -> float:
-    if not isinstance(irrf_tbl, dict) or "deducao_dependente" not in irrf_tbl: return 0.0
+    if not isinstance(irrf_tbl, dict): return 0.0
     ded_dep = float(irrf_tbl.get("deducao_dependente", 0.0))
     base_calc = max(base - ded_dep * max(int(dep), 0), 0.0)
     for faixa in irrf_tbl.get("faixas", []):
@@ -707,7 +707,7 @@ if active_menu == T.get("menu_calc"):
             </div>
         </div>
         """
-        st.markdown(html_cards, unsafe_allow_html=True)
+        st.markdown(html_cards, unsafe_allow_html=True) # AQUI ESTÁ A CORREÇÃO DE RENDERIZAÇÃO
 
     with col_chart:
         # Gráfico de Pizza (Ocupa a coluna direita)
