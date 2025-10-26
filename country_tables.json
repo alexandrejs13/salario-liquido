@@ -1,40 +1,41 @@
 {
   "TABLES": {
-    "México":   { "rates": { "ISR": 0.15, "IMSS": 0.05, "INFONAVIT": 0.05 } },
-    "Chile":    { "rates": { "AFP": 0.10, "Saúde": 0.07 } },
-    "Argentina":{ "rates": { "Jubilación": 0.11, "Obra Social": 0.03, "PAMI": 0.03 } },
-    "Colômbia": { "rates": { "Saúde": 0.04, "Pensão": 0.04 } },
-    "Canadá":   { "rates": { "CPP": 0.0595, "EI": 0.0163, "Income Tax": 0.15 } }
+    "México":    { "rates": { "ISR_Simplificado": 0.15, "IMSS_Simplificado": 0.05 } },
+    "Chile":     { "rates": { "AFP": 0.1115, "Saúde": 0.07 } },
+    "Argentina": { "rates": { "Jubilación": 0.11, "Obra Social": 0.03, "PAMI": 0.03 } },
+    "Colômbia":  { "rates": { "Saúde": 0.04, "Pensão": 0.04 } },
+    "Canadá":    { "rates": { "Income Tax_Simplificado": 0.15 } }
   },
   "EMPLOYER_COST": {
     "Brasil": [
-      { "nome":"INSS Patronal", "percentual":20.0, "base":"Salário Bruto", "ferias":true, "decimo":true, "bonus":true, "obs":"Previdência" },
-      { "nome":"RAT", "percentual":2.0, "base":"Salário Bruto", "ferias":true, "decimo":true, "bonus":true, "obs":"Risco" },
-      { "nome":"Sistema S", "percentual":5.8, "base":"Salário Bruto", "ferias":true, "decimo":true, "bonus":true, "obs":"Terceiros" },
-      { "nome":"FGTS", "percentual":8.0, "base":"Salário Bruto", "ferias":true, "decimo":true, "bonus":true, "obs":"Crédito empregado" }
+      { "nome":"INSS Patronal", "percentual":20.0, "base":"Salário Bruto", "ferias":true, "decimo":true, "bonus":true, "obs":"Previdência", "teto": null },
+      { "nome":"RAT", "percentual":2.0, "base":"Salário Bruto", "ferias":true, "decimo":true, "bonus":true, "obs":"Risco", "teto": null },
+      { "nome":"Sistema S", "percentual":5.8, "base":"Salário Bruto", "ferias":true, "decimo":true, "bonus":true, "obs":"Terceiros", "teto": null },
+      { "nome":"FGTS", "percentual":8.0, "base":"Salário Bruto", "ferias":true, "decimo":true, "bonus":true, "obs":"Crédito empregado", "teto": null }
     ],
     "México": [
-      { "nome":"IMSS Patronal","percentual":7.0,"base":"Salário","ferias":true,"decimo":true,"bonus":true,"obs":"Seguro social" },
-      { "nome":"INFONAVIT Empregador","percentual":5.0,"base":"Salário","ferias":true,"decimo":true,"bonus":true,"obs":"Habitação" }
+      { "nome":"IMSS Patronal","percentual":7.0,"base":"Salário","ferias":true,"decimo":true,"bonus":true,"obs":"Seguro social (aprox.)", "teto": 76200.0 },
+      { "nome":"INFONAVIT Empregador","percentual":5.0,"base":"Salário","ferias":true,"decimo":true,"bonus":true,"obs":"Habitação", "teto": 76200.0 }
     ],
     "Chile": [
-      { "nome":"Seguro Desemprego","percentual":2.4,"base":"Salário","ferias":true,"decimo":false,"bonus":true,"obs":"Empregador" }
+      { "nome":"Seguro Desemprego","percentual":2.4,"base":"Salário","ferias":true,"decimo":false,"bonus":true,"obs":"Empregador", "teto": 126.6 },
+      { "nome":"SIS (Invalidez)","percentual":1.53,"base":"Salário","ferias":true,"decimo":false,"bonus":true,"obs":"Adicionado", "teto": 84.3 }
     ],
     "Argentina": [
-      { "nome":"Contribuições Patronais","percentual":18.0,"base":"Salário","ferias":true,"decimo":true,"bonus":true,"obs":"Média setores" }
+      { "nome":"Contribuições Patronais","percentual":23.5,"base":"Salário","ferias":true,"decimo":true,"bonus":true,"obs":"Média ajustada", "teto": 3335458.18 }
     ],
     "Colômbia": [
-      { "nome":"Saúde Empregador","percentual":8.5,"base":"Salário","ferias":true,"decimo":true,"bonus":true,"obs":"—" },
-      { "nome":"Pensão Empregador","percentual":12.0,"base":"Salário","ferias":true,"decimo":true,"bonus":true,"obs":"—" }
+      { "nome":"Saúde Empregador","percentual":8.5,"base":"Salário","ferias":true,"decimo":true,"bonus":true,"obs":"—", "teto": null },
+      { "nome":"Pensão Empregador","percentual":12.0,"base":"Salário","ferias":true,"decimo":true,"bonus":true,"obs":"—", "teto": null }
     ],
     "Estados Unidos": [
-      { "nome":"Social Security (ER)","percentual":6.2,"base":"Salário","ferias":false,"decimo":false,"bonus":true,"obs":"Até wage base" },
-      { "nome":"Medicare (ER)","percentual":1.45,"base":"Salário","ferias":false,"decimo":false,"bonus":true,"obs":"Sem teto" },
-      { "nome":"SUTA (avg)","percentual":2.0,"base":"Salário","ferias":false,"decimo":false,"bonus":true,"obs":"Média estado" }
+      { "nome":"Social Security (ER)","percentual":6.2,"base":"Salário","ferias":false,"decimo":false,"bonus":true,"obs":"Teto 168600", "teto": 168600.0 },
+      { "nome":"Medicare (ER)","percentual":1.45,"base":"Salário","ferias":false,"decimo":false,"bonus":true,"obs":"Sem teto", "teto": null },
+      { "nome":"SUTA (avg)","percentual":2.0,"base":"Salário","ferias":false,"decimo":false,"bonus":true,"obs":"Teto base 7000", "teto": 7000.0 }
     ],
     "Canadá": [
-      { "nome":"CPP (ER)","percentual":5.95,"base":"Salário","ferias":false,"decimo":false,"bonus":true,"obs":"Até limite" },
-      { "nome":"EI (ER)","percentual":2.28,"base":"Salário","ferias":false,"decimo":false,"bonus":true,"obs":"—" }
+      { "nome":"CPP (ER)","percentual":5.95,"base":"Salário","ferias":false,"decimo":false,"bonus":true,"obs":"Teto 68500", "teto": 68500.0 },
+      { "nome":"EI (ER)","percentual":2.28,"base":"Salário","ferias":false,"decimo":false,"bonus":true,"obs":"Teto 63200", "teto": 63200.0 }
     ]
   },
   "REMUN_MONTHS": {
@@ -42,7 +43,7 @@
     "México": 12.50,
     "Chile": 12.00,
     "Argentina": 13.00,
-    "Colômbia": 13.00,
+    "Colômbia": 14.00,
     "Estados Unidos": 12.00,
     "Canadá": 12.00
   }
