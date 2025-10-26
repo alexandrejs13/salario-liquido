@@ -1,7 +1,7 @@
 # -------------------------------------------------------------
-# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.9)
+# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.10)
 # Tema azul plano, multilíngue, responsivo e com STI corrigido
-# (Correção FORÇADA Cor Botões + Restauro Texto Regras + Ajustes Finais Layout)
+# (Menu revertido para st.radio na sidebar)
 # -------------------------------------------------------------
 
 import streamlit as st
@@ -21,6 +21,7 @@ URL_BR_INSS = f"{RAW_BASE}/br_inss.json"
 URL_BR_IRRF = f"{RAW_BASE}/br_irrf.json"
 
 # ============================== CSS ================================
+# CSS Simplificado: Removidas as regras específicas dos botões do menu
 st.markdown("""
 <style>
 html, body { font-family:'Segoe UI', Helvetica, Arial, sans-serif; background:#f7f9fb; color:#1a1a1a;}
@@ -34,7 +35,11 @@ section[data-testid="stSidebar"] h2,
 section[data-testid="stSidebar"] h3,
 section[data-testid="stSidebar"] p,
 section[data-testid="stSidebar"] .stMarkdown,
-section[data-testid="stSidebar"] label{ color:#ffffff !important; }
+section[data-testid="stSidebar"] label,
+section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] label span { /* Corrigido para texto do radio */
+    color:#ffffff !important;
+}
+
 section[data-testid="stSidebar"] h2 { margin-bottom: 25px !important; }
 section[data-testid="stSidebar"] h3 { margin-bottom: 0.5rem !important; margin-top: 1rem !important; }
 section[data-testid="stSidebar"] div[data-testid="stSelectbox"] label { margin-bottom: 0.5rem !important; }
@@ -45,65 +50,11 @@ section[data-testid="stSidebar"] .stSelectbox input,
 section[data-testid="stSidebar"] .stSelectbox div[role="combobox"] *,
 section[data-testid="stSidebar"] [data-baseweb="menu"] div[role="option"]{ color:#0b1f33 !important; background:#fff !important; }
 
-/* REQ 3 (v. anterior): Botões Menu Sidebar (FORÇAR TEXTO PRETO/AZUL) */
-section[data-testid="stSidebar"] .stButton button {
-  background: #ffffff !important;
-  border: 1px solid #d0d7de !important;
-  border-radius: 8px !important;
-  font-weight: 600 !important;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
-  color: #0a3d62 !important; /* FORÇADO Azul Escuro */
-  width: 100%;
-  margin-bottom: 8px;
-  transition: background 0.2s ease, border-color 0.2s ease;
-  text-align: left;
-  padding-left: 15px !important;
-}
-section[data-testid="stSidebar"] .stButton button:hover {
-  background: #f0f2f6 !important;
-  border-color: #adb5bd !important;
-  color: #0a3d62 !important; /* FORÇADO Azul Escuro */
-}
-/* Botão Ativo (Streamlit type=primary) */
-section[data-testid="stSidebar"] .stButton button[kind="primary"] {
-    background: #e6f0f8 !important; /* Fundo azul claro para ativo */
-    border-color: #a3c4e3 !important;
-    color: #0a3d62 !important; /* FORÇADO Azul Escuro */
-}
-section[data-testid="stSidebar"] .stButton button[kind="primary"]:hover {
-    background: #dbe9f6 !important; /* Hover sutil para ativo */
-    border-color: #8cb8dd !important;
-    color: #0a3d62 !important; /* FORÇADO Azul Escuro */
-}
-section[data-testid="stSidebar"] .stButton button:focus:not(:active) {
-    border-color: #d0d7de !important;
-    box-shadow: 0 0 0 2px rgba(10, 61, 98, 0.1) !important;
-    color: #0a3d62 !important; /* FORÇADO Azul Escuro */
-}
-section[data-testid="stSidebar"] .stButton button[kind="primary"]:focus:not(:active) {
-    border-color: #a3c4e3 !important;
-    box-shadow: 0 0 0 2px rgba(10, 61, 98, 0.2) !important;
-    color: #0a3d62 !important; /* FORÇADO Azul Escuro */
-}
-
-
-/* REQ 1 (v. anterior): Cards Mensais (Altura = Anual, Espaço Título/Valor) */
-.metric-card{
-    background:#fff;
-    border-radius:10px;
-    box-shadow:0 1px 4px rgba(0,0,0,.06);
-    padding: 8px 12px;
-    text-align:center;
-    transition: all 0.3s ease;
-    min-height: 95px; /* Altura mínima */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    border-left: 5px solid #ccc;
-}
+/* Cards Mensais */
+.metric-card{ background:#fff; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,.06); padding: 8px 12px; text-align:center; transition: all 0.3s ease; min-height: 95px; display: flex; flex-direction: column; justify-content: center; border-left: 5px solid #ccc; }
 .metric-card:hover{ box-shadow:0 6px 16px rgba(0,0,0,0.1); transform: translateY(-2px); }
 .metric-card h4{ margin:0; font-size:17px; font-weight: 600; color:#0a3d62; }
-.metric-card h3{ margin: 2px 0 0; color:#0a3d62; font-size:17px; font-weight: 700; } /* Margem superior ajustada */
+.metric-card h3{ margin: 2px 0 0; color:#0a3d62; font-size:17px; font-weight: 700; }
 
 /* Tabela */
 .table-wrap{ background:#fff; border:1px solid #d0d7de; border-radius:8px; overflow:hidden; }
@@ -124,8 +75,7 @@ section[data-testid="stSidebar"] .stButton button[kind="primary"]:focus:not(:act
 .annual-card-value h3 { margin: 0; font-size: 17px; color: #0a3d62; }
 .annual-card-label h4 { font-weight: 600; }
 .annual-card-value h3 { font-weight: 700; }
-/* REQ 3 (v. anterior): Nota mais próxima */
-.annual-card-label .sti-note { display: block; font-size: 14px; font-weight: 400; line-height: 1.3; margin-top: 2px; } /* margin-top reduzida */
+.annual-card-label .sti-note { display: block; font-size: 14px; font-weight: 400; line-height: 1.3; margin-top: 2px; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -153,16 +103,18 @@ def fmt_percent(v: float) -> str:
     if v is None: return ""
     return f"{v:.2f}%"
 
+# Precisa da variável global `country` para o caso do Chile
 def fmt_cap(cap_value: Any, sym: str = None, country_code: str = None) -> str:
     if cap_value is None: return "—"
     if isinstance(cap_value, str): return cap_value
     if isinstance(cap_value, (int, float)):
-        # Precisa da variável global `country` aqui
+        # Usa country_code (passado como parâmetro)
         if country_code == "Chile" and cap_value < 200: return f"~{cap_value:.1f} UF"
         return fmt_money(cap_value, sym if sym else "")
     return str(cap_value)
 
 # ========================== FALLBACKS LOCAIS ============================
+# (Os dicionários US_STATE_RATES_DEFAULT, TABLES_DEFAULT, EMPLOYER_COST_DEFAULT, BR_INSS_DEFAULT, BR_IRRF_DEFAULT, CA_CPP_EI_DEFAULT permanecem os mesmos da versão anterior)
 US_STATE_RATES_DEFAULT = { "No State Tax": 0.00, "AK": 0.00, "FL": 0.00, "NV": 0.00, "SD": 0.00, "TN": 0.00, "TX": 0.00, "WA": 0.00, "WY": 0.00, "NH": 0.00, "AL": 0.05, "AR": 0.049, "AZ": 0.025, "CA": 0.06,  "CO": 0.044, "CT": 0.05, "DC": 0.06,  "DE": 0.055, "GA": 0.054, "HI": 0.08, "IA": 0.06,  "ID": 0.06,  "IL": 0.0495, "IN": 0.0323, "KS": 0.046, "KY": 0.05,  "LA": 0.0425, "MA": 0.05,  "MD": 0.0575, "ME": 0.058, "MI": 0.0425, "MN": 0.058, "MO": 0.045, "MS": 0.05, "MT": 0.054, "NC": 0.045, "ND": 0.02,  "NE": 0.05,  "NJ": 0.055, "NM": 0.049, "NY": 0.064, "OH": 0.030, "OK": 0.0475, "OR": 0.08,  "PA": 0.0307, "RI": 0.0475, "SC": 0.052, "UT": 0.0485, "VA": 0.05,  "VT": 0.06, "WI": 0.053, "WV": 0.05 }
 TABLES_DEFAULT = { "México": {"rates": {"ISR": 0.15, "IMSS": 0.05, "INFONAVIT": 0.05}}, "Chile": {"rates": {"AFP": 0.1115, "Saúde": 0.07}}, "Argentina": {"rates": {"Jubilación": 0.11, "Obra Social": 0.03, "PAMI": 0.03}}, "Colômbia": {"rates": {"Saúde": 0.04, "Pensão": 0.04}}, "Canadá": {"rates": {"CPP": 0.0595, "CPP2": 0.04, "EI": 0.0163, "Income Tax": 0.15}} }
 EMPLOYER_COST_DEFAULT = {
@@ -280,7 +232,6 @@ def calc_employer_cost(country_code: str, salary: float, bonus: float, T: Dict[s
         df_display[T["cost_header_charge"]] = df_display["nome"]
         df_display[T["cost_header_percent"]] = df_display["percentual"].apply(lambda p: f"{p:.2f}%")
         df_display[T["cost_header_base"]] = df_display["base"]
-        # Passa country_code para fmt_cap
         df_display[T["cost_header_obs"]] = df_display.apply(lambda row: fmt_cap(row.get('teto'), COUNTRIES[country_code]['symbol'], country_code) if row.get('teto') is not None else row['obs'], axis=1)
         df_display[T["cost_header_bonus"]] = ["✅" if b else "❌" for b in df_display["bonus"]]
         cols = [T["cost_header_charge"], T["cost_header_percent"], T["cost_header_base"], T["cost_header_bonus"], T["cost_header_obs"]]
@@ -294,8 +245,7 @@ def calc_employer_cost(country_code: str, salary: float, bonus: float, T: Dict[s
         base_calc_anual = salario_anual_base if country_code in ["Estados Unidos", "Canadá"] else salario_anual_beneficios
         if incide_bonus: base_calc_anual += bonus
         if teto is not None and isinstance(teto, (int, float)):
-             # Passa country_code para fmt_cap (na verificação)
-            if country_code == "Chile" and teto < 200: pass
+            if country_code == "Chile" and isinstance(teto, float) and teto < 200: pass
             elif item.get("nome") == "CPP2 (ER)": base_calc_anual = max(0, min(base_calc_anual, teto) - min(base_calc_anual, ANNUAL_CAPS["CA_CPP_YMPEx1"]))
             else: base_calc_anual = min(base_calc_anual, teto)
         custo_item = base_calc_anual * perc; total_cost_items.append(custo_item)
@@ -328,13 +278,12 @@ def load_tables():
 
 # ============================== SIDEBAR ===============================
 with st.sidebar:
-    # REQ 5 (v. anterior): Título Traduzido
     st.markdown(f"<h2 style='color:white; text-align:center; font-size:20px; margin-bottom: 25px;'>{I18N['Português']['sidebar_title']}</h2>", unsafe_allow_html=True)
 
-    # REQ 1 (v. anterior): Título H3 para Idioma
+    # REQ 1: Título H3 para Idioma + Label Visível
     st.markdown(f"<h3 style='margin-bottom: 0.5rem;'>{I18N['Português']['language_title']}</h3>", unsafe_allow_html=True)
-    idioma = st.selectbox(label="Language Select", options=list(I18N.keys()), index=0, key="lang_select", label_visibility="collapsed")
-    T = I18N[idioma] # Atualiza T após seleção de idioma
+    idioma = st.selectbox(label="Language Select", options=list(I18N.keys()), index=0, key="lang_select", label_visibility="collapsed") # Label oculta por simplicidade
+    T = I18N[idioma]
 
     st.markdown(f"<h3 style='margin-bottom: 0.5rem;'>{T['country']}</h3>", unsafe_allow_html=True)
     country = st.selectbox(T["choose_country"], list(COUNTRIES.keys()), index=0, key="country_select", label_visibility="collapsed")
@@ -346,17 +295,19 @@ with st.sidebar:
     if 'active_menu' not in st.session_state or st.session_state.active_menu not in menu_options:
         st.session_state.active_menu = menu_options[0]
 
-    button_container = st.container()
-    cols = button_container.columns(1)
-    for i, option in enumerate(menu_options):
-        is_active = (st.session_state.active_menu == option)
-        button_key = f"menu_btn_{option.replace(' ', '_').lower()}_{i}"
-        button_type = "primary" if is_active else "secondary"
-        # O CSS global agora força a cor do texto
-        if cols[0].button(option, key=button_key, use_container_width=True, type=button_type):
-             if not is_active:
-                 st.session_state.active_menu = option
-                 st.rerun()
+    # Reverte para st.radio
+    active_menu = st.radio(
+        label="Menu Select", # Label interna
+        options=menu_options,
+        key="menu_radio_select",
+        label_visibility="collapsed", # Esconde o label "Menu Select"
+        index=menu_options.index(st.session_state.active_menu) # Define o item ativo
+    )
+    # Atualiza o estado se a seleção do radio mudou
+    if active_menu != st.session_state.active_menu:
+        st.session_state.active_menu = active_menu
+        st.rerun()
+
 
     # REQ 5 (v. anterior): Mapa Removido
 
@@ -434,7 +385,7 @@ if active_menu == T["menu_calc"]:
     cc2.markdown(f"<div class='metric-card' style='border-left-color: #dc3545; background: #ffe6e6;'><h4>📉 {T['tot_deductions']}</h4><h3>{fmt_money(calc['total_ded'], symbol)}</h3></div>", unsafe_allow_html=True)
     cc3.markdown(f"<div class='metric-card' style='border-left-color: #007bff; background: #e6f7ff;'><h4>💵 {T['net']}</h4><h3>{fmt_money(calc['net'], symbol)}</h3></div>", unsafe_allow_html=True)
 
-    st.write("") # Espaço antes do FGTS
+    st.write("")
     if country == "Brasil": st.markdown(f"**💼 {T['fgts_deposit']}:** {fmt_money(calc['fgts'], symbol)}")
 
     st.write("---")
@@ -459,7 +410,6 @@ if active_menu == T["menu_calc"]:
     c2.markdown(f"<div class='annual-card-base annual-card-value' style='border-left-color: #0a3d62; background: #e6f0f8;'><h3>{fmt_money(total_anual, symbol)}</h3></div>", unsafe_allow_html=True)
 
     st.write("---")
-    # REQ 3 (v. anterior): Adiciona Título do Gráfico
     st.subheader(T["pie_chart_title_dist"])
     chart_df = pd.DataFrame({"Componente": [T["annual_salary"].split(" (")[0], T["annual_bonus"]], "Valor": [salario_anual, bonus_anual]})
     base = alt.Chart(chart_df).transform_joinaggregate(Total="sum(Valor)").transform_calculate(Percent="datum.Valor / datum.Total")
