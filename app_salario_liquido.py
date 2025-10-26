@@ -1,7 +1,7 @@
 # -------------------------------------------------------------
-# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.12)
+# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.13)
 # Tema azul plano, multilíngue, responsivo e com STI corrigido
-# (Carrega config de JSONs locais + Dicas Implementadas)
+# (Correção KeyError: Carregar JSONs no início)
 # -------------------------------------------------------------
 
 import streamlit as st
@@ -17,7 +17,7 @@ import os   # Para caminhos de arquivo
 st.set_page_config(page_title="Simulador de Salário Líquido", layout="wide")
 
 # ======================== HELPERS INICIAIS (Formatação) =========================
-# (Precisam ser definidos antes dos Defaults que os usam)
+# (Definidos antes para serem usados nos Defaults)
 def fmt_money(v: float, sym: str) -> str:
     return f"{sym} {v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
@@ -34,13 +34,12 @@ def fmt_cap(cap_value: Any, sym: str = None, country_code: str = None) -> str:
     return str(cap_value)
 
 # ======================== CONSTANTES e TETOS GLOBAIS =========================
-# (Mantidos aqui por simplicidade ou por serem usados nos fallbacks)
 ANNUAL_CAPS = { "US_FICA": 168600.0, "US_SUTA_BASE": 7000.0, "CA_CPP_YMPEx1": 68500.0, "CA_CPP_YMPEx2": 73200.0, "CA_CPP_EXEMPT": 3500.0, "CA_EI_MIE": 63200.0, "CL_TETO_UF": 84.3, "CL_TETO_CESANTIA_UF": 126.6, }
-UMA_DIARIA_MX = 108.57 # Exemplo 2024
-MX_IMSS_CAP_MONTHLY = 25 * UMA_DIARIA_MX * 30.4 # Teto Mensal Simplificado
+UMA_DIARIA_MX = 108.57
+MX_IMSS_CAP_MONTHLY = 25 * UMA_DIARIA_MX * 30.4
 
 # ======================== CARREGAMENTO DE CONFIGS JSON LOCAIS =========================
-CONFIG_DIR = "." # Assume que JSONs estão no mesmo diretório
+CONFIG_DIR = "."
 I18N_FILE = os.path.join(CONFIG_DIR, "i18n.json")
 COUNTRIES_FILE = os.path.join(CONFIG_DIR, "countries.json")
 STI_CONFIG_FILE = os.path.join(CONFIG_DIR, "sti_config.json")
@@ -52,16 +51,18 @@ BR_IRRF_FILE = os.path.join(CONFIG_DIR, "br_irrf.json")
 def load_json(filepath, default_value={}):
     """Carrega um arquivo JSON local, retorna default em caso de erro/ausência."""
     if not os.path.exists(filepath):
-        st.warning(f"Arquivo de configuração não encontrado: {filepath}. Usando valores padrão.")
+        # Usar st.warning pode causar problemas no load inicial, melhor logar ou retornar default silenciosamente
+        # st.warning(f"Arquivo de configuração não encontrado: {filepath}. Usando valores padrão.")
+        print(f"Warning: Config file not found: {filepath}. Using default.")
         return default_value
     try:
         with open(filepath, 'r', encoding='utf-8') as f:
             return json.load(f)
     except Exception as e:
-        st.error(f"Erro ao carregar {filepath}: {e}")
+        print(f"Error loading {filepath}: {e}") # Usar print em vez de st.error no load inicial
         return default_value
 
-# --- Fallbacks Mínimos (caso JSONs principais falhem) ---
+# --- Fallbacks Mínimos ---
 I18N_FALLBACK = {"Português": {"app_title": "Simulador (Fallback)", "sidebar_title": "Simulador (Fallback)", "language_title": "Idioma", "country": "País", "menu_title": "Menu", "choose_country": "Escolha"}}
 COUNTRIES_FALLBACK = {"countries": {"Brasil": {"symbol": "R$", "flag": "🇧🇷", "valid_from": "N/A", "benefits": {"ferias": True, "decimo": True}}}}
 STI_CONFIG_FALLBACK = {"STI_RANGES": {}, "STI_LEVEL_OPTIONS": {}}
@@ -79,7 +80,7 @@ BR_INSS_TBL = load_json(BR_INSS_FILE, BR_INSS_FALLBACK)
 BR_IRRF_TBL = load_json(BR_IRRF_FILE, BR_IRRF_FALLBACK)
 COUNTRY_TABLES_DATA = load_json(COUNTRY_TABLES_FILE, COUNTRY_TABLES_FALLBACK)
 
-# --- Extrai Dados Carregados ---
+# --- Extrai Dados Carregados para variáveis globais ---
 COUNTRIES = COUNTRIES_DATA.get("countries", {})
 COUNTRY_BENEFITS = {k: v.get("benefits", {}) for k, v in COUNTRIES.items()}
 STI_RANGES = STI_CONFIG.get("STI_RANGES", {})
@@ -87,10 +88,10 @@ STI_LEVEL_OPTIONS = STI_CONFIG.get("STI_LEVEL_OPTIONS", {})
 TABLES_DEFAULT = COUNTRY_TABLES_DATA.get("TABLES", {})
 EMPLOYER_COST_DEFAULT = COUNTRY_TABLES_DATA.get("EMPLOYER_COST", {})
 REMUN_MONTHS_DEFAULT = COUNTRY_TABLES_DATA.get("REMUN_MONTHS", {})
+CA_CPP_EI_DEFAULT = { "cpp_rate": 0.0595, "cpp_exempt_monthly": ANNUAL_CAPS["CA_CPP_EXEMPT"] / 12.0, "cpp_cap_monthly": ANNUAL_CAPS["CA_CPP_YMPEx1"] / 12.0, "cpp2_rate": 0.04, "cpp2_cap_monthly": ANNUAL_CAPS["CA_CPP_YMPEx2"] / 12.0, "ei_rate": 0.0163, "ei_cap_monthly": ANNUAL_CAPS["CA_EI_MIE"] / 12.0 } # Manter cálculo aqui
 
-# Simplifica load_tables - apenas retorna dados já carregados
+# Função load_tables simplificada (agora apenas retorna os dados já carregados)
 def load_tables():
-    global US_STATE_RATES, COUNTRY_TABLES_DATA, BR_INSS_TBL, BR_IRRF_TBL # Acessa globais
     country_tables_dict = {
         "TABLES": COUNTRY_TABLES_DATA.get("TABLES", {}),
         "EMPLOYER_COST": COUNTRY_TABLES_DATA.get("EMPLOYER_COST", {}),
@@ -98,8 +99,18 @@ def load_tables():
     }
     return US_STATE_RATES, country_tables_dict, BR_INSS_TBL, BR_IRRF_TBL
 
+# ======================== ENDPOINTS REMOTOS (Opcional, pode ser removido se usar só local) =========================
+# RAW_BASE = "https://raw.githubusercontent.com/alexandrejs13/salario-liquido/main"
+# URL_US_STATES = f"{RAW_BASE}/us_state_tax_rates.json"
+# URL_COUNTRY_TABLES = f"{RAW_BASE}/country_tables.json"
+# URL_BR_INSS = f"{RAW_BASE}/br_inss.json"
+# URL_BR_IRRF = f"{RAW_BASE}/br_irrf.json"
+
+# def fetch_json_no_cache(url: str) -> Dict[str, Any]:
+#     r = requests.get(url, timeout=8); r.raise_for_status(); return r.json()
+
 # ============================== CSS ================================
-# (CSS como na v2025.50.8, com correções para botões)
+# (CSS como na v2025.50.8)
 st.markdown("""
 <style>
 html, body { font-family:'Segoe UI', Helvetica, Arial, sans-serif; background:#f7f9fb; color:#1a1a1a;}
@@ -146,7 +157,7 @@ section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] label span { co
 
 # ============================== (Restante dos HELPERS - Cálculo) ===============================
 # (Funções: get_sti_range, calc_inss_progressivo, calc_irrf, br_net, generic_net, us_net, ca_net, mx_net, calc_country_net, calc_employer_cost, get_sti_area_map, get_sti_level_map)
-# - O código dessas funções permanece o mesmo da versão anterior (v2025.50.12)
+# - O código dessas funções permanece o mesmo da versão anterior (v2025.50.8)
 def get_sti_range(area: str, level: str) -> Tuple[float, float]:
     area_tbl = STI_RANGES.get(area, {})
     rng = area_tbl.get(level)
@@ -188,7 +199,6 @@ def br_net(salary: float, dependentes: int, other_deductions: float, br_inss_tbl
 def generic_net(salary: float, other_deductions: float, rates: Dict[str, float], country_code: str):
     lines = [("Base", salary, 0.0)]; total_earn = salary; total_ded = 0.0
     for k, aliq in rates.items():
-        # Ignora taxas tratadas em funções específicas
         if (k == "CPP2" and country_code == "Canadá") or \
            (country_code == "México" and k in ["ISR_Simplificado", "IMSS_Simplificado"]): continue
         v = salary * float(aliq); total_ded += v; lines.append((k, 0.0, v))
@@ -226,7 +236,12 @@ def ca_net(salary: float, other_deductions: float, ca_tbl: Dict[str, Any]):
 
 def mx_net(salary: float, other_deductions: float, tables_ext: Dict[str, Any]):
     lines = [("Base", salary, 0.0)]; total_earn = salary; total_ded = 0.0
-    rates = (tables_ext or {}).get("TABLES", {}).get("México", {}).get("rates", {})
+    # Usar fallback se tables_ext for None ou vazio
+    if not tables_ext or "TABLES" not in tables_ext or "México" not in tables_ext["TABLES"]:
+        rates = TABLES_DEFAULT.get("México", {}).get("rates", {})
+    else:
+        rates = tables_ext.get("TABLES", {}).get("México", {}).get("rates", {})
+
     imss_rate = rates.get("IMSS_Simplificado", 0.05)
     isr_rate = rates.get("ISR_Simplificado", 0.15)
     imss_base = min(salary, MX_IMSS_CAP_MONTHLY)
@@ -239,6 +254,7 @@ def mx_net(salary: float, other_deductions: float, tables_ext: Dict[str, Any]):
     total_ded += other_deductions
     net = total_earn - total_ded
     return lines, total_earn, total_ded, net
+
 
 def calc_country_net(country_code: str, salary: float, other_deductions: float, state_code=None, state_rate=None, dependentes=0, tables_ext=None, br_inss_tbl=None, br_irrf_tbl=None):
     if country_code == "Brasil":
@@ -261,7 +277,12 @@ def calc_country_net(country_code: str, salary: float, other_deductions: float, 
 
 def calc_employer_cost(country_code: str, salary: float, bonus: float, T: Dict[str, str], tables_ext=None):
     months = (tables_ext or {}).get("REMUN_MONTHS", {}).get(country_code, REMUN_MONTHS_DEFAULT.get(country_code, 12.0))
-    enc_list = (tables_ext or {}).get("EMPLOYER_COST", {}).get(country_code, EMPLOYER_COST_DEFAULT.get(country_code, []))
+    # Usar fallback diretamente se tables_ext não tiver EMPLOYER_COST
+    if not tables_ext or "EMPLOYER_COST" not in tables_ext or country_code not in tables_ext["EMPLOYER_COST"]:
+        enc_list = EMPLOYER_COST_DEFAULT.get(country_code, [])
+    else:
+        enc_list = tables_ext.get("EMPLOYER_COST", {}).get(country_code, [])
+
     benefits = COUNTRY_BENEFITS.get(country_code, {"ferias": False, "decimo": False})
 
     df = pd.DataFrame(enc_list)
@@ -292,6 +313,7 @@ def calc_employer_cost(country_code: str, salary: float, bonus: float, T: Dict[s
     mult = (custo_total_anual / salario_anual_base) if salario_anual_base > 0 else 0.0
     return custo_total_anual, mult, df_display, months
 
+
 def get_sti_area_map(T: Dict[str, str]) -> Tuple[List[str], Dict[str, str]]:
     display_list = [T["sti_area_non_sales"], T["sti_area_sales"]]; keys = ["Non Sales", "Sales"]
     return display_list, dict(zip(display_list, keys))
@@ -300,40 +322,32 @@ def get_sti_level_map(area: str, T: Dict[str, str]) -> Tuple[List[str], Dict[str
     keys = STI_LEVEL_OPTIONS.get(area, []); display_list = [T.get(STI_I18N_KEYS.get(key, ""), key) for key in keys]
     return display_list, dict(zip(display_list, keys))
 
-def fetch_json_no_cache(url: str) -> Dict[str, Any]:
-    r = requests.get(url, timeout=8); r.raise_for_status(); return r.json()
-
-def load_tables():
-    global US_STATE_RATES, COUNTRY_TABLES_DATA, BR_INSS_TBL, BR_IRRF_TBL # Acessa globais
-    country_tables_dict = {
-        "TABLES": COUNTRY_TABLES_DATA.get("TABLES", {}),
-        "EMPLOYER_COST": COUNTRY_TABLES_DATA.get("EMPLOYER_COST", {}),
-        "REMUN_MONTHS": COUNTRY_TABLES_DATA.get("REMUN_MONTHS", {})
-    }
-    return US_STATE_RATES, country_tables_dict, BR_INSS_TBL, BR_IRRF_TBL
-
 # ============================== SIDEBAR ===============================
 with st.sidebar:
-    # Título Traduzido
-    # Usa a chave 'sidebar_title' do dicionário I18N carregado
-    st.markdown(f"<h2 style='color:white; text-align:center; font-size:20px; margin-bottom: 25px;'>{I18N['Português']['sidebar_title']}</h2>", unsafe_allow_html=True) # Usa I18N global para o título inicial
-
-    # Título H3 para Idioma
-    st.markdown(f"<h3 style='margin-bottom: 0.5rem;'>{I18N['Português']['language_title']}</h3>", unsafe_allow_html=True)
-    idioma = st.selectbox(label="Language Select", options=list(I18N.keys()), index=0, key="lang_select", label_visibility="collapsed")
+    # Título Traduzido - Carrega T[sidebar_title] após T ser definido
+    idioma = st.selectbox(label="🌐 Idioma / Language / Idioma", options=list(I18N.keys()), index=0, key="lang_select", label_visibility="visible") # Label visível
     T = I18N[idioma] # Atualiza T global com base na seleção
-
-    # Atualiza o título da sidebar com o idioma selecionado
+    # Renderiza o título da sidebar traduzido
     st.markdown(f"<h2 style='color:white; text-align:center; font-size:20px; margin-bottom: 25px;'>{T['sidebar_title']}</h2>", unsafe_allow_html=True)
 
+
     st.markdown(f"<h3 style='margin-bottom: 0.5rem;'>{T['country']}</h3>", unsafe_allow_html=True)
-    country = st.selectbox(T["choose_country"], list(COUNTRIES.keys()), index=0, key="country_select", label_visibility="collapsed")
+    # Garante que COUNTRIES não esteja vazio antes de criar o selectbox
+    country_options = list(COUNTRIES.keys()) if COUNTRIES else ["Brasil"] # Fallback se COUNTRIES estiver vazio
+    country_index = country_options.index("Brasil") # Default para Brasil se possível
+    country = st.selectbox(T["choose_country"], country_options, index=country_index, key="country_select", label_visibility="collapsed")
 
     st.markdown(f"<h3 style='margin-top: 1.5rem; margin-bottom: 0.5rem;'>{T['menu_title']}</h3>", unsafe_allow_html=True)
 
     menu_options = [T["menu_calc"], T["menu_rules"], T["menu_rules_sti"], T["menu_cost"]]
     if 'active_menu' not in st.session_state or st.session_state.active_menu not in menu_options:
-        st.session_state.active_menu = menu_options[0]
+         # Se o menu ativo salvo não for válido (ex: mudou idioma), reseta para o primeiro
+         st.session_state.active_menu = menu_options[0]
+
+    # Verifica se o país selecionado é válido antes de prosseguir
+    if not country or country not in COUNTRIES:
+         st.error("Erro: País inválido ou dados não carregados.")
+         st.stop() # Interrompe a execução se o país for inválido
 
     active_menu = st.radio(
         label="Menu Select",
@@ -349,8 +363,19 @@ with st.sidebar:
     # REQ 5: Mapa Removido
 
 # Carrega tabelas após definir `country` globalmente
-US_STATE_RATES, COUNTRY_TABLES, BR_INSS_TBL, BR_IRRF_TBL = load_tables()
+# Nota: Esta chamada talvez não seja mais necessária se os dados já estão nas globais
+# No entanto, vamos mantê-la para garantir que as variáveis têm os nomes esperados
+US_STATE_RATES_LOADED, COUNTRY_TABLES_LOADED, BR_INSS_TBL_LOADED, BR_IRRF_TBL_LOADED = load_tables()
 
+# Atualiza as variáveis globais que as funções de cálculo esperam
+US_STATE_RATES = US_STATE_RATES_LOADED
+COUNTRY_TABLES = COUNTRY_TABLES_LOADED # Renomeado para evitar conflito
+BR_INSS_TBL = BR_INSS_TBL_LOADED
+BR_IRRF_TBL = BR_IRRF_TBL_LOADED
+
+
+# === Dados Globais do País Selecionado ===
+# Acessa COUNTRIES que foi carregado do JSON no início
 symbol = COUNTRIES[country]["symbol"]
 flag = COUNTRIES[country]["flag"]
 valid_from = COUNTRIES[country]["valid_from"]
@@ -413,6 +438,7 @@ if active_menu == T["menu_calc"]:
 
     st.subheader(T["monthly_comp_title"])
 
+    # Passa other_deductions para a função de cálculo
     calc = calc_country_net(country, salario, other_deductions, state_code=state_code, state_rate=state_rate, dependentes=dependentes, tables_ext=COUNTRY_TABLES, br_inss_tbl=BR_INSS_TBL, br_irrf_tbl=BR_IRRF_TBL)
     df_detalhe = pd.DataFrame(calc["lines"], columns=["Descrição", T["earnings"], T["deductions"]])
     df_detalhe[T["earnings"]] = df_detalhe[T["earnings"]].apply(lambda v: money_or_blank(v, symbol))
@@ -429,6 +455,7 @@ if active_menu == T["menu_calc"]:
 
     st.write("---")
     st.subheader(T["annual_comp_title"])
+    # Passa country para fmt_cap
     months = COUNTRY_TABLES.get("REMUN_MONTHS", {}).get(country, REMUN_MONTHS_DEFAULT.get(country, 12.0))
     salario_anual = salario * months
     total_anual = salario_anual + bonus_anual
@@ -488,7 +515,8 @@ elif active_menu == T["menu_rules"]:
     if not df_er.empty: st.markdown(f"#### {T['rules_er']}"); st.dataframe(df_er, use_container_width=True, hide_index=True)
     st.markdown("---")
 
-    # (Textos detalhados restaurados aqui)
+    # --- Explicações Detalhadas ---
+    # (Textos detalhados aqui, como na v2025.50.8)
     if country == "Brasil":
         if idioma == "Português": st.markdown(f""" **{T["rules_emp"]} - Explicação:**\n- **INSS:** Calculado de forma progressiva sobre faixas salariais (7.5% a 14%). A contribuição total é a soma do valor calculado em cada faixa, limitada ao teto de contribuição.\n- **IRRF:** Calculado sobre o Salário Bruto após deduzir o INSS e um valor fixo por dependente. Aplica-se a alíquota da faixa (0% a 27.5%) e subtrai-se a parcela a deduzir.\n\n**{T["rules_er"]} - Explicação:**\n- **INSS Patronal, RAT, Sistema S:** Percentuais aplicados sobre o total da folha.\n- **FGTS:** Depósito mensal de 8% sobre o Salário Bruto.\n\n**{T['cost_header_13th']} e {T['cost_header_vacation']}:**\n- Custo anual inclui 13º (1 salário) e Férias (1 salário + 1/3). Fator `13.33`. Encargos incidem sobre essa base ampliada.""", unsafe_allow_html=True)
         else: st.markdown(f""" **{T["rules_emp"]} - Explanation:**\n- **INSS:** Progressive rate (7.5% to 14%) on brackets, capped.\n- **IRRF:** Progressive rate (0% to 27.5%) on (Gross - INSS - Dep. Allowance) minus deduction.\n\n**{T["rules_er"]} - Explanation:**\n- **INSS Patronal, RAT, Sistema S:** Percentages on total payroll.\n- **FGTS:** 8% deposit.\n\n**{T['cost_header_13th']} & {T['cost_header_vacation']}:**\n- Annual cost factor `13.33` includes 13th Salary and Vacation + 1/3 bonus. Charges apply to this base.""", unsafe_allow_html=True)
@@ -510,6 +538,7 @@ elif active_menu == T["menu_rules"]:
     elif country == "Colômbia":
          if idioma == "Português": st.markdown(f""" **{T["rules_emp"]} - Explicação:**\n- **Salud & Pensión:** 4% cada sobre IBC.\n\n**{T["rules_er"]} - Explicação:**\n- **Salud & Pensión:** 8.5% e 12% sobre IBC.\n- **Parafiscales:** 9% sobre folha (salvo exceções).\n- **Cesantías:** 8.33% (1/12) sobre base anual, depositado em fundo.\n\n**{T['cost_header_13th']} e {T['cost_header_vacation']}:**\n- **Prima (13º):** 1 salário/ano.\n- **Cesantías:** Custo adicional de 1 salário/ano.\n- Fator `14.00` reflete base anual para encargos.""", unsafe_allow_html=True)
          else: st.markdown(f""" **{T["rules_emp"]} - Explanation:**\n- **Salud & Pensión:** 4% each on IBC.\n\n**{T["rules_er"]} - Explanation:**\n- **Salud & Pensión:** 8.5% and 12% on IBC.\n- **Parafiscales:** 9% on payroll (exceptions apply).\n- **Cesantías:** 8.33% (1/12) on annual base, deposited into fund.\n\n**{T['cost_header_13th']} & {T['cost_header_vacation']}:**\n- **Prima (13th):** 1 salary/year.\n- **Cesantías:** Additional cost of 1 salary/year.\n- Factor `14.00` reflects annual base for charges.""", unsafe_allow_html=True)
+
 
     st.write(""); st.markdown(f"**{T['valid_from']}:** {valid_from}"); st.markdown(f"[{T['official_source']}]({link})", unsafe_allow_html=True)
 
@@ -548,6 +577,7 @@ elif active_menu == T["menu_cost"]:
     salario = c1.number_input(f"{T['salary']} ({symbol})", min_value=0.0, value=10000.0, step=100.0, key="salary_cost")
     bonus_anual = c2.number_input(f"{T['bonus']} ({symbol})", min_value=0.0, value=0.0, step=100.0, key="bonus_cost_input")
     st.write("---")
+    # Passa `country` explicitamente para fmt_cap dentro de calc_employer_cost
     anual, mult, df_cost, months = calc_employer_cost(country, salario, bonus_anual, T, tables_ext=COUNTRY_TABLES)
     st.markdown(f"**{T['employer_cost_total']} (Salário + Bônus + Encargos):** {fmt_money(anual, symbol)}  \n"
                 f"**Multiplicador de Custo (vs Salário Base 12 meses):** {mult:.3f} × (12 meses)  \n"
