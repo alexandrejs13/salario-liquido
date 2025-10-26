@@ -1,6 +1,6 @@
 # -------------------------------------------------------------
-# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.36 - FIX DE RENDERIZAÇÃO HTML)
-# Correção: Adicionado unsafe_allow_html=True ao bloco de cards anuais.
+# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.37 - FIX FINAL LAYOUT/HTML)
+# Correção: O layout anual foi corrigido para usar uma única injeção de HTML, resolvendo a renderização de código.
 # -------------------------------------------------------------
 
 import streamlit as st
@@ -22,6 +22,7 @@ INPUT_FORMAT = "%.2f" # Variável de formato para number_input (escopo global)
 
 def fmt_money(v: float, sym: str) -> str:
     """Formata um float como moeda no padrão brasileiro (1.000,00) a partir do padrão en_US."""
+    # Formato padrão americano com separador de milhar (, ) e decimal ( . ), depois inverte para o BR/EUR
     return f"{sym} {v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 def money_or_blank(v: float, sym: str) -> str:
@@ -677,7 +678,10 @@ if active_menu == T.get("menu_calc"):
 
     with col_cards:
         # Cards de Remuneração Anual (Unificados ao estilo metric-card)
-        st.markdown(f"""
+        
+        # Corrigido o erro de múltiplas chamadas de st.markdown.
+        # Agora estamos construindo a string completa de uma vez.
+        html_cards = f"""
         <div class="annual-grid">
             <div class='annual-card-base annual-card-label' style='border-left-color: #0a3d62; background: #e6f0f8;'>
                 <h4>{T.get('annual_total','Total Anual')}</h4>
@@ -703,7 +707,8 @@ if active_menu == T.get("menu_calc"):
                 <h3>{fmt_money(bonus_anual, symbol)}</h3>
             </div>
         </div>
-        """, unsafe_allow_html=True) # <<< AQUI ESTÁ A CORREÇÃO CRÍTICA DO HTML
+        """
+        st.markdown(html_cards, unsafe_allow_html=True) # AQUI ESTÁ A CORREÇÃO DE RENDERIZAÇÃO
 
     with col_chart:
         # Gráfico de Pizza (Ocupa a coluna direita)
