@@ -1,6 +1,6 @@
 # -------------------------------------------------------------
-# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.41 - FIX FINAL DE USABILIDADE E LAYOUT)
-# Correção: Layout Anual (alinhamento vertical), Duplicidade de Emojis, Reposicionamento de FGTS e Divisores.
+# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.41 - FIX FINAL DE RENDERIZAÇÃO)
+# Correção: O layout anual foi alterado para usar sub-colunas nativas, resolvendo o erro de renderização HTML.
 # -------------------------------------------------------------
 
 import streamlit as st
@@ -22,6 +22,7 @@ INPUT_FORMAT = "%.2f" # Variável de formato para number_input (escopo global)
 
 def fmt_money(v: float, sym: str) -> str:
     """Formata um float como moeda no padrão brasileiro (1.000,00) a partir do padrão en_US."""
+    # Formato padrão americano com separador de milhar (, ) e decimal ( . ), depois inverte para o BR/EUR
     return f"{sym} {v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 def money_or_blank(v: float, sym: str) -> str:
@@ -156,7 +157,7 @@ def calc_inss_progressivo(salario: float, inss_tbl: Dict[str, Any]) -> float:
     return max(contrib, 0.0)
 
 def calc_irrf(base: float, dep: int, irrf_tbl: Dict[str, Any]) -> float:
-    if not isinstance(irrf_tbl, dict) or "deducao_dependente" not in irrf_tbl: return 0.0
+    if not isinstance(irrf_tbl, dict): return 0.0
     ded_dep = float(irrf_tbl.get("deducao_dependente", 0.0))
     base_calc = max(base - ded_dep * max(int(dep), 0), 0.0)
     for faixa in irrf_tbl.get("faixas", []):
@@ -335,29 +336,47 @@ div.block-container {
     background: #fff;
     border-radius: 10px; 
     box-shadow: 0 1px 4px rgba(0,0,0,.06); 
-    margin-bottom: 5px; /* Espaçamento entre os cards */
+    /* FIX 5: Mantém espaçamento vertical consistente */
+    margin-bottom: 5px; 
 }
+
+/* CORREÇÃO PARA ALINHAMENTO VERTICAL INTERNO */
+.annual-card-label { 
+    align-items: flex-start; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Centraliza verticalmente o texto/nota */
+}
+.annual-card-value { 
+    align-items: flex-end; 
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Centraliza verticalmente o valor */
+}
+
+/* Restaura o tamanho e peso da fonte para consistência */
 .annual-card-base h3 {
     font-size: 17px !important; 
     font-weight: 700;
-    margin: 0 !important; /* Centralizado verticalmente */
+    margin: 0 !important;
 }
 .annual-card-base h4 {
     font-size: 17px !important; 
     font-weight: 600;
-    margin: 0 !important; /* Centralizado verticalmente */
-}
-/* Estilo para a grade de cards anuais */
-.annual-grid {
-    display: grid; 
-    grid-template-columns: 1fr 1fr; 
-    gap: 10px; /* Espaçamento entre os cards */
-    margin-bottom: 1rem; /* Adiciona margem abaixo da grade */
-}
-.annual-grid > div {
-    margin-bottom: 0 !important; /* Remove margem individual, deixa o gap controlar */
+    margin: 0 !important;
 }
 
+/* 4. Estilo de Tabela (Para Remuneração Mensal) */
+.table-wrap .stTable {
+    border: 1px solid #d0d7de; 
+    border-radius: 8px; 
+    overflow: hidden; 
+    background: #fff;
+}
+.table-wrap table thead tr {
+    background-color: #f7f9fb !important; /* Fundo cinza claro para o cabeçalho */
+}
 
 /* O restante do seu CSS é mantido */
 html, body { font-family:'Segoe UI', Helvetica, Arial, sans-serif; background:#f7f9fb; color:#1a1a1a;}
@@ -392,8 +411,6 @@ section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] label span { co
 .country-title{ font-size:36px; font-weight:700; color:#0a3d62; }
 .vega-embed{ padding-bottom: 16px; }
 
-.annual-card-label { align-items: flex-start; }
-.annual-card-value { align-items: flex-end; }
 .annual-card-label .sti-note { display: block; font-size: 14px; font-weight: 400; line-height: 1.3; margin-top: 2px; }
 </style>
 """, unsafe_allow_html=True)
@@ -644,6 +661,9 @@ if active_menu == T.get("menu_calc"):
         dependentes_fixed = 0
         state_code, state_rate = None, None
 
+    # 3) INCLUIR DIVISOR
+    st.write("---") 
+    
     st.subheader(T.get("monthly_comp_title", "Monthly Comp"))
     
     dependentes = dependentes_fixed
@@ -653,27 +673,13 @@ if active_menu == T.get("menu_calc"):
     df_detalhe[T.get("earnings","Earnings")] = df_detalhe[T.get("earnings","Earnings")].apply(lambda v: money_or_blank(v, symbol))
     df_detalhe[T.get("deductions","Deductions")] = df_detalhe[T.get("deductions","Deductions")].apply(lambda v: money_or_blank(v, symbol))
     
-    # 3) DIVISOR ACIMA DE REMUNERAÇÃO MENSAL
-    st.write("---") 
-    
+    # 5) FORMATANDO TABELA MENSAL
     st.markdown("<div class='table-wrap'>", unsafe_allow_html=True); st.table(df_detalhe); st.markdown("</div>", unsafe_allow_html=True)
 
     cc1, cc2, cc3 = st.columns(3)
     cc1.markdown(f"<div class='metric-card' style='border-left-color: #28a745; background: #e6ffe6;'><h4>💰 {T.get('tot_earnings','Total Earnings')}</h4><h3>{fmt_money(calc['total_earn'], symbol)}</h3></div>", unsafe_allow_html=True)
     cc2.markdown(f"<div class='metric-card' style='border-left-color: #dc3545; background: #ffe6e6;'><h4>📉 {T.get('tot_deductions','Total Deductions')}</h4><h3>{fmt_money(calc['total_ded'], symbol)}</h3></div>", unsafe_allow_html=True)
     cc3.markdown(f"<div class='metric-card' style='border-left-color: #007bff; background: #e6f7ff;'><h4>💵 {T.get('net','Net Salary')}</h4><h3>{fmt_money(calc['net'], symbol)}</h3></div>", unsafe_allow_html=True)
-
-    
-    # 2) REPOSICIONAMENTO DO FGTS ABAIXO DOS CARDS MENSAIS
-    if country == "Brasil": 
-        st.markdown(f"""
-        <div style="margin-top: 10px; padding: 5px 0; border-top: 1px solid #ccc;">
-            <p style="font-size: 17px; font-weight: 600; color: #0a3d62; margin: 0;">
-                💼 {T.get('fgts_deposit','Depósito FGTS')}: {fmt_money(calc['fgts'], symbol)}
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-
 
     st.write("---")
     # NOVO LAYOUT ANUAL: Cards (esquerda) e Gráfico (direita)
@@ -695,24 +701,11 @@ if active_menu == T.get("menu_calc"):
     with col_cards:
         # Cards de Remuneração Anual (Usando sub-colunas nativas)
         
-        # Card 1: Total Anual
-        c_label1, c_value1 = st.columns(2)
-        c_label1.markdown(f"""
-        <div class='annual-card-base annual-card-label' style='border-left-color: #0a3d62; background: #e6f0f8;'>
-            <h4>💼 {T.get('annual_total','Remuneração Total Anual')}</h4>
-        </div>
-        """, unsafe_allow_html=True)
-        c_value1.markdown(f"""
-        <div class='annual-card-base annual-card-value' style='border-left-color: #0a3d62; background: #e6f0f8;'>
-            <h3>{fmt_money(total_anual, symbol)}</h3>
-        </div>
-        """, unsafe_allow_html=True)
-
-        # Card 2: Salário Anual (1)
+        # Sequência 1: Salário Anual (1)
         c_label2, c_value2 = st.columns(2)
         c_label2.markdown(f"""
         <div class='annual-card-base annual-card-label' style='border-left-color: #28a745; background: #e6ffe6;'>
-            <h4>📅 {T.get('annual_salary','Salário Anual')} (1)</h4>
+            <h4>📅 {T.get('annual_salary','Salário')} (1)</h4>
         </div>
         """, unsafe_allow_html=True)
         c_value2.markdown(f"""
@@ -721,11 +714,11 @@ if active_menu == T.get("menu_calc"):
         </div>
         """, unsafe_allow_html=True)
 
-        # Card 3: Bônus Anual (2)
+        # Sequência 2: Bônus Anual (2)
         c_label3, c_value3 = st.columns(2)
         c_label3.markdown(f"""
         <div class='annual-card-base annual-card-label' style='border-left-color: {cor}; background: {bg_cor};'>
-            <h4>🎯 {T.get('annual_bonus','Bônus Anual')} (2)</h4>
+            <h4>🎯 {T.get('annual_bonus','Bônus')} (2)</h4>
         </div>
         """, unsafe_allow_html=True)
         c_value3.markdown(f"""
@@ -733,6 +726,20 @@ if active_menu == T.get("menu_calc"):
             <h3>{fmt_money(bonus_anual, symbol)}</h3>
         </div>
         """, unsafe_allow_html=True)
+        
+        # Sequência 3: Total Anual (3)
+        c_label1, c_value1 = st.columns(2)
+        c_label1.markdown(f"""
+        <div class='annual-card-base annual-card-label' style='border-left-color: #0a3d62; background: #e6f0f8;'>
+            <h4>💼 {T.get('annual_total','Remuneração Total')}</h4>
+        </div>
+        """, unsafe_allow_html=True)
+        c_value1.markdown(f"""
+        <div class='annual-card-base annual-card-value' style='border-left-color: #0a3d62; background: #e6f0f8;'>
+            <h3>{fmt_money(total_anual, symbol)}</h3>
+        </div>
+        """, unsafe_allow_html=True)
+
 
     with col_chart:
         # Gráfico de Pizza (Ocupa a coluna direita)
@@ -782,10 +789,9 @@ if active_menu == T.get("menu_calc"):
         )
         st.altair_chart(final_chart, use_container_width=True)
 
-    # 3) NOTAS E FGTS ABAIXO DO LAYOUT ANUAL
-    # Notas do Salário Anual e Bônus
+    # 3) NOTAS ABAIXO DO LAYOUT ANUAL
     st.markdown(f"""
-    <p style="margin-top: 10px; font-size: 14px; color: #555;">
+    <p style="margin-top: 20px; font-size: 14px; color: #555;">
         (1) ({T.get('months_factor','Meses')} {T.get('months_factor','considerados')}: {months})
     </p>
     <p style="margin-top: -10px; font-size: 14px; color: #555;">
@@ -793,6 +799,18 @@ if active_menu == T.get("menu_calc"):
     </p>
     """, unsafe_allow_html=True)
     
+    # FGTS foi reposicionado para a seção mensal acima (ficou após os 3 cards mensais)
+    if country == "Brasil": 
+        # Corrigido o erro de código HTML que aparecia como texto.
+        st.markdown(f"""
+        <div style="margin-top: 10px; padding: 5px 0;">
+            <p style="font-size: 17px; font-weight: 600; color: #0a3d62; margin: 0;">
+                💼 {T.get('fgts_deposit','Depósito FGTS')}: {fmt_money(calc['fgts'], symbol)}
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+
 # =========================== REGRAS DE CONTRIBUIÇÕES (MANTIDO) ===================
 elif active_menu == T.get("menu_rules"):
     st.subheader(T.get("rules_expanded", "Details"))
@@ -830,6 +848,7 @@ elif active_menu == T.get("menu_rules"):
         else: st.markdown(f""" **{T["rules_emp"]} - Explanation:**\n- **INSS:** Progressive rate (7.5% to 14%) on brackets, capped.\n- **IRRF:** Progressive rate (0% to 27.5%) on (Gross - INSS - Dep. Allowance) minus deduction.\n\n**{T["rules_er"]} - Explanation:**\n- **INSS Patronal, RAT, Sistema S:** Percentages on total payroll.\n- **FGTS:** 8% deposit.\n\n**{T['cost_header_13th']} & {T['cost_header_vacation']}:**\n- Annual cost factor `13.33` includes 13th Salary and Vacation + 1/3 bonus. Charges apply to this base.""", unsafe_allow_html=True)
     elif country == "Estados Unidos":
         if idioma == "Português": st.markdown(f""" **{T["rules_emp"]} - Explicação:**\n- **FICA (Social Security):** 6.2% sobre Sal. Bruto, até teto anual ({fmt_money(ANNUAL_CAPS['US_FICA'], 'US$')}).\n- **Medicare:** 1.45% sobre Sal. Bruto total.\n- **State Tax:** Varia por estado.\n\n**{T["rules_er"]} - Explicação:**\n- **FICA & Medicare Match:** Empregador paga o mesmo que o empregado.\n- **SUTA/FUTA:** Desemprego sobre base baixa (~{fmt_money(ANNUAL_CAPS['US_SUTA_BASE'], 'US$')}).\n\n**{T["rules_er"]} - Explanation:**\n- **FICA & Medicare Match:** Employer pays the same.\n- **SUTA/FUTA:** Unemployment on low base (~{fmt_money(ANNUAL_CAPS['US_SUTA_BASE'], 'US$')}).\n\n**{T['cost_header_13th']} & {T['cost_header_vacation']}:**\n- Not mandatory. Factor `12.00`.""", unsafe_allow_html=True)
+        else: st.markdown(f""" **{T["rules_emp"]} - Explanation:**\n- **FICA (Social Security):** 6.2% on Gross Salary, up to cap ({fmt_money(ANNUAL_CAPS['US_FICA'], 'US$')}).\n- **Medicare:** 1.45% on total Gross Salary.\n- **State Tax:** Varies.\n\n**{T["rules_er"]} - Explanation:**\n- **FICA & Medicare Match:** Employer pays the same.\n- **SUTA/FUTA:** Unemployment on low base (~{fmt_money(ANNUAL_CAPS['US_SUTA_BASE'], 'US$')}).\n\n**{T['cost_header_13th']} & {T['cost_header_vacation']}:**\n- Not mandatory. Factor `12.00`.""", unsafe_allow_html=True)
     elif country == "Canadá":
           if idioma == "Português": st.markdown(f""" **{T["rules_emp"]} - Explicação:**\n- **CPP:** 5.95% sobre Sal. Bruto (após isenção {fmt_money(ANNUAL_CAPS['CA_CPP_EXEMPT'], 'CAD$')}) até Teto 1 ({fmt_money(ANNUAL_CAPS['CA_CPP_YMPEx1'], 'CAD$')}).\n- **CPP2:** 4.0% sobre Sal. Bruto entre Teto 1 e Teto 2 ({fmt_money(ANNUAL_CAPS['CA_CPP_YMPEx2'], 'CAD$')}).\n- **EI:** 1.63% sobre Sal. Bruto até Teto ({fmt_money(ANNUAL_CAPS['CA_EI_MIE'], 'CAD$')}).\n- **Income Tax:** Progressivo Federal + Provincial (Simplificado no simulador).\n\n**{T["rules_er"]} - Explicação:**\n- **CPP/CPP2 Match:** Empregador paga o mesmo.\n- **EI Match:** Empregador paga 1.4x (2.28%).\n\n**{T['cost_header_13th']} e {T['cost_header_vacation']}:**\n- Não obrigatórios. Fator `12.00`.""", unsafe_allow_html=True)
           else: st.markdown(f""" **{T["rules_emp"]} - Explanation:**\n- **CPP:** 5.95% on Gross (after exempt {fmt_money(ANNUAL_CAPS['CA_CPP_EXEMPT'], 'CAD$')}) up to Cap 1 ({fmt_money(ANNUAL_CAPS['CA_CPP_YMPEx1'], 'CAD$')}).\n- **CPP2:** 4.0% on Gross between Cap 1 and Cap 2 ({fmt_money(ANNUAL_CAPS['CA_CPP_YMPEx2'], 'CAD$')}).\n- **EI:** 1.63% on Gross up to Cap ({fmt_money(ANNUAL_CAPS['CA_EI_MIE'], 'CAD$')}).\n- **Income Tax:** Progressive Federal + Provincial (Simplified in simulator).\n\n**{T["rules_er"]} - Explanation:**\n- **CPP/CPP2 Match:** Employer pays the same.\n- **EI Match:** Employer pays 1.4x (2.28%).\n\n**{T['cost_header_13th']} & {T['cost_header_vacation']}:**\n- Not mandatory. Factor `12.00`.""", unsafe_allow_html=True)
@@ -843,8 +862,7 @@ elif active_menu == T.get("menu_rules"):
           if idioma == "Português": st.markdown(f""" **{T["rules_emp"]} - Explicação:**\n- **Jubilación, Obra Social, PAMI:** Total 17% sobre Sal. Bruto (com teto).\n\n**{T["rules_er"]} - Explicação:**\n- **Cargas Sociales:** ~23.5% sobre Sal. Bruto (com teto).\n\n**{T['cost_header_13th']} e {T['cost_header_vacation']}:**\n- **SAC (13º):** 1 salário/ano em 2 parcelas. Fator `13.00`. Encargos incidem.""", unsafe_allow_html=True)
           else: st.markdown(f""" **{T["rules_emp"]} - Explanation:**\n- **Jubilación, Obra Social, PAMI:** Total 17% on Gross Salary (capped).\n\n**{T["rules_er"]} - Explanation:**\n- **Cargas Sociales:** ~23.5% on Gross Salary (capped).\n\n**{T['cost_header_13th']} & {T['cost_header_vacation']}:**\n- **SAC (13th):** 1 salary/year in 2 installments. Factor `13.00`. Charges apply.""", unsafe_allow_html=True)
     elif country == "Colômbia":
-          if idioma == "Português": st.markdown(f""" **{T["rules_emp"]} - Explicação:**\n- **Salud & Pensión:** 4% cada sobre IBC.\n\n**{T["rules_er"]} - Explicação:**\n- **Salud & Pensión:** 8.5% e 12% sobre IBC.\n- **Parafiscales:** 9% sobre folha (salvo exceções).\n- **Cesantías:** 8.33% (1/12) sobre base anual, depositado em fundo.\n\n**{T['cost_header_13th']} e {T['cost_header_vacation']}:**\n- **Prima (13º):** 1 salário/ano.\n- **Cesantías:** Custo adicional de 1 salário/ano.\n- Fator `14.00` reflete base anual para encargos.""", unsafe_allow_html=True)
-          else: st.markdown(f""" **{T["rules_emp"]} - Explanation:**\n- **Salud & Pensión:** 4% each on IBC.\n\n**{T["rules_er"]} - Explanation:**\n- **Salud & Pensión:** 8.5% and 12% on IBC.\n- **Parafiscales:** 9% on payroll (exceptions apply).\n- **Cesantías:** 8.33% (1/12) on annual base, deposited into fund.\n\n**{T['cost_header_13th']} & {T['cost_header_vacation']}:**\n- **Prima (13th):** 1 salary/year.\n- **Cesantías:** Additional cost of 1 salary/year.\n- Factor `14.00` reflects annual base for charges.""", unsafe_allow_html=True)
+          if idioma == "Português": st.markdown(f""" **{T["rules_emp"]} - Explicação:**\n- **Salud & Pensión:** 4% cada sobre IBC.\n\n**{T["rules_er"]} - Explicação:**\n- **Salud & Pensión:** 8.5% e 12% sobre IBC.\n- **Parafiscales:** 9% sobre folha (salvo exceções).\n- **Cesantías:** 8.33% (1/12) sobre base anual, depositado em fundo.\n\n**{T["rules_er"]} - Explanation:**\n- **Salud & Pensión:** 8.5% and 12% on IBC.\n- **Parafiscales:** 9% on payroll (exceptions apply).\n- **Cesantías:** 8.33% (1/12) on annual base, deposited into fund.\n\n**{T['cost_header_13th']} & {T['cost_header_vacation']}:**\n- **Prima (13th):** 1 salary/year.\n- **Cesantías:** Additional cost of 1 salary/year.\n- Factor `14.00` reflects annual base for charges.""", unsafe_allow_html=True)
 
     st.write(""); st.markdown(f"**{T['valid_from']}:** {valid_from}"); st.markdown(f"[{T['official_source']}]({link})", unsafe_allow_html=True)
 
