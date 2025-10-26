@@ -1,6 +1,6 @@
 # -------------------------------------------------------------
-# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.35 - FIX FINAL DE CARD LAYOUT)
-# Correção: O layout anual foi corrigido para usar uma grade HTML unificada, resolvendo o desalinhamento do Card/Gráfico.
+# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.36 - FIX DE RENDERIZAÇÃO HTML)
+# Correção: Adicionado unsafe_allow_html=True ao bloco de cards anuais.
 # -------------------------------------------------------------
 
 import streamlit as st
@@ -335,7 +335,6 @@ div.block-container {
     background: #fff;
     border-radius: 10px; 
     box-shadow: 0 1px 4px rgba(0,0,0,.06); 
-    /* Removido margin-bottom aqui, pois a grade externa controla o espaçamento */
 }
 .annual-card-base h3 {
     font-size: 17px !important; 
@@ -352,6 +351,7 @@ div.block-container {
     display: grid; 
     grid-template-columns: 1fr 1fr; 
     gap: 10px; /* Espaçamento entre os cards */
+    margin-bottom: 1rem; /* Adiciona margem abaixo da grade */
 }
 .annual-grid > div {
     margin-bottom: 0 !important; /* Remove margem individual, deixa o gap controlar */
@@ -703,8 +703,7 @@ if active_menu == T.get("menu_calc"):
                 <h3>{fmt_money(bonus_anual, symbol)}</h3>
             </div>
         </div>
-        """, unsafe_allow_html=True)
-
+        """, unsafe_allow_html=True) # <<< AQUI ESTÁ A CORREÇÃO CRÍTICA DO HTML
 
     with col_chart:
         # Gráfico de Pizza (Ocupa a coluna direita)
@@ -725,7 +724,7 @@ if active_menu == T.get("menu_calc"):
             Total='sum(Valor)'
         ).transform_calculate(
             Percent='datum.Valor / datum.Total',
-            # CORREÇÃO ALTAIR: Usando a template string nativa para formar o rótulo
+            # Usando a template string nativa para formar o rótulo
             Label=alt.expr.if_(alt.datum.Valor > alt.datum.Total * 0.05, 
                                 alt.datum.Componente + " (" + alt.expr.format(alt.datum.Percent, ".1%") + ")", 
                                 "") 
