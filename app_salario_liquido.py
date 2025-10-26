@@ -1,6 +1,6 @@
 # -------------------------------------------------------------
-# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.27 - FIX FINAL NAMEERROR)
-# Correção: Movidas todas as funções de formatação para o ABSOLUTO TOPO do script.
+# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.27 - FIX FINAL FORMATAÇÃO)
+# Correção: Adicionado format="%.2f" aos number_input para exibir decimais de forma consistente.
 # -------------------------------------------------------------
 
 import streamlit as st
@@ -20,7 +20,9 @@ st.set_page_config(page_title="Simulador de Salário Líquido", layout="wide")
 _COUNTRY_CODE_FOR_FMT = "Brasil" 
 
 def fmt_money(v: float, sym: str) -> str:
-    """Formata um float como moeda no padrão brasileiro (1.000,00)."""
+    """Formata um float como moeda no padrão brasileiro (1.000,00) a partir do padrão en_US.
+       Esta função é usada para a saída (tabelas e métricas) e garante a formatação correta."""
+    # Formato padrão americano com separador de milhar (, ) e decimal ( . ), depois inverte para o BR/EUR
     return f"{sym} {v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 def money_or_blank(v: float, sym: str) -> str:
@@ -485,6 +487,9 @@ if active_menu == T.get("menu_calc"):
         level_label = T.get('level', 'Career Level (STI)').replace('(STI)', '').strip()
         return f"{level_label}<br>(STI)"
 
+    # CORREÇÃO: Variável de formatação para number_input (apenas decimais)
+    INPUT_FORMAT = "%.2f"
+
 
     if country == "Brasil":
         # Layout Brasil: 4 campos na primeira linha e 2 STI na segunda.
@@ -500,10 +505,11 @@ if active_menu == T.get("menu_calc"):
         """, unsafe_allow_html=True)
         
         cols = st.columns(4) 
-        salario = cols[0].number_input("Salário", min_value=0.0, value=10000.0, step=100.0, key="salary_input", help=T.get("salary_tooltip"), label_visibility="collapsed")
+        # APLICANDO FORMATO
+        salario = cols[0].number_input("Salário", min_value=0.0, value=10000.0, step=100.0, key="salary_input", help=T.get("salary_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT)
         dependentes = cols[1].number_input("Dependentes", min_value=0, value=0, step=1, key="dep_input", help=T.get("dependents_tooltip"), label_visibility="collapsed")
-        other_deductions = cols[2].number_input("Outras Deduções", min_value=0.0, value=0.0, step=10.0, key="other_ded_input", help=T.get("other_deductions_tooltip"), label_visibility="collapsed")
-        bonus_anual = cols[3].number_input("Bônus Anual", min_value=0.0, value=0.0, step=100.0, key="bonus_input", help=T.get("bonus_tooltip"), label_visibility="collapsed")
+        other_deductions = cols[2].number_input("Outras Deduções", min_value=0.0, value=0.0, step=10.0, key="other_ded_input", help=T.get("other_deductions_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT)
+        bonus_anual = cols[3].number_input("Bônus Anual", min_value=0.0, value=0.0, step=100.0, key="bonus_input", help=T.get("bonus_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT)
         
         # RÓTULOS LINHA 2 (STI)
         st.markdown(f"""
@@ -539,12 +545,13 @@ if active_menu == T.get("menu_calc"):
         """, unsafe_allow_html=True)
         
         c1, c2, c3, c4, c5 = st.columns(5)
-        salario = c1.number_input("Salário", min_value=0.0, value=10000.0, step=100.0, key="salary_input", help=T.get("salary_tooltip"), label_visibility="collapsed")
+        # APLICANDO FORMATO
+        salario = c1.number_input("Salário", min_value=0.0, value=10000.0, step=100.0, key="salary_input", help=T.get("salary_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT)
         state_code = c2.selectbox("Estado", list(US_STATE_RATES.keys()), index=0, key="state_select_main", help=T.get("state"), label_visibility="collapsed")
         default_rate = float(US_STATE_RATES.get(state_code, 0.0))
         state_rate = c3.number_input("Taxa Estadual", min_value=0.0, max_value=0.20, value=default_rate, step=0.001, format="%.3f", key="state_rate_input", help=T.get("state_rate"), label_visibility="collapsed")
-        other_deductions = c4.number_input("Outras Ded.", min_value=0.0, value=0.0, step=10.0, key="other_ded_input", help=T.get("other_deductions_tooltip"), label_visibility="collapsed")
-        bonus_anual = c5.number_input("Bônus Anual", min_value=0.0, value=0.0, step=100.0, key="bonus_input", help=T.get("bonus_tooltip"), label_visibility="collapsed")
+        other_deductions = c4.number_input("Outras Ded.", min_value=0.0, value=0.0, step=10.0, key="other_ded_input", help=T.get("other_deductions_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT)
+        bonus_anual = c5.number_input("Bônus Anual", min_value=0.0, value=0.0, step=100.0, key="bonus_input", help=T.get("bonus_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT)
         
         # RÓTULOS LINHA 2 (STI)
         st.markdown(f"""
@@ -577,9 +584,10 @@ if active_menu == T.get("menu_calc"):
         """, unsafe_allow_html=True)
         
         c1, c2, c3, _ = st.columns(4)
-        salario = c1.number_input("Salário", min_value=0.0, value=10000.0, step=100.0, key="salary_input", help=T.get("salary_tooltip"), label_visibility="collapsed")
-        other_deductions = c2.number_input("Outras Ded.", min_value=0.0, value=0.0, step=10.0, key="other_ded_input", help=T.get("other_deductions_tooltip"), label_visibility="collapsed")
-        bonus_anual = c3.number_input("Bônus Anual", min_value=0.0, value=0.0, step=100.0, key="bonus_input", help=T.get("bonus_tooltip"), label_visibility="collapsed")
+        # APLICANDO FORMATO
+        salario = c1.number_input("Salário", min_value=0.0, value=10000.0, step=100.0, key="salary_input", help=T.get("salary_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT)
+        other_deductions = c2.number_input("Outras Ded.", min_value=0.0, value=0.0, step=10.0, key="other_ded_input", help=T.get("other_deductions_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT)
+        bonus_anual = c3.number_input("Bônus Anual", min_value=0.0, value=0.0, step=100.0, key="bonus_input", help=T.get("bonus_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT)
         
         # RÓTULOS LINHA 2 (STI)
         st.markdown(f"""
@@ -665,7 +673,7 @@ elif active_menu == T.get("menu_rules"):
     ar_emp_contrib = [{"desc": "Jubilación", "rate": "11.00%", "base": "Sal. Bruto", "obs": "Com Teto"}, {"desc": "Obra Social", "rate": "3.00%", "base": "Sal. Bruto", "obs": "Com Teto"}, {"desc": "PAMI", "rate": "3.00%", "base": "Sal. Bruto", "obs": "Com Teto"}]
     ar_er_contrib = [{"desc": "Cargas Sociales", "rate": "~23.50%", "base": "Sal. Bruto", "obs": "Com Teto (Média)"}]
     co_emp_contrib = [{"desc": "Salud", "rate": "4.00%", "base": "Sal. Bruto", "obs": "-"}, {"desc": "Pensão", "rate": "4.00%", "base": "Sal. Bruto", "obs": "-"}]
-    co_er_contrib = [{"desc": "Salud Empregador", "rate": "8.50%", "base": "Sal. Bruto", "obs": "-"}, {"desc": "Pensão Empregador", "rate": "12.00%", "base": "Sal. Bruto", "obs": "-"}, {"desc": "Parafiscales", "rate": "9.00%", "base": "Sal. Bruto", "obs": "SENA, ICBF, Caja"}, {"desc": "Cesantías", "rate": "8.33%", "base": "Sal. Bruto", "obs": "1 Salário/Ano"}]
+    co_er_contrib = [{"desc": "Salud Empregador", "rate": "8.50%", "base": "Sal. Bruto", "obs": "-"}, {"desc": "Pensão Empregador", "rate": "12.00%", "base": "Sal. Bruto", "obs": "-"}, {"desc": "Parafiscales", "rate": "9.00%", "base": "Salário", "obs": "SENA, ICBF, Caja"}, {"desc": "Cesantías", "rate": "8.33%", "base": "Salário", "obs": "1 Salário/Ano"}]
     country_contrib_map = { "Brasil": (br_emp_contrib, br_er_contrib), "Estados Unidos": (us_emp_contrib, us_er_contrib), "Canadá": (ca_emp_contrib, ca_er_contrib), "México": (mx_emp_contrib, mx_er_contrib), "Chile": (cl_emp_contrib, cl_er_contrib), "Argentina": (ar_emp_contrib, ar_er_contrib), "Colômbia": (co_emp_contrib, co_er_contrib), }
     official_links = { "Brasil": "https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/tributos/contribuicoes-previdenciarias", "Estados Unidos": "https://www.irs.gov/businesses/small-businesses-self-employed/employment-tax-rates", "Canadá": "https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/payroll/payroll-deductions-contributions/canada-pension-plan-cpp/cpp-contribution-rates-maximums-exemptions.html", "México": "https://www.sat.gob.mx/consulta/29124/conoce-las-tablas-de-isr", "Chile": "https://www.previred.com/indicadores-previsionales/", "Argentina": "https://www.afip.gob.ar/aportesycontribuciones/", "Colômbia": "https://www.dian.gov.co/normatividad/Paginas/Normatividad.aspx", }
 
@@ -736,8 +744,8 @@ elif active_menu == T.get("menu_rules_sti"):
 # ========================= CUSTO DO EMPREGADOR (MANTIDO) ========================
 elif active_menu == T.get("menu_cost"):
     c1, c2 = st.columns(2)
-    salario = c1.number_input(f"{T.get('salary', 'Salary')} ({symbol})", min_value=0.0, value=10000.0, step=100.0, key="salary_cost")
-    bonus_anual = c2.number_input(f"{T.get('bonus', 'Bonus')} ({symbol})", min_value=0.0, value=0.0, step=100.0, key="bonus_cost_input")
+    salario = c1.number_input(f"{T.get('salary', 'Salary')} ({symbol})", min_value=0.0, value=10000.0, step=100.0, key="salary_cost", format=INPUT_FORMAT)
+    bonus_anual = c2.number_input(f"{T.get('bonus', 'Bonus')} ({symbol})", min_value=0.0, value=0.0, step=100.0, key="bonus_cost_input", format=INPUT_FORMAT)
     st.write("---")
     anual, mult, df_cost, months = calc_employer_cost(country, salario, bonus_anual, T, tables_ext=COUNTRY_TABLES)
     st.markdown(f"**{T.get('employer_cost_total', 'Total Cost')} (Salário + Bônus + Encargos):** {fmt_money(anual, symbol)}  \n"
