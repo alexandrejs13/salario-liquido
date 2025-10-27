@@ -321,14 +321,14 @@ def get_sti_level_map(area: str, T: Dict[str, str]) -> Tuple[List[str], Dict[str
 # ============================== CSS (FIX: Centralização e Largura Máxima) ================================
 st.markdown("""
 <style>
-/* 1. LIMITA LARGURA MÁXIMA E CENTRALIZA O CONTEÚDO PRINCIPAL (REDUZIDO PARA MAIOR ELEGÂNCIA) */
+/* 1. LIMITA LARGURA MÁXIMA E CENTRALIZA O CONTEÚDO PRINCIPAL (MANTIDO) */
 div.block-container {
 	max-width: 1100px; /* Largura máxima para visualização elegante */
 	padding-left: 1rem;
 	padding-right: 1rem;
 }
 
-/* 2. ESTILOS DE TÍTULOS */
+/* 2. ESTILOS DE TÍTULOS (MANTIDO) */
 .stMarkdown h5 {
 	font-size: 14px; 
 	font-weight: 500; 
@@ -337,18 +337,19 @@ div.block-container {
 	margin-bottom: 0.2rem !important;
 }
 
-/* 3. PADRONIZAÇÃO DE CARDS: Mantendo o estilo do metric-card para o annual-card-base */
+/* 3. PADRONIZAÇÃO DE CARDS ANUAIS */
 .annual-card-base {
-	min-height: 95px !important; /* Mantém o tamanho do metric-card */
-	padding: 8px 12px !important; /* Mantém o padding do metric-card */
+	min-height: 95px !important; 
+	padding: 8px 12px !important; 
 	display: flex;
 	flex-direction: column; 
-	justify-content: center; /* FIX 5: Alinha conteúdo verticalmente ao centro */
+	justify-content: center; 
 	box-sizing: border-box;
 	background: #fff;
 	border-radius: 10px; 
 	box-shadow: 0 1px 4px rgba(0,0,0,.06); 
-	margin-bottom: 10px; /* Espaçamento entre os cards */
+	/* Ajuste para 5px (vertical) conforme solicitado */
+	margin-bottom: 5px; 
 }
 .annual-card-base h3 {
 	font-size: 17px !important; 
@@ -361,35 +362,39 @@ div.block-container {
 	margin: 0 !important;
 }
 
-/* NOVO CSS PARA OS CARDS ANUAIS (Inclui espaçamento horizontal e largura) */
-/* Altera o estilo do container dos cards anuais para aplicar espaçamento */
-.annual-card-row > div {
-    /* Ajusta o padding para criar o espaçamento horizontal equivalente ao vertical (10px) */
-    padding-left: 5px;
-    padding-right: 5px;
+/* REFACTORING: Estilo para a linha (Label + Value) para garantir 5px de espaçamento horizontal */
+.annual-card-row {
+    display: flex;
+    justify-content: space-between;
+    width: 100%; /* Ocupa a largura total da coluna de cards */
+    /* Espaçamento vertical entre os itens (Salário, Bônus, Total) */
+    margin-bottom: 5px; 
 }
 
-/* Aplica o espaçamento horizontal entre os cards (pares de label/valor) */
-.annual-card-container {
-    margin-bottom: 10px; /* Espaçamento vertical entre os itens (Salário, Bônus, Total) */
+/* Estilo para os componentes Label e Value dentro da linha */
+.annual-card-row > .annual-card-label {
+    flex: 1 1 50%;
+    margin-right: 5px; /* Espaçamento horizontal de 5px */
 }
 
-/* Aumenta a largura dos cards anuais no layout de 2 colunas */
-.annual-card-label, .annual-card-value {
-    flex: 1 1 48%; /* Permite que o card cresça e ocupe mais espaço */
-    max-width: 48%; /* Garante a largura maior */
+.annual-card-row > .annual-card-value {
+    flex: 1 1 50%;
+    margin-left: 0; /* Remove a margem esquerda anterior */
 }
-/* Reajusta o tamanho do container dos cards (col_cards) no layout principal */
-/* A modificação no python (col_cards, col_chart = st.columns([1.5, 1.5])) e as modificações acima já devem funcionar. */
+
+/* Estilo para os cards de métrica (mensais) */
+.metric-card{ background:#fff; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,.06); padding: 8px 12px; text-align:center; transition: all 0.3s ease; min-height: 95px; display: flex; flex-direction: column; justify-content: center; border-left: 5px solid #ccc; }
+.metric-card:hover{ box-shadow:0 6px 16px rgba(0,0,0,0.1); transform: translateY(-2px); }
+.metric-card h4{ margin:0; font-size:17px; font-weight: 600; color:#0a3d62; }
+.metric-card h3{ margin: 2px 0 0; color:#0a3d62; font-size:17px; font-weight: 700; }
 
 
-/* 4. Estilo de Tabela (Para Remuneração Mensal E Contribuições) */
+/* 4. Estilo de Tabela (MANTIDO) */
 .table-wrap {
 	background:#fff; 
 	border:1px solid #d0d7de; 
 	border-radius: 8px; 
 	overflow: hidden;
-	/* FIX 3: Adicionado box-shadow para igualar o card (embora o st.table já tenha uma borda) */
 	box-shadow: 0 1px 4px rgba(0,0,0,.06);
 }
 .table-wrap table thead tr {
@@ -419,10 +424,6 @@ section[data-testid="stSidebar"] .stNumberInput input:focus,
 section[data-testid="stSidebar"] .stSelectbox div[role="combobox"] *,
 section[data-testid="stSidebar"] [data-baseweb="menu"] div[role="option"]{ color:#0b1f33 !important; background:#fff !important; }
 section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] label span { color: #ffffff !important; }
-.metric-card{ background:#fff; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,.06); padding: 8px 12px; text-align:center; transition: all 0.3s ease; min-height: 95px; display: flex; flex-direction: column; justify-content: center; border-left: 5px solid #ccc; }
-.metric-card:hover{ box-shadow:0 6px 16px rgba(0,0,0,0.1); transform: translateY(-2px); }
-.metric-card h4{ margin:0; font-size:17px; font-weight: 600; color:#0a3d62; }
-.metric-card h3{ margin: 2px 0 0; color:#0a3d62; font-size:17px; font-weight: 700; }
 .table-wrap{ background:#fff; border:1px solid #d0d7de; border-radius:8px; overflow:hidden; }
 .country-header{ display:flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 5px; }
 .country-flag{ font-size:45px; }
@@ -726,60 +727,45 @@ if active_menu == T.get("menu_calc"):
 	cor = "#1976d2" if dentro else "#d32f2f"; status_txt = T.get("sti_in_range", "In") if dentro else T.get("sti_out_range", "Out"); bg_cor = "#e6f7ff" if dentro else "#ffe6e6"
 	sti_note_text = f"STI ratio do bônus: <strong>{pct_txt}</strong> — <strong>{status_txt}</strong> ({faixa_txt}) — <em>{area_display} • {level_display}</em>"
 
-    # ALTERAÇÃO: Aumenta o peso da coluna de cards e da coluna de gráficos
-    # col_cards, col_chart = st.columns([1, 1.2]) # ORIGINAL
-	col_cards, col_chart = st.columns([1.2, 1.5]) # NOVO: Mais espaço para cards e move o gráfico mais para a direita
+	# ALTERAÇÃO: Ajustando o peso para dar mais espaço para os cards (1.5) e empurrar o gráfico (1.8)
+	col_cards, col_chart = st.columns([1.5, 1.8]) 
 
 	with col_cards:
-		# Funções de renderização de cards anuais (usando o estilo metric-card)
-		
-        # Card Salário (1)
-        # INSERÇÃO DE MARGINS NO HTML PARA ESPAÇAMENTO HORIZONTAL E USO DE CLASSE annual-card-container
-		st.markdown("<div class='annual-card-container'>", unsafe_allow_html=True)
-		c_label2, c_value2 = st.columns(2)
-		c_label2.markdown(f"""
-		<div class='metric-card annual-card-label' style='border-left-color: #28a745; background: #e6ffe6; margin-right: 5px; margin-left: 0;'>
-			<h4> {T.get('annual_salary','Salário')} (1)</h4>
+		# Card Salário (1)
+		st.markdown(f"""
+		<div class='annual-card-row'>
+			<div class='annual-card-label annual-card-base' style='border-left-color: #28a745; background: #e6ffe6;'>
+				<h4> {T.get('annual_salary','Salário')} (1)</h4>
+			</div>
+			<div class='annual-card-value annual-card-base' style='border-left-color: #28a745; background: #e6ffe6; margin-right: 0;'>
+				<h3>{fmt_money(salario_anual, symbol)}</h3>
+			</div>
 		</div>
 		""", unsafe_allow_html=True)
-		c_value2.markdown(f"""
-		<div class='metric-card annual-card-value' style='border-left-color: #28a745; background: #e6ffe6; margin-left: 5px; margin-right: 0;'>
-			<h3>{fmt_money(salario_anual, symbol)}</h3>
-		</div>
-		""", unsafe_allow_html=True)
-		st.markdown("</div>", unsafe_allow_html=True)
 
 		# Card Bônus (2)
-        # INSERÇÃO DE MARGINS NO HTML PARA ESPAÇAMENTO HORIZONTAL E USO DE CLASSE annual-card-container
-		st.markdown("<div class='annual-card-container'>", unsafe_allow_html=True)
-		c_label3, c_value3 = st.columns(2)
-		c_label3.markdown(f"""
-		<div class='metric-card annual-card-label' style='border-left-color: {cor}; background: {bg_cor}; margin-right: 5px; margin-left: 0;'>
-			<h4> {T.get('annual_bonus','Bônus')} (2)</h4>
+		st.markdown(f"""
+		<div class='annual-card-row'>
+			<div class='annual-card-label annual-card-base' style='border-left-color: {cor}; background: {bg_cor};'>
+				<h4> {T.get('annual_bonus','Bônus')} (2)</h4>
+			</div>
+			<div class='annual-card-value annual-card-base' style='border-left-color: {cor}; background: {bg_cor}; margin-right: 0;'>
+				<h3>{fmt_money(bonus_anual, symbol)}</h3>
+			</div>
 		</div>
 		""", unsafe_allow_html=True)
-		c_value3.markdown(f"""
-		<div class='metric-card annual-card-value' style='border-left-color: {cor}; background: {bg_cor}; margin-left: 5px; margin-right: 0;'>
-			<h3>{fmt_money(bonus_anual, symbol)}</h3>
-		</div>
-		""", unsafe_allow_html=True)
-		st.markdown("</div>", unsafe_allow_html=True)
 		
 		# Card Remuneração Total
-        # INSERÇÃO DE MARGINS NO HTML PARA ESPAÇAMENTO HORIZONTAL E USO DE CLASSE annual-card-container
-		st.markdown("<div class='annual-card-container'>", unsafe_allow_html=True)
-		c_label1, c_value1 = st.columns(2)
-		c_label1.markdown(f"""
-		<div class='metric-card annual-card-label' style='border-left-color: #0a3d62; background: #e6f0f8; margin-right: 5px; margin-left: 0;'>
-			<h4> {T.get('annual_total','Remuneração Total')}</h4>
+		st.markdown(f"""
+		<div class='annual-card-row'>
+			<div class='annual-card-label annual-card-base' style='border-left-color: #0a3d62; background: #e6f0f8;'>
+				<h4> {T.get('annual_total','Remuneração Total')}</h4>
+			</div>
+			<div class='annual-card-value annual-card-base' style='border-left-color: #0a3d62; background: #e6f0f8; margin-right: 0;'>
+				<h3>{fmt_money(total_anual, symbol)}</h3>
+			</div>
 		</div>
 		""", unsafe_allow_html=True)
-		c_value1.markdown(f"""
-		<div class='metric-card annual-card-value' style='border-left-color: #0a3d62; background: #e6f0f8; margin-left: 5px; margin-right: 0;'>
-			<h3>{fmt_money(total_anual, symbol)}</h3>
-		</div>
-		""", unsafe_allow_html=True)
-		st.markdown("</div>", unsafe_allow_html=True)
 
 
 	with col_chart:
@@ -862,7 +848,7 @@ elif active_menu == T.get("menu_rules"):
 	co_emp_contrib = [{"desc": "Salud", "rate": "4.00%", "base": "Sal. Bruto", "obs": "-"}, {"desc": "Pensão", "rate": "4.00%", "base": "Sal. Bruto", "obs": "-"}];
 	co_er_contrib = [{"desc": "Salud Empregador", "rate": "8.50%", "base": "Sal. Bruto", "obs": "-"}, {"desc": "Pensão Empregador", "rate": "12.00%", "base": "Sal. Bruto", "obs": "-"}, {"desc": "Parafiscales", "rate": "9.00%", "base": "Salário", "obs": "SENA, ICBF, Caja"}, {"desc": "Cesantías", "rate": "8.33%", "base": "Salário", "obs": "1 Salário/Ano"}]
 	country_contrib_map = { "Brasil": (br_emp_contrib, br_er_contrib), "Estados Unidos": (us_emp_contrib, us_er_contrib), "Canadá": (ca_emp_contrib, ca_er_contrib), "México": (mx_emp_contrib, mx_er_contrib), "Chile": (cl_emp_contrib, cl_er_contrib), "Argentina": (ar_emp_contrib, ar_er_contrib), "Colômbia": (co_emp_contrib, co_er_contrib), }
-	official_links = { "Brasil": "https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/tributos/contribuicoes-previdenciarias", "Estados Unidos": "https://www.irs.gov/businesses/small-businesses-self-employed/employment-tax-rates", "Canadá": "https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/payroll/payroll-deductions-contributions/canada-pension-plan-cpp/cpp-contribution-rates-maximums-exemptions.html", "México": "https://www.sat.gob.mx/consulta/29124/conoce-las-tablas-de-isr", "Chile": "https://www.previred.com/indicadores-previsionales/", "Argentina": "https://www.afip.gov.ar/aportesycontribuciones/", "Colômbia": "https://www.dian.gov.co/normatividad/Paginas/Normatividad.aspx", }
+	official_links = { "Brasil": "https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/tributos/contribuicoes-previdenciarias", "Estados Unidos": "https://www.irs.gov/businesses/small-businesses-self-employed/employment-tax-rates", "Canadá": "https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/payroll/payroll-deductions-contributions/canada-pension-plan-cpp/cpp-contribution-rates-maximums-exemptions.html", "México": "https://www.sat.gob.mx/consulta/29124/conoce-las-tablas-de-isr", "Chile": "https://www.previred.com/indicadores-previsionales/", "Argentina": "https://www.afip.gob.ar/aportesycontribuciones/", "Colômbia": "https://www.dian.gov.co/normatividad/Paginas/Normatividad.aspx", }
 
 	emp_contrib_data, er_contrib_data = country_contrib_map.get(country, ([], []))
 	link = official_links.get(country, "#")
