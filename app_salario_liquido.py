@@ -714,7 +714,7 @@ if active_menu == T.get("menu_calc"):
         c_label2, c_value2 = st.columns(2)
         c_label2.markdown(f"""
         <div class='metric-card annual-card-label' style='border-left-color: #28a745; background: #e6ffe6;'>
-            <h4>📅 {T.get('annual_salary','Salário')} (1)</h4>
+            <h4> {T.get('annual_salary','Salário')} (1)</h4>
         </div>
         """, unsafe_allow_html=True)
         c_value2.markdown(f"""
