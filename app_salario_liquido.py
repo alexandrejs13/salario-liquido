@@ -704,14 +704,14 @@ if active_menu == T.get("menu_calc"):
     cor = "#1976d2" if dentro else "#d32f2f"; status_txt = T.get("sti_in_range", "In") if dentro else T.get("sti_out_range", "Out"); bg_cor = "#e6f7ff" if dentro else "#ffe6e6"
     sti_note_text = f"STI ratio do bônus: <strong>{pct_txt}</strong> — <strong>{status_txt}</strong> ({faixa_txt}) — <em>{area_display} • {level_display}</em>"
 
-    col_cards, col_chart = st.columns([1, 1.2]) # Layout 1:1.2 para dar mais espaço ao gráfico
+    col_cards, col_chart = st.columns([1, 1.5]) # Layout 1:1.5 para dar mais espaço ao gráfico, empurrando-o para a direita
 
     with col_cards:
         # Funções de renderização de cards anuais (usando o estilo metric-card)
         # FIX 1/5: Usando a classe metric-card para padronizar e o st.columns(2) para alinhamento horizontal
         
         # Card Salário (1)
-        c_label2, c_value2 = st.columns(2)
+        c_label2, c_value2 = st.columns([1.5, 1]) # Aumenta a largura do rótulo e aplica mais espaçamento horizontal
         c_label2.markdown(f"""
         <div class='metric-card annual-card-label' style='border-left-color: #28a745; background: #e6ffe6;'>
             <h4> {T.get('annual_salary','Salário')} (1)</h4>
@@ -724,7 +724,8 @@ if active_menu == T.get("menu_calc"):
         """, unsafe_allow_html=True)
 
         # Card Bônus (2)
-        c_label3, c_value3 = st.columns(2)
+        st.markdown("<div style='margin-top: 1rem;'></div>", unsafe_allow_html=True) # Espaçamento vertical entre cards
+c_label3, c_value3 = st.columns([1.5, 1]) # Aumenta a largura do rótulo e aplica mais espaçamento horizontal
         c_label3.markdown(f"""
         <div class='metric-card annual-card-label' style='border-left-color: {cor}; background: {bg_cor};'>
             <h4> {T.get('annual_bonus','Bônus')} (2)</h4>
@@ -737,7 +738,8 @@ if active_menu == T.get("menu_calc"):
         """, unsafe_allow_html=True)
         
         # Card Remuneração Total
-        c_label1, c_value1 = st.columns(2)
+        st.markdown("<div style='margin-top: 1rem;'></div>", unsafe_allow_html=True) # Espaçamento vertical entre cards
+c_label1, c_value1 = st.columns([1.5, 1]) # Aumenta a largura do rótulo e aplica mais espaçamento horizontal
         c_label1.markdown(f"""
         <div class='metric-card annual-card-label' style='border-left-color: #0a3d62; background: #e6f0f8;'>
             <h4> {T.get('annual_total','Remuneração Total')}</h4>
