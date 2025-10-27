@@ -714,7 +714,7 @@ if active_menu == T.get("menu_calc"):
         c_label2, c_value2 = st.columns(2)
         c_label2.markdown(f"""
         <div class='metric-card annual-card-label' style='border-left-color: #28a745; background: #e6ffe6;'>
-            <h4>📅 {T.get('annual_salary','Salário')} (1)</h4>
+            <h4> {T.get('annual_salary','Salário')} (1)</h4>
         </div>
         """, unsafe_allow_html=True)
         c_value2.markdown(f"""
@@ -727,7 +727,7 @@ if active_menu == T.get("menu_calc"):
         c_label3, c_value3 = st.columns(2)
         c_label3.markdown(f"""
         <div class='metric-card annual-card-label' style='border-left-color: {cor}; background: {bg_cor};'>
-            <h4>🎯 {T.get('annual_bonus','Bônus')} (2)</h4>
+            <h4> {T.get('annual_bonus','Bônus')} (2)</h4>
         </div>
         """, unsafe_allow_html=True)
         c_value3.markdown(f"""
@@ -740,7 +740,7 @@ if active_menu == T.get("menu_calc"):
         c_label1, c_value1 = st.columns(2)
         c_label1.markdown(f"""
         <div class='metric-card annual-card-label' style='border-left-color: #0a3d62; background: #e6f0f8;'>
-            <h4>💼 {T.get('annual_total','Remuneração Total')}</h4>
+            <h4> {T.get('annual_total','Remuneração Total')}</h4>
         </div>
         """, unsafe_allow_html=True)
         c_value1.markdown(f"""
