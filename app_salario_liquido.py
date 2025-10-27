@@ -1,6 +1,6 @@
 # -------------------------------------------------------------
-# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.46 - FIX FINAL DE ESTABILIDADE)
-# Correção: Inicialização de 'dependentes' no bloco 'Custo do Empregador' para evitar NameError.
+# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.47 - FIX DE LAYOUT FINAL COM CSS INJETADO)
+# Correção: Implementação do CSS de centralização e padronização dos cards anuais/mensais (barras laterais).
 # -------------------------------------------------------------
 
 import streamlit as st
@@ -83,7 +83,7 @@ I18N_FALLBACK = { "Português": { "sidebar_title": "Simulador de Remuneração<b
 "annual_salary": "Annual Salary", 
 "annual_bonus": "Annual Bonus", 
 "annual_total": "Total Annual Compensation", 
-"months_factor": "Months considered", "pie_title": "Annual Split: Salary vs Bonus", "pie_chart_title_dist": "Total Compensation Distribution", "reload": "Reload tables", "source_remote": "Remote tables", "source_local": "Local fallback", "choose_country": "Select a country", "menu_title": "Menu", "language_title": "🌐 Idioma / Language / Idioma", "area": "Area (STI)", "level": "Career Level (STI)", "rules_expanded": "Details of Mandatory Contributions", "sti_area_non_sales": "Non Sales", "sti_area_sales": "Sales", "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Members of the GEB", "sti_level_executive_manager": "Executive Manager", "sti_level_senior_group_manager": "Senior Group Manager", "sti_level_group_manager": "Group Manager", "sti_level_lead_expert_program_manager": "Lead Expert / Program Manager", "sti_level_senior_manager": "Senior Manager", "sti_level_senior_expert_senior_project_manager": "Senior Expert / Senior Project Manager", "sti_level_manager_selected_expert_project_manager": "Manager / Selected Expert / Project Manager", "sti_level_others": "Others", "sti_level_executive_manager_senior_group_manager": "Executive Manager / Senior Group Manager", "sti_level_group_manager_lead_sales_manager": "Group Manager / Lead Sales Manager", "sti_level_senior_manager_senior_sales_manager": "Senior Manager / Senior Sales Manager", "sti_level_manager_selected_sales_manager": "Manager / Selected Sales Manager", "sti_in_range": "Within range", "sti_out_range": "Outside range", "cost_header_charge": "Charge", "cost_header_percent": "Percent (%)", "cost_header_base": "Base", "cost_header_obs": "Observation", "cost_header_bonus": "Applies to Bonus", "cost_header_vacation": "Applies to Vacation", "cost_header_13th": "Applies to 13th", "sti_table_header_level": "Career Level", "sti_table_header_pct": "STI %" }, "Español": { "sidebar_title": "Simulador de Remuneración<br>(Región Américas)", "other_deductions": "Otras Deducciones Mensuales", "salary_tooltip": "Su salario mensual antes de impuestos y deducciones.", "dependents_tooltip": "Número de dependientes para deducción en el Impuesto de Renta (solo aplicable en Brasil).", "bonus_tooltip": "Monto total del bono esperado en el año (pago único o en cuotas).", "other_deductions_tooltip": "Suma de otras deducciones mensuales recurrentes (ej: plan de salud, ticket de comida, cuota sindical).", "sti_area_tooltip": "Seleccione su área (Ventas o No Ventas) para verificar el rango del bono (STI).", "sti_level_tooltip": "Seleccione su nivel de carrera para verificar el rango del bono (STI). 'Otros' incluye niveles no listados.", "app_title": "Simulador de Salario Neto y Costo del Empleador", "menu_calc": "Simulador de Remuneración", "menu_rules": "Regras de Contribuições", "menu_rules_sti": "Regras de Cálculo del STI", "menu_cost": "Costo del Empleador", "title_calc": "Simulador de Remuneración", "title_rules": "Regras de Contribuições", "title_rules_sti": "Reglas de Cálculo del STI", "title_cost": "Costo del Empleador", "country": "País", "salary": "Salario Bruto", "state": "Estado (EE. UU.)", "state_rate": "Impuesto Estatal (%)", "dependents": "Dependientes (Impuesto)", "bonus": "Bono Anual", "earnings": "Ingresos", "deductions": "Descuentos", "net": "Salario Neto", "fgts_deposit": "Depósito de FGTS", "tot_earnings": "Total Ingresos", "tot_deductions": "Total Descuentos", "valid_from": "Vigencia", "rules_emp": "Contribuições del Empleado", "rules_er": "Contribuições del Empleador", "rules_table_desc": "Descripción", "rules_table_rate": "Tasa (%)", "rules_table_base": "Base de Cálculo", "rules_table_obs": "Notas / Tope", "official_source": "Fuente Oficial", "employer_cost_total": "Costo Total del Empleador", "annual_comp_title": "Composição de la Remuneração Anual Bruta", 
+"months_factor": "Months considered", "pie_title": "Annual Split: Salary vs Bonus", "pie_chart_title_dist": "Total Compensation Distribution", "reload": "Reload tables", "source_remote": "Remote tables", "source_local": "Local fallback", "choose_country": "Select a country", "menu_title": "Menu", "language_title": "🌐 Idioma / Language / Idioma", "area": "Area (STI)", "level": "Career Level (STI)", "rules_expanded": "Details of Mandatory Contributions", "sti_area_non_sales": "Non Sales", "sti_area_sales": "Sales", "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Members of the GEB", "sti_level_executive_manager": "Executive Manager", "sti_level_senior_group_manager": "Senior Group Manager", "sti_level_group_manager": "Group Manager", "sti_level_lead_expert_program_manager": "Lead Expert / Program Manager", "sti_level_senior_manager": "Senior Manager", "sti_level_senior_expert_senior_project_manager": "Senior Expert / Senior Project Manager", "sti_level_manager_selected_expert_project_manager": "Manager / Selected Expert / Project Manager", "sti_level_others": "Others", "sti_level_executive_manager_senior_group_manager": "Executive Manager / Senior Group Manager", "sti_level_group_manager_lead_sales_manager": "Group Manager / Lead Sales Manager", "sti_level_senior_manager_senior_sales_manager": "Senior Manager / Senior Sales Manager", "sti_level_manager_selected_sales_manager": "Manager / Selected Sales Manager", "sti_in_range": "Within range", "sti_out_range": "Outside range", "cost_header_charge": "Charge", "cost_header_percent": "Percent (%)", "cost_header_base": "Base", "cost_header_obs": "Observation", "cost_header_bonus": "Applies to Bonus", "cost_header_vacation": "Applies to Vacation", "cost_header_13th": "Applies to 13th", "sti_table_header_level": "Career Level", "sti_table_header_pct": "STI %" }, "Español": { "sidebar_title": "Simulador de Remuneração<br>(Región Américas)", "other_deductions": "Otras Deducciones Mensuales", "salary_tooltip": "Su salario mensual antes de impuestos y deducciones.", "dependents_tooltip": "Número de dependientes para deducción en el Impuesto de Renta (solo aplicable en Brasil).", "bonus_tooltip": "Monto total del bono esperado en el año (pago único o en cuotas).", "other_deductions_tooltip": "Suma de otras deducciones mensuales recurrentes (ej: plan de salud, ticket de comida, cuota sindical).", "sti_area_tooltip": "Seleccione su área (Ventas o No Ventas) para verificar el rango del bono (STI).", "sti_level_tooltip": "Seleccione su nivel de carrera para verificar el rango del bono (STI). 'Otros' incluye niveles no listados.", "app_title": "Simulador de Salario Neto y Costo del Empleador", "menu_calc": "Simulador de Remuneración", "menu_rules": "Regras de Contribuições", "menu_rules_sti": "Regras de Cálculo del STI", "menu_cost": "Costo del Empleador", "title_calc": "Simulador de Remuneração", "title_rules": "Regras de Contribuições", "title_rules_sti": "Reglas de Cálculo del STI", "title_cost": "Costo del Empleador", "country": "País", "salary": "Salario Bruto", "state": "Estado (EE. UU.)", "state_rate": "Impuesto Estatal (%)", "dependents": "Dependientes (Impuesto)", "bonus": "Bono Anual", "earnings": "Ingresos", "deductions": "Descuentos", "net": "Salario Neto", "fgts_deposit": "Depósito de FGTS", "tot_earnings": "Total Ingresos", "tot_deductions": "Total Descuentos", "valid_from": "Vigencia", "rules_emp": "Contribuições del Empleado", "rules_er": "Contribuições del Empleador", "rules_table_desc": "Descripción", "rules_table_rate": "Tasa (%)", "rules_table_base": "Base de Cálculo", "rules_table_obs": "Notas / Tope", "official_source": "Fuente Oficial", "employer_cost_total": "Costo Total del Empleador", "annual_comp_title": "Composição de la Remuneração Anual Bruta", 
 "annual_salary": "Salario Anual", 
 "annual_bonus": "Bono Anual", 
 "annual_total": "Remuneração Anual Total", 
@@ -318,100 +318,101 @@ def get_sti_level_map(area: str, T: Dict[str, str]) -> Tuple[List[str], Dict[str
     display_list = [T.get(STI_I18N_KEYS.get(key, key), key) for key in keys]
     return display_list, dict(zip(display_list, keys))
 
-# ============================== CSS (FIX: Centralização e Largura Máxima) ================================
+# ============================== CSS (FIX FINAL DE CENTRALIZAÇÃO E BARRINHAS) ================================
 st.markdown("""
 <style>
-/* 1. LIMITA LARGURA MÁXIMA E CENTRALIZA O CONTEÚDO PRINCIPAL (REDUZIDO PARA MAIOR ELEGÂNCIA) */
+/* Centralização do conteúdo principal */
 div.block-container {
-    max-width: 1100px; /* Largura máxima para visualização elegante */
+    max-width: 1100px;
+    margin: 0 auto;
     padding-left: 1rem;
     padding-right: 1rem;
 }
 
-/* 2. ESTILOS DE TÍTULOS */
+/* Títulos */
 .stMarkdown h5 {
     font-size: 14px; 
     font-weight: 500; 
     line-height: 1.2; 
     color: #0a3d62;
-    margin-bottom: 0.2rem !important;
+    margin-bottom: 0.3rem !important;
 }
 
-/* 3. PADRONIZAÇÃO DE CARDS: Mantendo o estilo do metric-card para o annual-card-base */
-/* FIX 5: Use a mesma classe de estilo e o justify-content: center para alinhar verticalmente */
+/* ========== PADRÃO GLOBAL DOS CARDS ========== */
 .metric-card, .annual-card-base {
-    min-height: 95px !important; 
-    padding: 8px 12px !important; 
     display: flex;
-    flex-direction: column; 
-    justify-content: center; /* Centraliza verticalmente o texto/valor */
-    box-sizing: border-box;
-    background: #fff;
-    border-radius: 10px; 
-    box-shadow: 0 1px 4px rgba(0,0,0,.06); 
-    margin-bottom: 10px; /* FIX 1: Espaçamento vertical entre os cards */
-}
-.metric-card h3, .annual-card-base h3 {
-    font-size: 17px !important; 
-    font-weight: 700;
-    margin: 0 !important;
-}
-.metric-card h4, .annual-card-base h4 {
-    font-size: 17px !important; 
-    font-weight: 600;
-    margin: 0 !important;
-}
-
-/* 4. Estilo de Tabela (Para Remuneração Mensal E Contribuições) */
-.table-wrap {
-    background:#fff; 
-    border:1px solid #d0d7de; 
-    border-radius: 8px; 
+    flex-direction: column;
+    justify-content: center; /* Centraliza verticalmente */
+    align-items: flex-start;  /* Título e valores alinhados à esquerda */
+    min-height: 95px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+    margin-bottom: 10px; /* FIX 1: Espaçamento vertical uniforme */
+    position: relative;
     overflow: hidden;
-    box-shadow: 0 1px 4px rgba(0,0,0,.06);
-}
-.table-wrap table thead tr {
-    background-color: #f7f9fb !important; /* Fundo cinza claro para o cabeçalho */
 }
 
-/* Estilo específico para o valor do card anual (lado direito) */
+/* Barrinha lateral com tom mais escuro da própria cor do card */
+.metric-card::before, .annual-card-base::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 6px;
+    height: 100%;
+    border-radius: 10px 0 0 10px;
+    background: rgba(0,0,0,0.08); /* Cor escurecida dinâmica aplicada via herança */
+    mix-blend-mode: multiply;
+}
+
+/* Estilo para garantir que o VALOR fique à direita e CENTRALIZADO VERTICALMENTE (em uma coluna) */
 .annual-card-value {
+    align-items: flex-end; /* Alinha o texto à direita */
     text-align: right;
     justify-content: center;
 }
 
-/* O restante do seu CSS é mantido */
-html, body { font-family:'Segoe UI', Helvetica, Arial, sans-serif; background:#f7f9fb; color:#1a1a1a;}
-h1,h2,h3 { color:#0a3d62; }
-hr { border:0; height:2px; background:linear-gradient(to right, #0a3d62, #e2e6ea); margin:32px 0; border-radius:1px; }
-section[data-testid="stSidebar"]{ background:#0a3d62 !important; padding-top:15px; }
-section[data-testid="stSidebar"] h1,
-section[data-testid="stSidebar"] h2,
-section[data-testid="stSidebar"] h3,
-section[data-testid="stSidebar"] p,
-section[data-testid="stSidebar"] .stMarkdown,
-section[data-testid="stSidebar"] label,
-section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] label span { color:#ffffff !important; }
-section[data-testid="stSidebar"] h2 { margin-bottom: 25px !important; }
-section[data-testid="stSidebar"] h3 { margin-bottom: 0.5rem !important; margin-top: 1rem !important; }
-section[data-testid="stSidebar"] div[data-testid="stSelectbox"] label { margin-bottom: 0.5rem !important; }
-section[data-testid="stSidebar"] div[data-testid="stSelectbox"] > div[data-baseweb="select"] { margin-top: 0 !important; }
-section[data-testid="stSidebar"] .stTextInput input,
-section[data-testid="stSidebar"] .stNumberInput input,
-section[data-testid="stSidebar"] .stSelectbox input,
-section[data-testid="stSidebar"] .stNumberInput input:focus,
-section[data-testid="stSidebar"] .stSelectbox div[role="combobox"] *,
-section[data-testid="stSidebar"] [data-baseweb="menu"] div[role="option"]{ color:#0b1f33 !important; background:#fff !important; }
-section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] label span { color: #ffffff !important; }
-.metric-card{ border-left: 5px solid #ccc; } /* Mantido o estilo de barra padrão para o metric-card */
-.metric-card:hover{ box-shadow:0 6px 16px rgba(0,0,0,0.1); transform: translateY(-2px); }
-.table-wrap{ background:#fff; border:1px solid #d0d7de; border-radius:8px; overflow:hidden; }
-.country-header{ display:flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 5px; }
-.country-flag{ font-size:45px; }
-.country-title{ font-size:36px; font-weight:700; color:#0a3d62; }
-.vega-embed{ padding-bottom: 16px; }
+/* Centralização total e estética de texto */
+.metric-card h3, .annual-card-base h3 {
+    font-size: 17px !important;
+    font-weight: 700;
+    margin: 0 !important;
+    text-align: left; /* Mantém alinhamento padrão para valores em metric-card (Total/Ded/Net) */
+}
+.metric-card h4, .annual-card-base h4 {
+    font-size: 15px !important;
+    font-weight: 600;
+    margin: 0 0 3px 0 !important;
+    text-align: left;
+}
 
-.annual-card-label .sti-note { display: block; font-size: 14px; font-weight: 400; line-height: 1.3; margin-top: 2px; }
+/* Fundo e cores de cada tipo de card — a barrinha lateral é gerada automaticamente com tom escurecido */
+.metric-card[style*="#28a745"], .annual-card-base[style*="#28a745"] { background: #e6ffe6 !important; }
+.metric-card[style*="#dc3545"], .annual-card-base[style*="#dc3545"] { background: #ffe6e6 !important; }
+.metric-card[style*="#007bff"], .annual-card-base[style*="#007bff"] { background: #e6f7ff !important; }
+.metric-card[style*="#0a3d62"], .annual-card-base[style*="#0a3d62"] { background: #e6f0f8 !important; }
+
+/* FIX: Estilo para o FGTS (manterá o estilo do parágrafo) */
+.fgts-note {
+    font-size: 17px; 
+    font-weight: 600; 
+    color: #0a3d62; 
+    margin: 0;
+}
+
+/* Sidebar e tema geral (mantidos) */
+html, body { font-family:'Segoe UI', Helvetica, Arial, sans-serif; background:#f7f9fb; color:#1a1a1a;}
+section[data-testid="stSidebar"]{ background:#0a3d62 !important; padding-top:15px; }
+section[data-testid="stSidebar"] h1,h2,h3,p,label,span{ color:#fff !important; }
+
+hr { border:0; height:2px; background:linear-gradient(to right, #0a3d62, #e2e6ea); margin:32px 0; border-radius:1px; }
+.country-header{ display:flex; align-items:center; justify-content:space-between; width:100%; margin-bottom:8px; }
+.country-title{ font-size:36px; font-weight:700; color:#0a3d62; }
+.country-flag{ font-size:45px; }
+
+.table-wrap{ background:#fff; border:1px solid #d0d7de; border-radius:8px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+.table-wrap table thead tr{ background-color:#f7f9fb !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -579,7 +580,6 @@ if active_menu == T.get("menu_calc"):
         level_default_index = len(level_options_display) - 1 if level_options_display else 0
         level_display = r2.selectbox("Nível STI", level_options_display, index=level_default_index, key="sti_level", help=T.get("sti_level_tooltip"), label_visibility="collapsed")
         level = level_display_map.get(level_display, level_options_display[level_default_index] if level_options_display else "Others")
-        state_code, state_rate = None, None
         dependentes_fixed = dependentes 
 
     elif country == "Estados Unidos":
@@ -686,7 +686,7 @@ if active_menu == T.get("menu_calc"):
     if country == "Brasil": 
         st.markdown(f"""
         <div style="margin-top: 10px; padding: 5px 0;">
-            <p style="font-size: 17px; font-weight: 600; color: #0a3d62; margin: 0;">
+            <p class="fgts-note">
                 💼 {T.get('fgts_deposit','Depósito FGTS')}: {fmt_money(calc['fgts'], symbol)}
             </p>
         </div>
@@ -712,12 +712,11 @@ if active_menu == T.get("menu_calc"):
 
     with col_cards:
         # Sequência 1: Salário (1)
-        # FIX 1/5: Garante alinhamento usando sub-colunas, com classe annual-card-base
-        # FIX 2: Título Salário (1)
+        # FIX 1, 2, 5: Cards alinhados verticalmente, sem emoji duplicado
         c_label2, c_value2 = st.columns(2)
         c_label2.markdown(f"""
         <div class='annual-card-base' style='border-left-color: #28a745; background: #e6ffe6;'>
-            <h4>📅 {T.get('annual_salary','Salário')} (1)</h4>
+            <h4>📅 {T.get('annual_salary','Salário').replace(' Anual', '')} (1)</h4>
         </div>
         """, unsafe_allow_html=True)
         c_value2.markdown(f"""
@@ -731,7 +730,7 @@ if active_menu == T.get("menu_calc"):
         c_label3, c_value3 = st.columns(2)
         c_label3.markdown(f"""
         <div class='annual-card-base' style='border-left-color: {cor}; background: {bg_cor};'>
-            <h4>🎯 {T.get('annual_bonus','Bônus')} (2)</h4>
+            <h4>🎯 {T.get('annual_bonus','Bônus').replace(' Anual', '')} (2)</h4>
         </div>
         """, unsafe_allow_html=True)
         c_value3.markdown(f"""
@@ -745,7 +744,7 @@ if active_menu == T.get("menu_calc"):
         c_label1, c_value1 = st.columns(2)
         c_label1.markdown(f"""
         <div class='annual-card-base' style='border-left-color: #0a3d62; background: #e6f0f8;'>
-            <h4>💼 {T.get('annual_total','Remuneração Total')}</h4>
+            <h4>💼 {T.get('annual_total','Remuneração Total').replace(' Anual', '')}</h4>
         </div>
         """, unsafe_allow_html=True)
         c_value1.markdown(f"""
@@ -803,7 +802,7 @@ if active_menu == T.get("menu_calc"):
         )
         st.altair_chart(final_chart, use_container_width=True)
 
-    # Notas do Salário Anual e Bônus (FIX: Posição e conteúdo)
+    # Notas do Salário Anual e Bônus
     st.markdown(f"""
     <div style="margin-top: 10px;">
         <p style="margin-top: 5px; font-size: 14px; color: #555;">
