@@ -1,6 +1,6 @@
 # -------------------------------------------------------------
-# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.46 - FIX FINAL DE NOMENCLATURA E ESPAÇAMENTO)
-# Correção: Remoção dos emojis duplicados e ajuste fino do espaçamento dos cards anuais.
+# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.46 - FIX FINAL DE ESTABILIDADE)
+# Correção: Inicialização de 'dependentes' no bloco 'Custo do Empregador' para evitar NameError.
 # -------------------------------------------------------------
 
 import streamlit as st
@@ -338,24 +338,25 @@ div.block-container {
 }
 
 /* 3. PADRONIZAÇÃO DE CARDS: Mantendo o estilo do metric-card para o annual-card-base */
-.annual-card-base {
-    min-height: 95px !important; /* Mantém o tamanho do metric-card */
-    padding: 8px 12px !important; /* Mantém o padding do metric-card */
+/* FIX 5: Use a mesma classe de estilo e o justify-content: center para alinhar verticalmente */
+.metric-card, .annual-card-base {
+    min-height: 95px !important; 
+    padding: 8px 12px !important; 
     display: flex;
     flex-direction: column; 
-    justify-content: center; /* FIX 5: Alinha conteúdo verticalmente ao centro */
+    justify-content: center; /* Centraliza verticalmente o texto/valor */
     box-sizing: border-box;
     background: #fff;
     border-radius: 10px; 
     box-shadow: 0 1px 4px rgba(0,0,0,.06); 
-    margin-bottom: 10px; /* Espaçamento entre os cards na vertical */
+    margin-bottom: 10px; /* FIX 1: Espaçamento vertical entre os cards */
 }
-.annual-card-base h3 {
+.metric-card h3, .annual-card-base h3 {
     font-size: 17px !important; 
     font-weight: 700;
     margin: 0 !important;
 }
-.annual-card-base h4 {
+.metric-card h4, .annual-card-base h4 {
     font-size: 17px !important; 
     font-weight: 600;
     margin: 0 !important;
@@ -371,6 +372,12 @@ div.block-container {
 }
 .table-wrap table thead tr {
     background-color: #f7f9fb !important; /* Fundo cinza claro para o cabeçalho */
+}
+
+/* Estilo específico para o valor do card anual (lado direito) */
+.annual-card-value {
+    text-align: right;
+    justify-content: center;
 }
 
 /* O restante do seu CSS é mantido */
@@ -396,10 +403,8 @@ section[data-testid="stSidebar"] .stNumberInput input:focus,
 section[data-testid="stSidebar"] .stSelectbox div[role="combobox"] *,
 section[data-testid="stSidebar"] [data-baseweb="menu"] div[role="option"]{ color:#0b1f33 !important; background:#fff !important; }
 section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] label span { color: #ffffff !important; }
-.metric-card{ background:#fff; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,.06); padding: 8px 12px; text-align:center; transition: all 0.3s ease; min-height: 95px; display: flex; flex-direction: column; justify-content: center; border-left: 5px solid #ccc; }
+.metric-card{ border-left: 5px solid #ccc; } /* Mantido o estilo de barra padrão para o metric-card */
 .metric-card:hover{ box-shadow:0 6px 16px rgba(0,0,0,0.1); transform: translateY(-2px); }
-.metric-card h4{ margin:0; font-size:17px; font-weight: 600; color:#0a3d62; }
-.metric-card h3{ margin: 2px 0 0; color:#0a3d62; font-size:17px; font-weight: 700; }
 .table-wrap{ background:#fff; border:1px solid #d0d7de; border-radius:8px; overflow:hidden; }
 .country-header{ display:flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 5px; }
 .country-flag{ font-size:45px; }
@@ -574,8 +579,9 @@ if active_menu == T.get("menu_calc"):
         level_default_index = len(level_options_display) - 1 if level_options_display else 0
         level_display = r2.selectbox("Nível STI", level_options_display, index=level_default_index, key="sti_level", help=T.get("sti_level_tooltip"), label_visibility="collapsed")
         level = level_display_map.get(level_display, level_options_display[level_default_index] if level_options_display else "Others")
-        dependentes_fixed = 0
-        
+        state_code, state_rate = None, None
+        dependentes_fixed = dependentes 
+
     elif country == "Estados Unidos":
         # 5 campos + 2 STI
         
@@ -668,7 +674,6 @@ if active_menu == T.get("menu_calc"):
     df_detalhe[T.get("deductions","Deductions")] = df_detalhe[T.get("deductions","Deductions")].apply(lambda v: money_or_blank(v, symbol))
     
     # 5) FORMATANDO TABELA MENSAL
-    # Garante que a tabela use a classe .table-wrap
     st.markdown("<div class='table-wrap'>", unsafe_allow_html=True); st.table(df_detalhe); st.markdown("</div>", unsafe_allow_html=True)
 
     cc1, cc2, cc3 = st.columns(3)
@@ -707,42 +712,44 @@ if active_menu == T.get("menu_calc"):
 
     with col_cards:
         # Sequência 1: Salário (1)
-        # FIX 1: Removido o annual-grid e mantido o st.columns(2) para alinhamento horizontal
-        # FIX 2/3/4: Titulo e Emoji Corrigidos
+        # FIX 1/5: Garante alinhamento usando sub-colunas, com classe annual-card-base
+        # FIX 2: Título Salário (1)
         c_label2, c_value2 = st.columns(2)
         c_label2.markdown(f"""
-        <div class='annual-card-base' style='border-left-color: #28a745; background: #e6ffe6; margin-bottom: 5px; '>
+        <div class='annual-card-base' style='border-left-color: #28a745; background: #e6ffe6;'>
             <h4>📅 {T.get('annual_salary','Salário')} (1)</h4>
         </div>
         """, unsafe_allow_html=True)
         c_value2.markdown(f"""
-        <div class='annual-card-base' style='border-left-color: #28a745; background: #e6ffe6; margin-bottom: 5px; text-align: right;'>
+        <div class='annual-card-base annual-card-value' style='border-left-color: #28a745; background: #e6ffe6;'>
             <h3>{fmt_money(salario_anual, symbol)}</h3>
         </div>
         """, unsafe_allow_html=True)
 
         # Sequência 2: Bônus (2)
+        # FIX 3: Título Bônus (2)
         c_label3, c_value3 = st.columns(2)
         c_label3.markdown(f"""
-        <div class='annual-card-base' style='border-left-color: {cor}; background: {bg_cor}; margin-bottom: 5px;'>
+        <div class='annual-card-base' style='border-left-color: {cor}; background: {bg_cor};'>
             <h4>🎯 {T.get('annual_bonus','Bônus')} (2)</h4>
         </div>
         """, unsafe_allow_html=True)
         c_value3.markdown(f"""
-        <div class='annual-card-base' style='border-left-color: {cor}; background: {bg_cor}; margin-bottom: 5px; text-align: right;'>
+        <div class='annual-card-base annual-card-value' style='border-left-color: {cor}; background: {bg_cor};'>
             <h3>{fmt_money(bonus_anual, symbol)}</h3>
         </div>
         """, unsafe_allow_html=True)
         
         # Sequência 3: Remuneração Total
+        # FIX 4: Título Remuneração Total
         c_label1, c_value1 = st.columns(2)
         c_label1.markdown(f"""
-        <div class='annual-card-base' style='border-left-color: #0a3d62; background: #e6f0f8; margin-bottom: 5px;'>
+        <div class='annual-card-base' style='border-left-color: #0a3d62; background: #e6f0f8;'>
             <h4>💼 {T.get('annual_total','Remuneração Total')}</h4>
         </div>
         """, unsafe_allow_html=True)
         c_value1.markdown(f"""
-        <div class='annual-card-base' style='border-left-color: #0a3d62; background: #e6f0f8; margin-bottom: 5px; text-align: right;'>
+        <div class='annual-card-base annual-card-value' style='border-left-color: #0a3d62; background: #e6f0f8;'>
             <h3>{fmt_money(total_anual, symbol)}</h3>
         </div>
         """, unsafe_allow_html=True)
@@ -796,8 +803,7 @@ if active_menu == T.get("menu_calc"):
         )
         st.altair_chart(final_chart, use_container_width=True)
 
-    # 3) NOTAS ABAIXO DO LAYOUT ANUAL
-    # Notas do Salário Anual e Bônus
+    # Notas do Salário Anual e Bônus (FIX: Posição e conteúdo)
     st.markdown(f"""
     <div style="margin-top: 10px;">
         <p style="margin-top: 5px; font-size: 14px; color: #555;">
@@ -896,6 +902,9 @@ elif active_menu == T.get("menu_rules_sti"):
 
 # ========================= CUSTO DO EMPREGADOR (MANTIDO) ========================
 elif active_menu == T.get("menu_cost"):
+    # FIX: Definir dependentes aqui para evitar NameError ao calcular custo
+    dependentes = 0
+    
     c1, c2 = st.columns(2)
     salario = c1.number_input(f"{T.get('salary', 'Salary')} ({symbol})", min_value=0.0, value=10000.0, step=100.0, key="salary_cost", format=INPUT_FORMAT)
     bonus_anual = c2.number_input(f"{T.get('bonus', 'Bonus')} ({symbol})", min_value=0.0, value=0.0, step=100.0, key="bonus_cost_input", format=INPUT_FORMAT)
