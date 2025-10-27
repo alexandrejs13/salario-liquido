@@ -1,6 +1,7 @@
 # -------------------------------------------------------------
 # 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.45 - FIX FINAL ESTILO EMOJI/ALINHAMENTO)
 # Correção: Revertida a estrutura de card para f-strings simples dentro de colunas, corrigindo alinhamento e duplicação.
+# Modificação: Cards Anuais ajustados para 3 colunas horizontais com gráfico abaixo.
 # -------------------------------------------------------------
 
 import streamlit as st
@@ -690,7 +691,7 @@ if active_menu == T.get("menu_calc"):
 
 
     st.write("---")
-    # NOVO LAYOUT ANUAL: Cards (esquerda) e Gráfico (direita)
+    # NOVO LAYOUT ANUAL: Cards na Horizontal e Gráfico Abaixo
     st.subheader(T.get("annual_comp_title", "Annual Comp"))
     
     months = COUNTRY_TABLES.get("REMUN_MONTHS", {}).get(country, 12.0)
@@ -704,102 +705,35 @@ if active_menu == T.get("menu_calc"):
     cor = "#1976d2" if dentro else "#d32f2f"; status_txt = T.get("sti_in_range", "In") if dentro else T.get("sti_out_range", "Out"); bg_cor = "#e6f7ff" if dentro else "#ffe6e6"
     sti_note_text = f"STI ratio do bônus: <strong>{pct_txt}</strong> — <strong>{status_txt}</strong> ({faixa_txt}) — <em>{area_display} • {level_display}</em>"
 
-    col_cards, col_chart = st.columns([1, 1.2]) # Layout 1:1.2 para dar mais espaço ao gráfico
 
-    with col_cards:
-        # Funções de renderização de cards anuais (usando o estilo metric-card)
-        # FIX 1/5: Usando a classe metric-card para padronizar e o st.columns(2) para alinhamento horizontal
-        
-        # Card Salário (1)
-        c_label2, c_value2 = st.columns(2)
-        c_label2.markdown(f"""
-        <div class='metric-card annual-card-label' style='border-left-color: #28a745; background: #e6ffe6;'>
-            <h4> {T.get('annual_salary','Salário')} (1)</h4>
-        </div>
-        """, unsafe_allow_html=True)
-        c_value2.markdown(f"""
-        <div class='metric-card annual-card-value' style='border-left-color: #28a745; background: #e6ffe6;'>
-            <h3>{fmt_money(salario_anual, symbol)}</h3>
-        </div>
-        """, unsafe_allow_html=True)
+    # 1. LINHA DE CARDS NA HORIZONTAL
+    col_salario, col_bonus, col_total = st.columns(3)
 
-        # Card Bônus (2)
-        c_label3, c_value3 = st.columns(2)
-        c_label3.markdown(f"""
-        <div class='metric-card annual-card-label' style='border-left-color: {cor}; background: {bg_cor};'>
-            <h4> {T.get('annual_bonus','Bônus')} (2)</h4>
-        </div>
-        """, unsafe_allow_html=True)
-        c_value3.markdown(f"""
-        <div class='metric-card annual-card-value' style='border-left-color: {cor}; background: {bg_cor};'>
-            <h3>{fmt_money(bonus_anual, symbol)}</h3>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # Card Remuneração Total
-        c_label1, c_value1 = st.columns(2)
-        c_label1.markdown(f"""
-        <div class='metric-card annual-card-label' style='border-left-color: #0a3d62; background: #e6f0f8;'>
-            <h4> {T.get('annual_total','Remuneração Total')}</h4>
-        </div>
-        """, unsafe_allow_html=True)
-        c_value1.markdown(f"""
-        <div class='metric-card annual-card-value' style='border-left-color: #0a3d62; background: #e6f0f8;'>
-            <h3>{fmt_money(total_anual, symbol)}</h3>
-        </div>
-        """, unsafe_allow_html=True)
+    # Card Salário Anual
+    col_salario.markdown(f"""
+    <div class='metric-card' style='border-left-color: #28a745; background: #e6ffe6; height: 100%;'>
+        <h4> {T.get('annual_salary','Salário Anual')} </h4>
+        <h3>{fmt_money(salario_anual, symbol)}</h3>
+    </div>
+    """, unsafe_allow_html=True)
 
+    # Card Bônus Anual
+    col_bonus.markdown(f"""
+    <div class='metric-card' style='border-left-color: {cor}; background: {bg_cor}; height: 100%;'>
+        <h4> {T.get('annual_bonus','Bônus Anual')} </h4>
+        <h3>{fmt_money(bonus_anual, symbol)}</h3>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Card Remuneração Total Anual
+    col_total.markdown(f"""
+    <div class='metric-card' style='border-left-color: #0a3d62; background: #e6f0f8; height: 100%;'>
+        <h4> {T.get('annual_total','Total Remuneração Anual')} </h4>
+        <h3>{fmt_money(total_anual, symbol)}</h3>
+    </div>
+    """, unsafe_allow_html=True)
 
-    with col_chart:
-        # Gráfico de Pizza (Ocupa a coluna direita)
-        chart_df = pd.DataFrame({
-            "Componente": [T.get('annual_salary','Salário'), T.get('annual_bonus','Bônus')], 
-            "Valor": [salario_anual, bonus_anual]
-        })
-        
-        salary_name = T.get('annual_salary','Salário').split(" (")[0]
-        bonus_name = T.get('annual_bonus','Bônus').split(" (")[0]
-        
-        chart_df['Componente'] = chart_df['Componente'].replace({
-            T.get('annual_salary','Annual Sal.'): salary_name,
-            T.get('annual_bonus','Annual Bonus'): bonus_name
-        })
-
-        base = alt.Chart(chart_df).transform_joinaggregate(
-            Total='sum(Valor)'
-        ).transform_calculate(
-            Percent='datum.Valor / datum.Total',
-            # Usando a template string nativa para formar o rótulo
-            Label=alt.expr.if_(alt.datum.Valor > alt.datum.Total * 0.05, 
-                                alt.datum.Componente + " (" + alt.expr.format(alt.datum.Percent, ".1%") + ")", 
-                                "") 
-        )
-        
-        pie = base.mark_arc(outerRadius=120, innerRadius=80, cornerRadius=2).encode(
-            theta=alt.Theta("Valor:Q", stack=True),
-            color=alt.Color("Componente:N", legend=None), # Remove a legenda
-            order=alt.Order("Percent:Q", sort="descending"),
-            tooltip=[alt.Tooltip("Componente:N"), alt.Tooltip("Valor:Q", format=",.2f")]
-        )
-        
-        text = base.mark_text(radius=140).encode(
-            text=alt.Text("Label:N"),
-            theta=alt.Theta("Valor:Q", stack=True),
-            order=alt.Order("Percent:Q", sort="descending"),
-            color=alt.value("black") 
-        )
-
-        final_chart = alt.layer(pie, text).properties(
-            title=T.get("pie_chart_title_dist", "Distribuição da Remuneração Total")
-        ).configure_view(
-            strokeWidth=0
-        ).configure_title(
-            fontSize=17, anchor='middle', color='#0a3d62'
-        )
-        st.altair_chart(final_chart, use_container_width=True)
-
-    # 3) NOTAS ABAIXO DO LAYOUT ANUAL
-    # Notas do Salário Anual e Bônus
+    # 2. NOTAS ABAIXO DA LINHA DE CARDS
     st.markdown(f"""
     <div style="margin-top: 10px;">
         <p style="margin-top: 5px; font-size: 14px; color: #555;">
@@ -810,6 +744,58 @@ if active_menu == T.get("menu_calc"):
         </p>
     </div>
     """, unsafe_allow_html=True)
+    
+    st.write("---") # Divisor visual
+
+    # 3. GRÁFICO DE PIZZA ABAIXO DOS CARDS
+    
+    chart_df = pd.DataFrame({
+        "Componente": [T.get('annual_salary','Salário'), T.get('annual_bonus','Bônus')], 
+        "Valor": [salario_anual, bonus_anual]
+    })
+    
+    salary_name = T.get('annual_salary','Salário').split(" (")[0]
+    bonus_name = T.get('annual_bonus','Bônus').split(" (")[0]
+    
+    chart_df['Componente'] = chart_df['Componente'].replace({
+        T.get('annual_salary','Annual Sal.'): salary_name,
+        T.get('annual_bonus','Annual Bonus'): bonus_name
+    })
+
+    base = alt.Chart(chart_df).transform_joinaggregate(
+        Total='sum(Valor)'
+    ).transform_calculate(
+        Percent='datum.Valor / datum.Total',
+        # Usando a template string nativa para formar o rótulo
+        Label=alt.expr.if_(alt.datum.Valor > alt.datum.Total * 0.05, 
+                            alt.datum.Componente + " (" + alt.expr.format(alt.datum.Percent, ".1%") + ")", 
+                            "") 
+    )
+    
+    pie = base.mark_arc(outerRadius=120, innerRadius=80, cornerRadius=2).encode(
+        theta=alt.Theta("Valor:Q", stack=True),
+        color=alt.Color("Componente:N", legend=None), # Remove a legenda
+        order=alt.Order("Percent:Q", sort="descending"),
+        tooltip=[alt.Tooltip("Componente:N"), alt.Tooltip("Valor:Q", format=",.2f")]
+    )
+    
+    text = base.mark_text(radius=140).encode(
+        text=alt.Text("Label:N"),
+        theta=alt.Theta("Valor:Q", stack=True),
+        order=alt.Order("Percent:Q", sort="descending"),
+        color=alt.value("black") 
+    )
+
+    final_chart = alt.layer(pie, text).properties(
+        title=T.get("pie_chart_title_dist", "Distribuição da Remuneração Total")
+    ).configure_view(
+        strokeWidth=0
+    ).configure_title(
+        fontSize=17, anchor='middle', color='#0a3d62'
+    )
+    st.altair_chart(final_chart, use_container_width=True)
+
+
     
 # =========================== REGRAS DE CONTRIBUIÇÕES (MANTIDO) ===================
 elif active_menu == T.get("menu_rules"):
