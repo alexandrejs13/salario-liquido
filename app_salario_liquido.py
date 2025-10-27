@@ -1,27 +1,28 @@
 # -------------------------------------------------------------
-# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.53 - CÓDIGO OTIMIZADO E LIMPO)
-# Otimização: Remoção de imports não utilizados e refatoração da lógica de renderização dos cards.
+# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.52 - FIX FINAL DE ESTRUTURA E ESPAÇAMENTO LIMPO)
+# Correção: Remoção rigorosa de caracteres U+00A0 e garantia de alinhamento e espaçamento nos cards anuais.
 # -------------------------------------------------------------
 
 import streamlit as st
 import pandas as pd
 import altair as alt
+import requests
+import base64
+from typing import Dict, Any, Tuple, List
+import math
 import json
 import os 
-
-# Importações menos críticas (requests/base64/math) removidas para leveza, se não usadas extensivamente nas funções.
-# Assume-se que 'typing' (Dict, Any, Tuple, List) é útil para clareza, mas também pode ser removido se necessário.
-from typing import Dict, Any, Tuple, List
-import math # Mantido, assumindo que é usado em cálculos como 'max', 'min' ou outras funções matemáticas.
 
 st.set_page_config(page_title="Simulador de Salário Líquido", layout="wide")
 
 # ======================== HELPERS INICIAIS (Formatação - NOVO TOPO ABSOLUTO) =========================
+# Variável global temporária para o código do país, será definida na sidebar
 _COUNTRY_CODE_FOR_FMT = "Brasil" 
-INPUT_FORMAT = "%.2f"
+INPUT_FORMAT = "%.2f" # Variável de formato para number_input (escopo global)
 
 def fmt_money(v: float, sym: str) -> str:
     """Formata um float como moeda no padrão brasileiro (1.000,00) a partir do padrão en_US."""
+    # Formato padrão americano com separador de milhar (, ) e decimal ( . ), depois inverte para o BR/EUR
     return f"{sym} {v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 def money_or_blank(v: float, sym: str) -> str:
@@ -29,10 +30,12 @@ def money_or_blank(v: float, sym: str) -> str:
     return "" if abs(v) < 1e-9 else fmt_money(v, sym)
 
 def fmt_percent(v: float) -> str:
+    """Formata um float como porcentagem."""
     if v is None: return ""
     return f"{v:.2f}%"
 
 def fmt_cap(cap_value: Any, sym: str = None) -> str:
+    """Formata tetos, lidando com UF (Chile) e moedas."""
     global _COUNTRY_CODE_FOR_FMT 
     country_code = _COUNTRY_CODE_FOR_FMT
     if cap_value is None: return "—"
@@ -67,18 +70,18 @@ def load_json(filepath, default_value={}):
         return default_value
     try:
         with open(filepath, 'r', encoding='utf-8') as f:
-            # FIX: Tenta remover caracteres não imprimíveis que causam SyntaxError U+00A0
+            # Tenta limpar o conteúdo de caracteres não imprimíveis
             content = f.read().replace('\u00A0', ' ')
             return json.loads(content)
     except Exception as e:
         return default_value
 
-# --- Fallbacks Mínimos (COM CORREÇÃO DE SYNTAX/NAME ERROR) ---
+# --- Fallbacks Mínimos (Mantidos com correção U+00A0) ---
 I18N_FALLBACK = { "Português": { "sidebar_title": "Simulador de Remuneração<br>(Região das Americas)", "app_title": "Simulador de Salário Líquido e Custo do Empregador", "menu_calc": "Simulador de Remuneração", "menu_rules": "Regras de Contribuições", "menu_rules_sti": "Regras de Cálculo do STI", "menu_cost": "Custo do Empregador", "title_calc": "Simulador de Remuneração", "title_rules": "Regras de Contribuições", "title_rules_sti": "Regras de Cálculo do STI", "title_cost": "Custo do Empregador", "country": "País", "salary": "Salário Bruto", "state": "Estado (EUA)", "state_rate": "State Tax (%)", "dependents": "Dependentes (IR)", "bonus": "Bônus Anual", "other_deductions": "Outras Deduções Mensais", "earnings": "Proventos", "deductions": "Descontos", "net": "Salário Líquido", "fgts_deposit": "Depósito FGTS", "tot_earnings": "Total de Proventos", "tot_deductions": "Total de Descontos", "valid_from": "Vigência", "rules_emp": "Contribuições do Empregado", "rules_er": "Contribuições do Empregador", "rules_table_desc": "Descrição", "rules_table_rate": "Alíquota (%)", "rules_table_base": "Base de Cálculo", "rules_table_obs": "Observações / Teto", "official_source": "Fonte Oficial", "employer_cost_total": "Custo Total do Empregador", "annual_comp_title": "Composição da Remuneração Total Anual Bruta", "calc_params_title": "Parâmetros de Cálculo da Remuneração", "monthly_comp_title": "Remuneração Mensal Bruta e Líquida", 
 "annual_salary": "Salário Anual", 
 "annual_bonus": "Bônus Anual", 
 "annual_total": "Remuneração Total Anual", 
-"months_factor": "Meses considerados", "pie_title": "Distribuição Anual: Salário vs Bônus", "pie_chart_title_dist": "Distribuição da Remuneração Total", "reload": "Recarregar tabelas", "source_remote": "Tabelas remotas", "source_local": "Fallback local", "choose_country": "Selecione o país", "menu_title": "Menu", "language_title": "🌐 Idioma / Language / Idioma", "area": "Área (STI)", "level": "Career Level (STI)", "rules_expanded": "Detalhes das Contribuições Obrigatórias", "salary_tooltip": "Seu salário mensal antes de impostos e deduções.", "dependents_tooltip": "Número de dependentes para dedução no Imposto de Renda (aplicável apenas no Brasil).", "bonus_tooltip": "Valor total do bônus esperado no ano (pago de uma vez ou parcelado).", "other_deductions_tooltip": "Soma de outras deduções mensais recorrentes (ex: plano de saúde, vale-refeição, contribuição sindical).", "sti_area_tooltip": "Selecione sua área de atuação (Vendas ou Não Vendas) para verificar a faixa de bônus (STI).", "sti_level_tooltip": "Selecione seu nível de carreira para verificar a faixa de bônus (STI). 'Others' inclui níveis não listados.", "sti_area_non_sales": "Não Vendas", "sti_area_sales": "Vendas", "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Membros do GEB", "sti_level_executive_manager": "Gerente Executivo", "sti_level_senior_group_manager": "Gerente de Grupo Sênior", "sti_level_group_manager": "Gerente de Grupo", "sti_level_lead_expert_program_manager": "Especialista Líder / Gerente de Programa", "sti_level_senior_manager": "Gerente Sênior", "sti_level_senior_expert_senior_project_manager": "Especialista Sênior / Gerente de Projeto Sênior", "sti_level_manager_selected_expert_project_manager": "Gerente / Especialista Selecionado / Gerente de Projeto", "sti_level_others": "Outros", "sti_level_executive_manager_senior_group_manager": "Gerente Executivo / Gerente de Grupo Sênior", "sti_level_group_manager_lead_sales_manager": "Gerente de Grupo / Gerente de Ventas Líder", "sti_level_senior_manager_senior_sales_manager": "Gerente Sênior / Gerente de Ventas Sénior", "sti_level_manager_selected_sales_manager": "Gerente / Gerente de Ventas Seleccionado", "sti_in_range": "Dentro do range", "sti_out_range": "Fora do range", "cost_header_charge": "Encargo", "cost_header_percent": "Percentual (%)", "cost_header_base": "Base", "cost_header_obs": "Observação", "cost_header_bonus": "Incide Bônus", "cost_header_vacation": "Incide Férias", "cost_header_13th": "Incide 13º", "sti_table_header_level": "Nível de Carreira", "sti_table_header_pct": "STI %" }, "English": { "sidebar_title": "Compensation Simulator<br>(Americas Region)", "other_deductions": "Other Monthly Deductions", "salary_tooltip": "Your monthly salary before taxes and deductions.", "dependents_tooltip": "Number of dependents for Income Tax deduction (applicable only in Brazil).", "bonus_tooltip": "Total expected bonus amount for the year (paid lump sum or installments).", "other_deductions_tooltip": "Sum of other recurring monthly deductions (e.g., health plan, meal voucher, union dues).", "sti_area_tooltip": "Select your area (Sales or Non Sales) to check the bonus (STI) range.", "sti_level_tooltip": "Select your career level to check the bonus (STI) range. 'Others' includes unlisted levels.", "app_title": "Net Salary & Employer Cost Simulator", "menu_calc": "Compensation Simulator", "menu_rules": "Contribution Rules", "menu_rules_sti": "STI Calculation Rules", "menu_cost": "Employer Cost", "title_calc": "Compensation Simulator", "title_rules": "Contribution Rules", "title_rules_sti": "STI Calculation Rules", "title_cost": "Employer Cost", "country": "Country", "salary": "Gross Salary", "state": "State (USA)", "state_rate": "State Tax (%)", "dependents": "Dependentes (Tax)", "bonus": "Annual Bonus", "earnings": "Earnings", "deductions": "Deductions", "net": "Net Salary", "fgts_deposit": "FGTS Deposit", "tot_earnings": "Total Earnings", "tot_deductions": "Total Deductions", "valid_from": "Effective Date", "rules_emp": "Employee Contributions", "rules_er": "Employer Contributions", "rules_table_desc": "Description", "rules_table_rate": "Rate (%)", "rules_table_base": "Calculation Base", "rules_table_obs": "Notes / Cap", "official_source": "Official Source", "employer_cost_total": "Total Employer Cost", "annual_comp_title": "Total Annual Gross Compensation", 
+"months_factor": "Meses considerados", "pie_title": "Distribuição Anual: Salário vs Bônus", "pie_chart_title_dist": "Distribuição da Remuneração Total", "reload": "Recarregar tabelas", "source_remote": "Tabelas remotas", "source_local": "Fallback local", "choose_country": "Selecione o país", "menu_title": "Menu", "language_title": "🌐 Idioma / Language / Idioma", "area": "Área (STI)", "level": "Career Level (STI)", "rules_expanded": "Detalhes das Contribuições Obrigatórias", "salary_tooltip": "Seu salário mensal antes de impostos e deduções.", "dependents_tooltip": "Número de dependentes para dedução no Imposto de Renda (aplicável apenas no Brasil).", "bonus_tooltip": "Valor total do bônus esperado no ano (pago de uma vez ou parcelado).", "other_deductions_tooltip": "Soma de outras deduções mensais recorrentes (ex: plano de saúde, vale-refeição, contribuição sindical).", "sti_area_tooltip": "Selecione sua área de atuação (Vendas ou Não Vendas) para verificar a faixa de bônus (STI).", "sti_level_tooltip": "Selecione seu nível de carreira para verificar a faixa de bônus (STI). 'Others' inclui níveis não listados.", "sti_area_non_sales": "Não Vendas", "sti_area_sales": "Vendas", "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Membros do GEB", "sti_level_executive_manager": "Gerente Executivo", "sti_level_senior_group_manager": "Gerente de Grupo Sênior", "sti_level_group_manager": "Gerente de Grupo", "sti_level_lead_expert_program_manager": "Especialista Líder / Gerente de Programa", "sti_level_senior_manager": "Gerente Sênior", "sti_level_senior_expert_senior_project_manager": "Especialista Sênior / Gerente de Projeto Sênior", "sti_level_manager_selected_expert_project_manager": "Gerente / Especialista Selecionado / Gerente de Projeto", "sti_level_others": "Outros", "sti_level_executive_manager_senior_group_manager": "Gerente Executivo / Gerente de Grupo Sênior", "sti_level_group_manager_lead_sales_manager": "Gerente de Grupo / Gerente de Ventas Líder", "sti_level_senior_manager_senior_sales_manager": "Gerente Sênior / Gerente de Ventas Sênior", "sti_level_manager_selected_sales_manager": "Gerente / Gerente de Ventas Seleccionado", "sti_in_range": "Dentro do range", "sti_out_range": "Fora do range", "cost_header_charge": "Encargo", "cost_header_percent": "Percentual (%)", "cost_header_base": "Base", "cost_header_obs": "Observação", "cost_header_bonus": "Incide Bônus", "cost_header_vacation": "Incide Férias", "cost_header_13th": "Incide 13º", "sti_table_header_level": "Nível de Carreira", "sti_table_header_pct": "STI %" }, "English": { "sidebar_title": "Compensation Simulator<br>(Americas Region)", "other_deductions": "Other Monthly Deductions", "salary_tooltip": "Your monthly salary before taxes and deductions.", "dependents_tooltip": "Number of dependents for Income Tax deduction (applicable only in Brazil).", "bonus_tooltip": "Total expected bonus amount for the year (paid lump sum or installments).", "other_deductions_tooltip": "Sum of other recurring monthly deductions (e.g., health plan, meal voucher, union dues).", "sti_area_tooltip": "Select your area (Sales or Non Sales) to check the bonus (STI) range.", "sti_level_tooltip": "Select your career level to check the bonus (STI) range. 'Others' includes unlisted levels.", "app_title": "Net Salary & Employer Cost Simulator", "menu_calc": "Compensation Simulator", "menu_rules": "Contribution Rules", "menu_rules_sti": "STI Calculation Rules", "menu_cost": "Employer Cost", "title_calc": "Compensation Simulator", "title_rules": "Contribution Rules", "title_rules_sti": "STI Calculation Rules", "title_cost": "Employer Cost", "country": "Country", "salary": "Gross Salary", "state": "State (USA)", "state_rate": "State Tax (%)", "dependents": "Dependentes (Tax)", "bonus": "Annual Bonus", "earnings": "Earnings", "deductions": "Deductions", "net": "Net Salary", "fgts_deposit": "FGTS Deposit", "tot_earnings": "Total Earnings", "tot_deductions": "Total Deductions", "valid_from": "Effective Date", "rules_emp": "Employee Contributions", "rules_er": "Employer Contributions", "rules_table_desc": "Description", "rules_table_rate": "Rate (%)", "rules_table_base": "Calculation Base", "rules_table_obs": "Notes / Cap", "official_source": "Official Source", "employer_cost_total": "Total Employer Cost", "annual_comp_title": "Total Annual Gross Compensation", 
 "annual_salary": "Annual Salary", 
 "annual_bonus": "Annual Bonus", 
 "annual_total": "Total Annual Compensation", 
@@ -97,7 +100,7 @@ BR_IRRF_FALLBACK = { "vigencia": "2025-01-01", "deducao_dependente": 189.59, "fa
 I18N = load_json(I18N_FILE, I18N_FALLBACK)
 COUNTRIES_DATA = load_json(COUNTRIES_FILE, COUNTRIES_FALLBACK)
 STI_CONFIG_DATA = load_json(STI_CONFIG_FILE, STI_CONFIG_FALLBACK)
-US_STATE_RATES = load_json(US_STATES_FILE, {}) 
+US_STATES_FILE = os.path.join(CONFIG_DIR, "us_state_tax_rates.json") 
 BR_INSS_TBL = load_json(BR_INSS_FILE, BR_INSS_FALLBACK)
 BR_IRRF_TBL = load_json(BR_IRRF_FILE, BR_IRRF_FALLBACK)
 COUNTRY_TABLES_DATA = load_json(COUNTRY_TABLES_FILE, {})
@@ -317,7 +320,7 @@ def get_sti_level_map(area: str, T: Dict[str, str]) -> Tuple[List[str], Dict[str
     display_list = [T.get(STI_I18N_KEYS.get(key, key), key) for key in keys]
     return display_list, dict(zip(display_list, keys))
 
-# ============================== CSS (FIX: Centralização e Largura Máxima) ================================
+# ============================== CSS (FIX FINAL DE CENTRALIZAÇÃO E BARRINHAS) ================================
 st.markdown("""
 <style>
 /* 1. LIMITA LARGURA MÁXIMA E CENTRALIZA O CONTEÚDO PRINCIPAL (REDUZIDO PARA MAIOR ELEGÂNCIA) */
@@ -337,17 +340,18 @@ div.block-container {
 }
 
 /* 3. PADRONIZAÇÃO DE CARDS: Mantendo o estilo do metric-card para o annual-card-base */
+/* O CSS abaixo é para garantir que a coluna de cards anuais tenha o mesmo visual dos cards mensais */
 .annual-card-base {
     min-height: 95px !important; /* Mantém o tamanho do metric-card */
     padding: 8px 12px !important; /* Mantém o padding do metric-card */
     display: flex;
     flex-direction: column; 
-    justify-content: center; /* FIX 5: Alinha conteúdo verticalmente ao centro */
+    justify-content: center; /* Alinha conteúdo verticalmente ao centro */
     box-sizing: border-box;
     background: #fff;
     border-radius: 10px; 
     box-shadow: 0 1px 4px rgba(0,0,0,.06); 
-    margin-bottom: 10px; /* Espaçamento entre os cards */
+    margin-bottom: 10px; /* Espaçamento vertical uniforme */
 }
 .annual-card-base h3 {
     font-size: 17px !important; 
@@ -366,7 +370,6 @@ div.block-container {
     border:1px solid #d0d7de; 
     border-radius: 8px; 
     overflow: hidden;
-    /* FIX 3: Adicionado box-shadow para igualar o card (embora o st.table já tenha uma borda) */
     box-shadow: 0 1px 4px rgba(0,0,0,.06);
 }
 .table-wrap table thead tr {
@@ -440,7 +443,6 @@ with st.sidebar:
         if 'country_select' in st.session_state:
              del st.session_state['country_select']
         st.rerun()
-
 
     # 3. SELETOR DE PAÍS
     st.markdown(f"<h3 style='margin-top: 1.5rem; margin-bottom: 0.5rem;'>{T.get('country', 'País')}</h3>", unsafe_allow_html=True)
@@ -683,7 +685,7 @@ if active_menu == T.get("menu_calc"):
     if country == "Brasil": 
         st.markdown(f"""
         <div style="margin-top: 10px; padding: 5px 0;">
-            <p class="fgts-note">
+            <p style="font-size: 17px; font-weight: 600; color: #0a3d62; margin: 0;">
                 💼 {T.get('fgts_deposit','Depósito FGTS')}: {fmt_money(calc['fgts'], symbol)}
             </p>
         </div>
@@ -691,7 +693,7 @@ if active_menu == T.get("menu_calc"):
 
 
     st.write("---")
-    # NOVO LAYOUT ANUAL: Cards (esquerda) e Gráfico (direita)
+    # NOVO LAYOUT ANUAL: Cards na horizontal e Gráfico abaixo
     st.subheader(T.get("annual_comp_title", "Annual Comp"))
     
     months = COUNTRY_TABLES.get("REMUN_MONTHS", {}).get(country, 12.0)
@@ -705,38 +707,35 @@ if active_menu == T.get("menu_calc"):
     cor = "#1976d2" if dentro else "#d32f2f"; status_txt = T.get("sti_in_range", "In") if dentro else T.get("sti_out_range", "Out"); bg_cor = "#e6f7ff" if dentro else "#ffe6e6"
     sti_note_text = f"STI ratio do bônus: <strong>{pct_txt}</strong> — <strong>{status_txt}</strong> ({faixa_txt}) — <em>{area_display} • {level_display}</em>"
 
-    # Nova estrutura: Cards na horizontal (3 colunas iguais) e gráfico em uma linha abaixo
+    # Nova estrutura de 3 colunas para os cards anuais (todos na horizontal)
     col_salario, col_bonus, col_total = st.columns(3) 
 
-    with col_salario:
-        # Card Salário (1) - Título e Valor no mesmo Card
-        st.markdown(f"""
-        <div class='metric-card' style='border-left-color: #28a745; background: #e6ffe6; text-align: left;'>
-            <h4>📅 Salário (1)</h4>
-            <h3>{fmt_money(salario_anual, symbol)}</h3>
-        </div>
-        """, unsafe_allow_html=True)
+    # Card Salário (1)
+    col_salario.markdown(f"""
+    <div class='metric-card' style='border-left-color: #28a745; background: #e6ffe6; text-align: left;'>
+        <h4>📅 Salário (1)</h4>
+        <h3>{fmt_money(salario_anual, symbol)}</h3>
+    </div>
+    """, unsafe_allow_html=True)
 
-    with col_bonus:
-        # Card Bônus (2)
-        st.markdown(f"""
-        <div class='metric-card' style='border-left-color: {cor}; background: {bg_cor}; text-align: left;'>
-            <h4>🎯 Bônus (2)</h4>
-            <h3>{fmt_money(bonus_anual, symbol)}</h3>
-        </div>
-        """, unsafe_allow_html=True)
+    # Card Bônus (2)
+    col_bonus.markdown(f"""
+    <div class='metric-card' style='border-left-color: {cor}; background: {bg_cor}; text-align: left;'>
+        <h4>🎯 Bônus (2)</h4>
+        <h3>{fmt_money(bonus_anual, symbol)}</h3>
+    </div>
+    """, unsafe_allow_html=True)
     
-    with col_total:
-        # Card Remuneração Total
-        st.markdown(f"""
-        <div class='metric-card' style='border-left-color: #0a3d62; background: #e6f0f8; text-align: left;'>
-            <h4>💼 Remuneração Total</h4>
-            <h3>{fmt_money(total_anual, symbol)}</h3>
-        </div>
-        """, unsafe_allow_html=True)
+    # Card Remuneração Total
+    col_total.markdown(f"""
+    <div class='metric-card' style='border-left-color: #0a3d62; background: #e6f0f8; text-align: left;'>
+        <h4>💼 Remuneração Total</h4>
+        <h3>{fmt_money(total_anual, symbol)}</h3>
+    </div>
+    """, unsafe_allow_html=True)
 
-    # Gráfico de Pizza (Linha separada)
-    # Usamos st.columns(1.2) para garantir que o gráfico se ajuste melhor
+    # Gráfico de Pizza (Linha separada abaixo dos cards)
+    st.write("") # Adiciona um pequeno espaçamento visual
     c_chart_container = st.columns([1])[0]
     with c_chart_container:
         chart_df = pd.DataFrame({
@@ -836,11 +835,11 @@ elif active_menu == T.get("menu_rules"):
         if idioma == "Português": st.markdown(f""" **{T["rules_emp"]} - Explicação:**\n- **INSS:** Calculado de forma progressiva sobre faixas salariais (7.5% a 14%). A contribuição total é a soma do valor calculado em cada faixa, limitada ao teto de contribuição.\n- **IRRF:** Calculado sobre o Salário Bruto após deduzir o INSS e um valor fixo por dependente. Aplica-se a alíquota da faixa (0% a 27.5%) e subtrai-se a parcela a deduzir.\n\n**{T["rules_er"]} - Explicação:**\n- **INSS Patronal, RAT, Sistema S:** Percentuais aplicados sobre o total da folha.\n- **FGTS:** Depósito mensal de 8% sobre o Salário Bruto.\n\n**{T['cost_header_13th']} e {T['cost_header_vacation']}:**\n- Custo anual inclui 13º (1 salário) e Férias (1 salário + 1/3). Fator `13.33`. Encargos incidem sobre essa base ampliada.""", unsafe_allow_html=True)
         else: st.markdown(f""" **{T["rules_emp"]} - Explanation:**\n- **INSS:** Progressive rate (7.5% to 14%) on brackets, capped.\n- **IRRF:** Progressive rate (0% to 27.5%) on (Gross - INSS - Dep. Allowance) minus deduction.\n\n**{T["rules_er"]} - Explanation:**\n- **INSS Patronal, RAT, Sistema S:** Percentages on total payroll.\n- **FGTS:** 8% deposit.\n\n**{T['cost_header_13th']} & {T['cost_header_vacation']}:**\n- Annual cost factor `13.33` includes 13th Salary and Vacation + 1/3 bonus. Charges apply to this base.""", unsafe_allow_html=True)
     elif country == "Estados Unidos":
-        if idioma == "Português": st.markdown(f""" **{T["rules_emp"]} - Explicação:**\n- **FICA (Social Security):** 6.2% sobre Sal. Bruto, até teto anual ({fmt_money(ANNUAL_CAPS['US_FICA'], 'US$')}).\n- **Medicare:** 1.45% sobre Sal. Bruto total.\n- **State Tax:** Varia por estado.\n\n**{T["rules_er"]} - Explicação:**\n- **FICA & Medicare Match:** Empregador paga o mesmo que o empregado.\n- **SUTA/FUTA:** Desemprego sobre base baixa (~{fmt_money(ANNUAL_CAPS['US_SUTA_BASE'], 'US$')}).\n\n**{T["rules_er"]} - Explanation:**\n- **FICA & Medicare Match:** Employer pays the same.\n- **SUTA/FUTA:** Unemployment on low base (~{fmt_money(ANNUAL_CAPS['US_SUTA_BASE'], 'US$')}).\n\n**{T['cost_header_13th']} & {T['cost_header_vacation']}:**\n- Not mandatory. Factor `12.00`.""", unsafe_allow_html=True)
+        if idioma == "Português": st.markdown(f""" **{T["rules_emp"]} - Explicação:**\n- **FICA (Social Security):** 6.2% sobre Sal. Bruto, até teto anual ({fmt_money(ANNUAL_CAPS['US_FICA'], 'US$')}).\n- **Medicare:** 1.45% sobre Sal. Bruto total.\n- **State Tax:** Varia por estado.\n\n**{T["rules_er"]} - Explicação:**\n- **FICA & Medicare Match:** Empregador paga o mesmo que o empregado.\n- **SUTA/FUTA:** Desemprego sobre base baixa (~{fmt_money(ANNUAL_CAPS['US_SUTA_BASE'], 'US$')}).\n\n**{T['cost_header_13th']} & {T['cost_header_vacation']}:**\n- Not mandatory. Factor `12.00`.""", unsafe_allow_html=True)
         else: st.markdown(f""" **{T["rules_emp"]} - Explanation:**\n- **FICA (Social Security):** 6.2% on Gross Salary, up to cap ({fmt_money(ANNUAL_CAPS['US_FICA'], 'US$')}).\n- **Medicare:** 1.45% on total Gross Salary.\n- **State Tax:** Varies.\n\n**{T["rules_er"]} - Explanation:**\n- **FICA & Medicare Match:** Employer pays the same.\n- **SUTA/FUTA:** Unemployment on low base (~{fmt_money(ANNUAL_CAPS['US_SUTA_BASE'], 'US$')}).\n\n**{T['cost_header_13th']} & {T['cost_header_vacation']}:**\n- Not mandatory. Factor `12.00`.""", unsafe_allow_html=True)
     elif country == "Canadá":
           if idioma == "Português": st.markdown(f""" **{T["rules_emp"]} - Explicação:**\n- **CPP:** 5.95% sobre Sal. Bruto (após isenção {fmt_money(ANNUAL_CAPS['CA_CPP_EXEMPT'], 'CAD$')}) até Teto 1 ({fmt_money(ANNUAL_CAPS['CA_CPP_YMPEx1'], 'CAD$')}).\n- **CPP2:** 4.0% sobre Sal. Bruto entre Teto 1 e Teto 2 ({fmt_money(ANNUAL_CAPS['CA_CPP_YMPEx2'], 'CAD$')}).\n- **EI:** 1.63% sobre Sal. Bruto até Teto ({fmt_money(ANNUAL_CAPS['CA_EI_MIE'], 'CAD$')}).\n- **Income Tax:** Progressivo Federal + Provincial (Simplificado no simulador).\n\n**{T["rules_er"]} - Explicação:**\n- **CPP/CPP2 Match:** Empregador paga o mesmo.\n- **EI Match:** Empregador paga 1.4x (2.28%).\n\n**{T['cost_header_13th']} e {T['cost_header_vacation']}:**\n- Não obrigatórios. Fator `12.00`.""", unsafe_allow_html=True)
-          else: st.markdown(f""" **{T["rules_emp"]} - Explanation:**\n- **CPP:** 5.95% on Gross (after exempt {fmt_money(ANNUAL_CAPS['CA_CPP_EXEMPT'], 'CAD$')}) up to Cap 1 ({fmt_money(ANNUAL_CAPS['CA_CPP_YMPEx1'], 'CAD$')}).\n- **CPP2:** 4.0% on Gross between Cap 1 and Cap 2 ({fmt_money(ANNUAL_CAPS['CA_CPP_YMPEx2'], 'CAD$')}).\n- **EI:** 1.63% on Gross up to Cap ({fmt_money(ANNUAL_CAPS['CA_EI_MIE'], 'CAD$')}).\n- **Income Tax:** Progressive Federal + Provincial (Simplified in simulator).\n\n**{T["rules_er"]} - Explanation:**\n- **CPP/CPP2 Match:** Employer pays the same.\n- **EI Match:** Employer pays 1.4x (2.28%).\n\n**{T['cost_header_13th']} & {T['cost_header_vacation']}:**\n- No 13th. Paid vacation mandatory. Factor `12.00`.""", unsafe_allow_html=True)
+          else: st.markdown(f""" **{T["rules_emp"]} - Explanation:**\n- **CPP:** 5.95% on Gross (after exempt {fmt_money(ANNUAL_CAPS['CA_CPP_EXEMPT'], 'CAD$')}) up to Cap 1 ({fmt_money(ANNUAL_CAPS['CA_CPP_YMPEx1'], 'CAD$')}).\n- **CPP2:** 4.0% on Gross between Cap 1 and Cap 2 ({fmt_money(ANNUAL_CAPS['CA_CPP_YMPEx2'], 'CAD$')}).\n- **EI:** 1.63% on Gross up to Cap ({fmt_money(ANNUAL_CAPS['CA_EI_MIE'], 'CAD$')}).\n- **Income Tax:** Progressive Federal + Provincial (Simplificado no simulador).\n\n**{T["rules_er"]} - Explanation:**\n- **CPP/CPP2 Match:** Employer pays the same.\n- **EI Match:** Employer pays 1.4x (2.28%).\n\n**{T['cost_header_13th']} & {T['cost_header_vacation']}:**\n- Not mandatory. Factor `12.00`.""", unsafe_allow_html=True)
     elif country == "México":
         if idioma == "Português": st.markdown(f""" **{T["rules_emp"]} - Explicação (Simplificada):**\n- **ISR:** Imposto de renda progressivo. Cálculo exato usa tabelas complexas. O simulador usa uma taxa fixa como aproximação.\n- **IMSS:** Seguridade social (doenças, invalidez, etc.). Taxas variam e aplicam-se sobre o Salário Base de Contribuição (SBC), com teto (aprox. 25 UMAs). O simulador usa taxa e teto simplificados.\n\n**{T["rules_er"]} - Explicação:**\n- **IMSS, INFONAVIT, SAR, ISN:** Contribuições patronais sobre SBC (com tetos) e folha.\n\n**{T['cost_header_13th']} e {T['cost_header_vacation']}:**\n- **Aguinaldo (13º):** Mín. 15 dias. Fator `12.50`.\n- **Prima Vacacional:** 25% sobre dias de férias.""", unsafe_allow_html=True)
         else: st.markdown(f""" **{T["rules_emp"]} - Explanation:**\n- **ISR:** Progressive income tax. Exact calculation uses complex tables. Simulator uses a flat rate approximation.\n- **IMSS:** Social security (illness, disability, etc.). Rates vary and apply to the Contribution Base Salary (SBC), capped (approx. 25 UMAs). Simulator uses simplified rate and cap.\n\n**{T["rules_er"]} - Explanation:**\n- **IMSS, INFONAVIT, SAR, ISN:** Contributions on SBC (capped) and payroll.\n\n**{T['cost_header_13th']} & {T['cost_header_vacation']}:**\n- No 13th. Paid vacation mandatory. Factor `12.00`.""", unsafe_allow_html=True)
