@@ -4,6 +4,7 @@
 # Modificação: Cards com estilo refinado (removida borda colorida e ajuste de cor).
 # Ajuste: Rótulos Bônus e Remuneração Total ajustados conforme solicitado.
 # NOVO AJUSTE: Tabela de Remuneração Mensal estilizada (HTML) e índice removido.
+# ÚLTIMO AJUSTE: Cards Mensais/Anuais centralizados e espaçamento entre Tabela e Cards corrigido.
 # -------------------------------------------------------------
 
 import streamlit as st
@@ -467,19 +468,22 @@ div.block-container {
     font-size: 14px;
 }
 
-/* 3. PADRONIZAÇÃO DE CARDS: Elegância e Simetria (Removendo Bordas Laterais) */
+/* 3. PADRONIZAÇÃO DE CARDS: Elegância, Simetria e Centralização */
 .metric-card, .annual-card-base {
     min-height: 95px !important; 
-    padding: 10px 15px !important; /* Mais padding para "respirar" */
+    padding: 10px 15px !important; 
     display: flex;
     flex-direction: column; 
+    /* AJUSTE 1: Centralização Vertical */
     justify-content: center; 
+    /* AJUSTE 2: Centralização Horizontal */
+    text-align: center; 
     box-sizing: border-box;
     background: #fff;
     border-radius: 10px; 
-    box-shadow: 0 1px 4px rgba(0,0,0,.08); /* Sombra um pouco mais forte */
+    box-shadow: 0 1px 4px rgba(0,0,0,.08); 
     margin-bottom: 10px; 
-    border-left: none !important; /* REMOVIDA A BORDA DE COR */
+    border-left: none !important; 
     transition: all 0.3s ease;
 }
 .metric-card:hover{ 
@@ -491,13 +495,13 @@ div.block-container {
 .metric-card h4, .annual-card-base h4 {
     margin:0; 
     font-size:15px; 
-    font-weight: 500; /* Ligeiramente mais leve */
-    color:#555; /* Cor mais neutra */
+    font-weight: 500; 
+    color:#555; 
 }
 .metric-card h3, .annual-card-base h3 {
     margin: 2px 0 0; 
     color:#0a3d62; 
-    font-size:22px; /* Maior destaque para o valor */
+    font-size:22px; 
     font-weight: 700; 
 }
 
@@ -577,6 +581,10 @@ section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] label span { co
 .vega-embed{ padding-bottom: 16px; }
 
 .annual-card-label .sti-note { display: block; font-size: 14px; font-weight: 400; line-height: 1.3; margin-top: 2px; }
+/* Container customizado para espaçamento */
+.card-row-spacing {
+    margin-top: 20px; /* Adiciona espaçamento entre a tabela e os cards de resumo */
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -845,11 +853,16 @@ if active_menu == T.get("menu_calc"):
     
     st.markdown(f"<div class='table-wrap'>{table_html}</div>", unsafe_allow_html=True)
 
+    # NOVO CONTAINER COM MARGEM SUPERIOR PARA ESPAÇAMENTO
+    st.markdown("<div class='card-row-spacing'>", unsafe_allow_html=True)
+    
     cc1, cc2, cc3 = st.columns(3)
     # Cards Mensais (APLICADAS AS CORES MAIS SUTIS)
     cc1.markdown(f"<div class='metric-card card-earn'><h4>💰 {T.get('tot_earnings','Total Earnings')}</h4><h3>{fmt_money(calc['total_earn'], symbol)}</h3></div>", unsafe_allow_html=True)
     cc2.markdown(f"<div class='metric-card card-ded'><h4>📉 {T.get('tot_deductions','Total Deductions')}</h4><h3>{fmt_money(calc['total_ded'], symbol)}</h3></div>", unsafe_allow_html=True)
     cc3.markdown(f"<div class='metric-card card-net'><h4>💵 {T.get('net','Net Salary')}</h4><h3>{fmt_money(calc['net'], symbol)}</h3></div>", unsafe_allow_html=True)
+
+    st.markdown("</div>", unsafe_allow_html=True) # Fechando o container de espaçamento
 
     # 2) REPOSICIONAMENTO DO FGTS ABAIXO DOS CARDS MENSAIS
     if country == "Brasil": 
