@@ -201,7 +201,7 @@ I18N_FALLBACK = {
         "menu_compare": "Comparador de Remuneración", 
         "title_calc": "Simulador de Remuneração", 
         "title_rules": "Regras de Contribuições", 
-        "title_rules_sti": "Reglas de Cálculo del STI", 
+        "title_rules_sti": "Regras de Cálculo del STI", 
         "title_cost": "Costo del Empleador", 
         "title_compare": "Comparador de Remuneração (Candidato vs. Referencia)", 
         "country": "País", 
@@ -1229,8 +1229,8 @@ elif active_menu == T.get("menu_calc"):
     min_pct, max_pct = get_sti_range(input_data["area_key"], input_data["level_key"])
     bonus_pct = (bonus_anual / salario_anual) if salario_anual > 0 else 0.0
     pct_txt = f"{bonus_pct*100:.1f}%"
-    faixa_txt = f"≤ {(max_pct or 0)*100:.0f}%" if level == "Others" else f"{min_pct*100:.0f}% – {max_pct*100:.0f}%"
-    dentro = (bonus_pct <= (max_pct or 0)) if level == "Others" else (min_pct <= bonus_pct <= max_pct)
+    faixa_txt = f"≤ {(max_pct or 0)*100:.0f}%" if input_data["level_key"] == "Others" else f"{min_pct*100:.0f}% – {max_pct*100:.0f}%"
+    dentro = (bonus_pct <= (max_pct or 0)) if input_data["level_key"] == "Others" else (min_pct <= bonus_pct <= max_pct)
     cor = "#1976d2" if dentro else "#d32f2f"; status_txt = T.get("sti_in_range", "In") if dentro else T.get("sti_out_range", "Out"); 
     bg_cor = "card-bonus-in" if dentro else "card-bonus-out" # Usando as novas classes
     sti_note_text = f"<span style='color:{cor};'><strong>{pct_txt}</strong> — <strong>{status_txt}</strong></span> ({faixa_txt}) — <em>{area_display} • {level_display}</em>"
