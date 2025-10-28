@@ -1,9 +1,8 @@
 # -------------------------------------------------------------
 # 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.45 - FIX FINAL ESTILO EMOJI/ALINHAMENTO)
-# Correção: Revertida a estrutura de card para f-strings simples dentro de colunas, corrigindo alinhamento e duplicação.
-# Modificação: Cards Anuais ajustados para 3 colunas horizontais com gráfico abaixo.
-# Ajuste: Emojis e formatação aplicados às notas da Remuneração Anual.
-# Ajuste 2: Cards Anuais com altura uniforme e rótulos alterados (Bônus, Remuneração Total).
+# Correção: Layout reestruturado para simetria de colunas nos inputs.
+# Modificação: Cards com estilo refinado (removida borda colorida e ajuste de cor).
+# Ajuste: Rótulos Bônus e Remuneração Total ajustados conforme solicitado.
 # -------------------------------------------------------------
 
 import streamlit as st
@@ -95,7 +94,7 @@ I18N_FALLBACK = {
         "state": "Estado (EUA)", 
         "state_rate": "State Tax (%)", 
         "dependents": "Dependentes (IR)", 
-        "bonus": "Bônus", # **CORREÇÃO AQUI (De Bônus Anual para Bônus)**
+        "bonus": "Bônus", # CORREÇÃO
         "other_deductions": "Outras Deduções Mensais", 
         "earnings": "Proventos", 
         "deductions": "Descontos", 
@@ -112,14 +111,14 @@ I18N_FALLBACK = {
         "rules_table_obs": "Observações / Teto", 
         "official_source": "Fonte Oficial", 
         "employer_cost_total": "Custo Total do Empregador", 
-        "annual_comp_title": "Composição da Remuneração Total Bruta", # **CORREÇÃO AQUI (De Anual para 'Vazio')**
+        "annual_comp_title": "Composição da Remuneração Total Bruta", # CORREÇÃO
         "calc_params_title": "Parâmetros de Cálculo da Remuneração", 
         "monthly_comp_title": "Remuneração Mensal Bruta e Líquida", 
         "annual_salary": "Salário Anual", 
-        "annual_bonus": "Bônus", # Já estava corrigido
-        "annual_total": "Remuneração Total", # Já estava corrigido
+        "annual_bonus": "Bônus", 
+        "annual_total": "Remuneração Total", 
         "months_factor": "Meses considerados", "pie_title": "Distribuição Anual: Salário vs Bônus", "pie_chart_title_dist": "Distribuição da Remuneração Total", "reload": "Recarregar tabelas", "source_remote": "Tabelas remotas", "source_local": "Fallback local", "choose_country": "Selecione o país", "menu_title": "Menu", "language_title": "🌐 Idioma / Language / Idioma", "area": "Área (STI)", "level": "Career Level (STI)", "rules_expanded": "Detalhes das Contribuições Obrigatórias", "salary_tooltip": "Seu salário mensal antes de impostos e deduções.", "dependents_tooltip": "Número de dependentes para dedução no Imposto de Renda (aplicável apenas no Brasil).", 
-        "bonus_tooltip": "Valor total do bônus esperado no ano (pago de uma vez ou parcelado).", # O texto do tooltip permanece o mesmo
+        "bonus_tooltip": "Valor total do bônus esperado no ano (pago de uma vez ou parcelado).", 
         "other_deductions_tooltip": "Soma de outras deduções mensais recorrentes (ex: plano de saúde, vale-refeição, contribuição sindical).", "sti_area_tooltip": "Selecione sua área de atuação (Vendas ou Não Vendas) para verificar a faixa de bônus (STI).", "sti_level_tooltip": "Selecione seu nível de carreira para verificar a faixa de bônus (STI). 'Others' inclui níveis não listados.", "sti_area_non_sales": "Não Vendas", "sti_area_sales": "Vendas", "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Membros do GEB", "sti_level_executive_manager": "Gerente Executivo", "sti_level_senior_group_manager": "Gerente de Grupo Sênior", "sti_level_group_manager": "Gerente de Grupo", "sti_level_lead_expert_program_manager": "Especialista Líder / Gerente de Programa", "sti_level_senior_manager": "Gerente Sênior", "sti_level_senior_expert_senior_project_manager": "Especialista Sênior / Gerente de Projeto Sênior", "sti_level_manager_selected_expert_project_manager": "Gerente / Especialista Selecionado / Gerente de Projeto", "sti_level_others": "Outros", "sti_level_executive_manager_senior_group_manager": "Gerente Executivo / Gerente de Grupo Sênior", "sti_level_group_manager_lead_sales_manager": "Gerente de Grupo / Gerente de Vendas Líder", "sti_level_senior_manager_senior_sales_manager": "Gerente Sênior / Gerente de Vendas Sênior", "sti_level_manager_selected_sales_manager": "Gerente / Gerente de Vendas Selecionado", "sti_in_range": "Dentro do range", "sti_out_range": "Fora do range", "cost_header_charge": "Encargo", "cost_header_percent": "Percentual (%)", "cost_header_base": "Base", "cost_header_obs": "Observação", "cost_header_bonus": "Incide Bônus", "cost_header_vacation": "Incide Férias", "cost_header_13th": "Incide 13º", "sti_table_header_level": "Nível de Carreira", "sti_table_header_pct": "STI %" 
     }, 
     "English": { 
@@ -145,7 +144,7 @@ I18N_FALLBACK = {
         "state": "State (USA)", 
         "state_rate": "State Tax (%)", 
         "dependents": "Dependentes (Tax)", 
-        "bonus": "Bonus", # **CORREÇÃO AQUI (De Annual Bonus para Bonus)**
+        "bonus": "Bonus", # CORREÇÃO
         "earnings": "Earnings", 
         "deductions": "Deductions", 
         "net": "Net Salary", 
@@ -161,11 +160,11 @@ I18N_FALLBACK = {
         "rules_table_obs": "Notes / Cap", 
         "official_source": "Official Source", 
         "employer_cost_total": "Total Employer Cost", 
-        "annual_comp_title": "Total Gross Compensation", # **CORREÇÃO AQUI (De Annual para 'Vazio')**
+        "annual_comp_title": "Total Gross Compensation", # CORREÇÃO
         "annual_salary": "Annual Salary", 
-        "annual_bonus": "Bonus", # Já estava corrigido
-        "annual_total": "Total Compensation", # Já estava corrigido
-        "months_factor": "Months considered", "pie_title": "Annual Split: Salary vs Bonus", "pie_chart_title_dist": "Total Compensation Distribution", "reload": "Reload tables", "source_remote": "Remote tables", "source_local": "Local fallback", "choose_country": "Select a country", "menu_title": "Menu", "language_title": "🌐 Idioma / Language / Idioma", "area": "Area (STI)", "level": "Career Level (STI)", "rules_expanded": "Details of Mandatory Contributions", "sti_area_non_sales": "Non Sales", "sti_area_sales": "Sales", "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Members of the GEB", "sti_level_executive_manager": "Executive Manager", "sti_level_senior_group_manager": "Senior Group Manager", "sti_level_group_manager": "Group Manager", "sti_level_lead_expert_program_manager": "Lead Expert / Program Manager", "sti_level_senior_manager": "Senior Manager", "sti_level_senior_expert_senior_project_manager": "Senior Expert / Senior Project Manager", "sti_level_manager_selected_expert_project_manager": "Manager / Selected Expert / Project Manager", "sti_level_others": "Others", "sti_level_executive_manager_senior_group_manager": "Executive Manager / Senior Group Manager", "sti_level_group_manager_lead_sales_manager": "Group Manager / Lead Sales Manager", "sti_level_senior_manager_senior_sales_manager": "Senior Manager / Senior Sales Manager", "sti_level_manager_selected_sales_manager": "Manager / Selected Sales Manager", "sti_in_range": "Within range", "sti_out_range": "Outside range", "cost_header_charge": "Charge", "cost_header_percent": "Percent (%)", "cost_header_base": "Base", "cost_header_obs": "Observation", "cost_header_bonus": "Applies to Bonus", "cost_header_vacation": "Applies to Vacation", "cost_header_13th": "Applies to 13th", "sti_table_header_level": "Career Level", "sti_table_header_pct": "STI %" 
+        "annual_bonus": "Bonus", 
+        "annual_total": "Total Compensation", 
+        "months_factor": "Months considered", "pie_title": "Annual Split: Salary vs Bonus", "pie_chart_title_dist": "Total Compensation Distribution", "reload": "Reload tables", "source_remote": "Remote tables", "source_local": "Local fallback", "choose_country": "Select a country", "menu_title": "Menu", "language_title": "🌐 Idioma / Language / Idioma", "area": "Area (STI)", "level": "Career Level (STI)", "rules_expanded": "Details of Mandatory Contributions", "sti_area_non_sales": "Non Sales", "sti_area_sales": "Sales", "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Members of the GEB", "sti_level_executive_manager": "Executive Manager", "sti_level_senior_group_manager": "Senior Group Manager", "sti_level_group_manager": "Group Manager", "sti_level_lead_expert_program_manager": "Lead Expert / Program Manager", "sti_level_senior_manager": "Senior Manager", "sti_level_senior_expert_senior_project_manager": "Senior Expert / Senior Project Manager", "sti_level_manager_selected_expert_project_manager": "Manager / Selected Expert / Project Manager", "sti_level_others": "Others", "sti_level_executive_manager_senior_group_manager": "Executive Manager / Senior Group Manager", "sti_level_group_manager / Lead Sales Manager": "Group Manager / Lead Sales Manager", "sti_level_senior_manager_senior_sales_manager": "Senior Manager / Senior Sales Manager", "sti_level_manager_selected_sales_manager": "Manager / Selected Sales Manager", "sti_in_range": "Within range", "sti_out_range": "Outside range", "cost_header_charge": "Charge", "cost_header_percent": "Percent (%)", "cost_header_base": "Base", "cost_header_obs": "Observation", "cost_header_bonus": "Applies to Bonus", "cost_header_vacation": "Applies to Vacation", "cost_header_13th": "Applies to 13th", "sti_table_header_level": "Career Level", "sti_table_header_pct": "STI %" 
     }, 
     "Español": { 
         "sidebar_title": "Simulador de Remuneración<br>(Región Américas)", 
@@ -190,7 +189,7 @@ I18N_FALLBACK = {
         "state": "Estado (EE. UU.)", 
         "state_rate": "Impuesto Estatal (%)", 
         "dependents": "Dependientes (Impuesto)", 
-        "bonus": "Bono", # **CORREÇÃO AQUI (De Bono Anual para Bono)**
+        "bonus": "Bono", # CORREÇÃO
         "earnings": "Ingresos", 
         "deductions": "Descuentos", 
         "net": "Salario Neto", 
@@ -206,11 +205,11 @@ I18N_FALLBACK = {
         "rules_table_obs": "Notas / Tope", 
         "official_source": "Fuente Oficial", 
         "employer_cost_total": "Costo Total del Empleador", 
-        "annual_comp_title": "Composição de la Remuneração Bruta", # **CORREÇÃO AQUI (De Anual para 'Vazio')**
+        "annual_comp_title": "Composição de la Remuneração Total Bruta", # CORREÇÃO
         "annual_salary": "Salario Anual", 
-        "annual_bonus": "Bono", # Já estava corrigido
-        "annual_total": "Remuneração Total", # Já estava corrigido
-        "months_factor": "Meses considerados", "pie_title": "Distribuição Anual: Salario vs Bono", "pie_chart_title_dist": "Distribución de la Remuneração Total", "reload": "Recarregar tablas", "source_remote": "Tablas remotas", "source_local": "Copia local", "choose_country": "Seleccione un país", "menu_title": "Menú", "language_title": "🌐 Idioma / Language / Idioma", "area": "Área (STI)", "level": "Career Level (STI)", "rules_expanded": "Detalles de las Contribuições Obligatorias", "sti_area_non_sales": "No Ventas", "sti_area_sales": "Ventas", "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Miembros del GEB", "sti_level_executive_manager": "Gerente Ejecutivo", "sti_level_senior_group_manager": "Gerente de Grupo Sénior", "sti_level_group_manager": "Gerente de Grupo", "sti_level_lead_expert_program_manager": "Experto Líder / Gerente de Programa", "sti_level_senior_manager": "Gerente Sénior", "sti_level_senior_expert_senior_project_manager": "Experto Sénior / Gerente de Proyecto Sénior", "sti_level_manager_selected_expert_project_manager": "Gerente / Experto Seleccionado / Gerente de Proyecto", "sti_level_others": "Otros", "sti_level_executive_manager_senior_group_manager": "Gerente Ejecutivo / Gerente de Grupo Sénior", "sti_level_group_manager_lead_sales_manager": "Gerente de Grupo / Gerente de Ventas Líder", "sti_level_senior_manager_senior_sales_manager": "Gerente Sénior / Gerente de Ventas Sénior", "sti_level_manager_selected_sales_manager": "Gerente / Gerente de Ventas Seleccionado", "sti_in_range": "Dentro del rango", "sti_out_range": "Fuera del rango", "cost_header_charge": "Encargo", "cost_header_percent": "Percentual (%)", "cost_header_base": "Base", "cost_header_obs": "Observação", "cost_header_bonus": "Incide Bono", "cost_header_vacation": "Incide Vacaciones", "cost_header_13th": "Incide 13º", "sti_table_header_level": "Nivel de Carrera", "sti_table_header_pct": "STI %" 
+        "annual_bonus": "Bono", 
+        "annual_total": "Remuneração Total", 
+        "months_factor": "Meses considerados", "pie_title": "Distribuição Anual: Salario vs Bono", "pie_chart_title_dist": "Distribución de la Remuneração Total", "reload": "Recarregar tablas", "source_remote": "Tablas remotas", "source_local": "Copia local", "choose_country": "Seleccione un país", "menu_title": "Menú", "language_title": "🌐 Idioma / Language / Idioma", "area": "Área (STI)", "level": "Career Level (STI)", "rules_expanded": "Detalles de las Contribuições Obligatorias", "sti_area_non_sales": "No Ventas", "sti_area_sales": "Ventas", "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Miembros del GEB", "sti_level_executive_manager": "Gerente Ejecutivo", "sti_level_senior_group_manager": "Gerente de Grupo Sénior", "sti_level_group_manager": "Gerente de Grupo", "sti_level_lead_expert_program_manager": "Experto Líder / Gerente de Programa", "sti_level_senior_manager": "Gerente Sénior", "sti_level_senior_expert_senior_project_manager": "Experto Sénior / Gerente de Proyecto Sénior", "sti_level_manager_selected_expert_project_manager": "Gerente / Experto Seleccionado / Gerente de Proyecto", "sti_level_others": "Otros", "sti_level_executive_manager_senior_group_manager": "Gerente Ejecutivo / Gerente de Grupo Sénior", "sti_level_group_manager / Lead Sales Manager": "Gerente de Grupo / Gerente de Ventas Líder", "sti_level_senior_manager_senior_sales_manager": "Gerente Sénior / Gerente de Ventas Sénior", "sti_level_manager_selected_sales_manager": "Gerente / Gerente de Ventas Seleccionado", "sti_in_range": "Dentro del rango", "sti_out_range": "Fuera del rango", "cost_header_charge": "Encargo", "cost_header_percent": "Percentual (%)", "cost_header_base": "Base", "cost_header_obs": "Observação", "cost_header_bonus": "Incide Bono", "cost_header_vacation": "Incide Vacaciones", "cost_header_13th": "Incide 13º", "sti_table_header_level": "Nivel de Carrera", "sti_table_header_pct": "STI %" 
     } 
 }
 COUNTRIES_FALLBACK = {"Brasil": {"symbol": "R$", "flag": "🇧🇷", "valid_from": "2025-01-01", "benefits": {"ferias": True, "decimo": True}}, "México": {"symbol": "MX$", "flag": "🇲🇽", "valid_from": "2025-01-01", "benefits": {"ferias": True, "decimo": True}}, "Chile": {"symbol": "CLP$", "flag": "🇨🇱", "valid_from": "2025-01-01", "benefits": {"ferias": True, "decimo": False}}, "Argentina": {"symbol": "ARS$", "flag": "🇦🇷", "valid_from": "2025-01-01", "benefits": {"ferias": True, "decimo": True}}, "Colômbia": {"symbol": "COP$", "flag": "🇨🇴", "valid_from": "2025-01-01", "benefits": {"ferias": True, "decimo": True}}, "Estados Unidos": {"symbol": "US$", "flag": "🇺🇸", "valid_from": "2025-01-01", "benefits": {"ferias": False, "decimo": False}}, "Canadá": {"symbol": "CAD$", "flag": "🇨🇦", "valid_from": "2025-01-01", "benefits": {"ferias": False, "decimo": False}}}
@@ -443,7 +442,7 @@ def get_sti_level_map(area: str, T: Dict[str, str]) -> Tuple[List[str], Dict[str
     display_list = [T.get(STI_I18N_KEYS.get(key, key), key) for key in keys]
     return display_list, dict(zip(display_list, keys))
 
-# ============================== CSS (FIX: Centralização e Largura Máxima) ================================
+# ============================== CSS (REFINADO E SIMPLIFICADO) ================================
 st.markdown("""
 <style>
 /* 1. LIMITA LARGURA MÁXIMA E CENTRALIZA O CONTEÚDO PRINCIPAL (REDUZIDO PARA MAIOR ELEGÂNCIA) */
@@ -453,56 +452,84 @@ div.block-container {
     padding-right: 1rem;
 }
 
-/* 2. ESTILOS DE TÍTULOS */
+/* 2. ESTILOS DE TÍTULOS E LABELS DE INPUT */
 .stMarkdown h5 {
-    font-size: 14px; 
+    font-size: 15px; /* Ligeiramente maior para visibilidade */
     font-weight: 500; 
     line-height: 1.2; 
     color: #0a3d62;
     margin-bottom: 0.2rem !important;
 }
+.stMarkdown h5 span { /* Para aplicar estilo ao símbolo dentro do h5, se houver */
+    font-weight: 400;
+    color: #555;
+    font-size: 14px;
+}
 
-/* 3. PADRONIZAÇÃO DE CARDS: Mantendo o estilo do metric-card para o annual-card-base */
-.annual-card-base {
-    min-height: 95px !important; /* Mantém o tamanho do metric-card */
-    padding: 8px 12px !important; /* Mantém o padding do metric-card */
+/* 3. PADRONIZAÇÃO DE CARDS: Elegância e Simetria (Removendo Bordas Laterais) */
+.metric-card, .annual-card-base {
+    min-height: 95px !important; 
+    padding: 10px 15px !important; /* Mais padding para "respirar" */
     display: flex;
     flex-direction: column; 
-    justify-content: center; /* FIX 5: Alinha conteúdo verticalmente ao centro */
+    justify-content: center; 
     box-sizing: border-box;
     background: #fff;
     border-radius: 10px; 
-    box-shadow: 0 1px 4px rgba(0,0,0,.06); 
-    margin-bottom: 10px; /* Espaçamento entre os cards */
+    box-shadow: 0 1px 4px rgba(0,0,0,.08); /* Sombra um pouco mais forte */
+    margin-bottom: 10px; 
+    border-left: none !important; /* REMOVIDA A BORDA DE COR */
+    transition: all 0.3s ease;
 }
-.annual-card-base h3 {
-    font-size: 17px !important; 
-    font-weight: 700;
-    margin: 0 !important;
-}
-.annual-card-base h4 {
-    font-size: 17px !important; 
-    font-weight: 600;
-    margin: 0 !important;
+.metric-card:hover{ 
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12); 
+    transform: translateY(-2px); 
 }
 
-/* 4. Estilo de Tabela (Para Remuneração Mensal E Contribuições) */
+/* Ajustes de tipografia dos cards */
+.metric-card h4, .annual-card-base h4 {
+    margin:0; 
+    font-size:15px; 
+    font-weight: 500; /* Ligeiramente mais leve */
+    color:#555; /* Cor mais neutra */
+}
+.metric-card h3, .annual-card-base h3 {
+    margin: 2px 0 0; 
+    color:#0a3d62; 
+    font-size:22px; /* Maior destaque para o valor */
+    font-weight: 700; 
+}
+
+/* Cores de Fundo Mais Sutis para Cards Mensais */
+.card-earn { background: #f7fff7 !important; }
+.card-ded { background: #fff7f7 !important; }
+.card-net { background: #f7faff !important; }
+.card-bonus-in { background: #f7faff !important; }
+.card-bonus-out { background: #fff7f7 !important; }
+.card-total { background: #f5f5f5 !important; }
+
+
+/* 4. Estilo de Tabela (Tabela Mensal e Regras) */
 .table-wrap {
     background:#fff; 
     border:1px solid #d0d7de; 
     border-radius: 8px; 
     overflow: hidden;
-    /* FIX 3: Adicionado box-shadow para igualar o card (embora o st.table já tenha uma borda) */
     box-shadow: 0 1px 4px rgba(0,0,0,.06);
 }
 .table-wrap table thead tr {
-    background-color: #f7f9fb !important; /* Fundo cinza claro para o cabeçalho */
+    background-color: #ffffff !important; /* Cabeçalho branco puro */
+    border-bottom: 1px solid #eee;
 }
+.table-wrap table tbody tr:nth-child(odd) {
+    background-color: #fafafa; /* Listras zebradas muito sutis */
+}
+
 
 /* O restante do seu CSS é mantido */
 html, body { font-family:'Segoe UI', Helvetica, Arial, sans-serif; background:#f7f9fb; color:#1a1a1a;}
 h1,h2,h3 { color:#0a3d62; }
-hr { border:0; height:2px; background:linear-gradient(to right, #0a3d62, #e2e6ea); margin:32px 0; border-radius:1px; }
+hr { border:0; height:1px; background:#e2e6ea; margin:24px 0; border-radius:1px; }
 section[data-testid="stSidebar"]{ background:#0a3d62 !important; padding-top:15px; }
 section[data-testid="stSidebar"] h1,
 section[data-testid="stSidebar"] h2,
@@ -522,11 +549,6 @@ section[data-testid="stSidebar"] .stNumberInput input:focus,
 section[data-testid="stSidebar"] .stSelectbox div[role="combobox"] *,
 section[data-testid="stSidebar"] [data-baseweb="menu"] div[role="option"]{ color:#0b1f33 !important; background:#fff !important; }
 section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] label span { color: #ffffff !important; }
-.metric-card{ background:#fff; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,.06); padding: 8px 12px; text-align:center; transition: all 0.3s ease; min-height: 95px; display: flex; flex-direction: column; justify-content: center; border-left: 5px solid #ccc; }
-.metric-card:hover{ box-shadow:0 6px 16px rgba(0,0,0,0.1); transform: translateY(-2px); }
-.metric-card h4{ margin:0; font-size:17px; font-weight: 600; color:#0a3d62; }
-.metric-card h3{ margin: 2px 0 0; color:#0a3d62; font-size:17px; font-weight: 700; }
-.table-wrap{ background:#fff; border:1px solid #d0d7de; border-radius:8px; overflow:hidden; }
 .country-header{ display:flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 5px; }
 .country-flag{ font-size:45px; }
 .country-title{ font-size:36px; font-weight:700; color:#0a3d62; }
@@ -652,47 +674,49 @@ if active_menu == T.get("menu_calc"):
     area_options_display, area_display_map = get_sti_area_map(T)
     st.subheader(T.get("calc_params_title", "Parameters"))
 
-    # Funções auxiliares para montar o HTML dos rótulos sem duplicação de (STI)
-    def get_sti_area_label(T):
-        # Remove a parte "(STI)" do texto antes de injetar
-        area_label = T.get('area', 'Área (STI)').replace('(STI)', '').strip()
-        return f"{area_label}<br>(STI)"
+    # Funções auxiliares para montar o HTML dos rótulos sem quebra de linha
+    def get_simple_label(T_key, default_text, symbol=None):
+        label = T.get(T_key, default_text)
+        if label.endswith('(STI)'): label = label.replace('(STI)', '').strip()
+        if symbol: label = f"{label} <span>({symbol})</span>"
+        return label
 
-    def get_sti_level_label(T):
-        # Remove a parte "(STI)" do texto antes de injetar
-        level_label = T.get('level', 'Career Level (STI)').replace('(STI)', '').strip()
-        return f"{level_label}<br>(STI)"
+    def get_sti_label(T_key, default_text):
+        label = T.get(T_key, default_text)
+        if not label.endswith('(STI)'): label = f"{label} (STI)"
+        return label
 
 
     if country == "Brasil":
-        # Layout Brasil: 4 campos na primeira linha e 2 STI na segunda.
+        # Layout Brasil: 4 colunas uniformes (Linha 1 e 2)
         
         # RÓTULOS LINHA 1 (Salário, Dependentes, Outras Ded, Bônus)
         st.markdown(f"""
         <div style="display: flex; justify-content: space-between;">
-            <div style="width: 25%;"><h5>{T.get('salary', 'Salário Bruto')}<br>({symbol})</h5></div>
-            <div style="width: 25%;"><h5>{T.get('dependents', 'Dependentes')}<br>(IR)</h5></div>
-            <div style="width: 25%;"><h5>{T.get('other_deductions', 'Outras Deduções')}<br>({symbol})</h5></div>
-            <div style="width: 25%;"><h5>{T.get('bonus', 'Bônus')}<br>({symbol})</h5></div> </div>
+            <div style="width: 25%;"><h5>{get_simple_label('salary', 'Salário Bruto', symbol)}</h5></div>
+            <div style="width: 25%;"><h5>{get_simple_label('dependents', 'Dependentes')} (IR)</h5></div>
+            <div style="width: 25%;"><h5>{get_simple_label('other_deductions', 'Outras Deduções', symbol)}</h5></div>
+            <div style="width: 25%;"><h5>{get_simple_label('bonus', 'Bônus', symbol)}</h5></div>
+        </div>
         """, unsafe_allow_html=True)
         
         cols = st.columns(4) 
-        # APLICANDO FORMATO
+        # INPUTS LINHA 1
         salario = cols[0].number_input("Salário", min_value=0.0, value=10000.0, step=100.0, key="salary_input", help=T.get("salary_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT)
         dependentes = cols[1].number_input("Dependentes", min_value=0, value=0, step=1, key="dep_input", help=T.get("dependents_tooltip"), label_visibility="collapsed")
         other_deductions = cols[2].number_input("Outras Deduções", min_value=0.0, value=0.0, step=10.0, key="other_ded_input", help=T.get("other_deductions_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT)
-        bonus_anual = cols[3].number_input("Bônus", min_value=0.0, value=0.0, step=100.0, key="bonus_input", help=T.get("bonus_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT) # Label do input sem "Anual"
+        bonus_anual = cols[3].number_input("Bônus", min_value=0.0, value=0.0, step=100.0, key="bonus_input", help=T.get("bonus_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT)
         
         # RÓTULOS LINHA 2 (STI)
         st.markdown(f"""
         <div style="display: flex; justify-content: space-between; margin-top: 1rem;">
-            <div style="width: 25%;"><h5>{get_sti_area_label(T)}</h5></div>
-            <div style="width: 25%;"><h5>{get_sti_level_label(T)}</h5></div>
+            <div style="width: 25%;"><h5>{get_sti_label('area', 'Área')}</h5></div>
+            <div style="width: 25%;"><h5>{get_sti_label('level', 'Career Level')}</h5></div>
             <div style="width: 50%;"></div>
         </div>
         """, unsafe_allow_html=True)
         
-        r1, r2, _ = st.columns([1, 1.5, 1.5]) # Larguras desiguais para STI para acomodar textos longos
+        r1, r2, r3, r4 = st.columns(4) # 4 COLUNAS para simetria
         area_display = r1.selectbox("Área STI", area_options_display, index=0, key="sti_area", help=T.get("sti_area_tooltip"), label_visibility="collapsed")
         area = area_display_map.get(area_display, "Non Sales")
         level_options_display, level_display_map = get_sti_level_map(area, T)
@@ -703,38 +727,38 @@ if active_menu == T.get("menu_calc"):
         dependentes_fixed = dependentes 
 
     elif country == "Estados Unidos":
-        # 5 campos + 2 STI
+        # Layout EUA: 5 colunas uniformes (Linha 1 e 2)
         
         # RÓTULOS LINHA 1 (5 campos)
         st.markdown(f"""
         <div style="display: flex; justify-content: space-between;">
-            <div style="width: 20%;"><h5>{T.get('salary', 'Gross Salary')}<br>({symbol})</h5></div>
-            <div style="width: 20%;"><h5>{T.get('state', 'State')}</h5></div>
-            <div style="width: 20%;"><h5>{T.get('state_rate', 'State Tax')}<br>(%)</h5></div>
-            <div style="width: 20%;"><h5>{T.get('other_deductions', 'Other Deductions')}<br>({symbol})</h5></div>
-            <div style="width: 20%;"><h5>{T.get('bonus', 'Bonus')}<br>({symbol})</h5></div> </div>
+            <div style="width: 20%;"><h5>{get_simple_label('salary', 'Gross Salary', symbol)}</h5></div>
+            <div style="width: 20%;"><h5>{get_simple_label('state', 'State')}</h5></div>
+            <div style="width: 20%;"><h5>{get_simple_label('state_rate', 'State Tax')} (%)</h5></div>
+            <div style="width: 20%;"><h5>{get_simple_label('other_deductions', 'Other Deductions', symbol)}</h5></div>
+            <div style="width: 20%;"><h5>{get_simple_label('bonus', 'Bonus', symbol)}</h5></div>
+        </div>
         """, unsafe_allow_html=True)
         
         c1, c2, c3, c4, c5 = st.columns(5)
-        # APLICANDO FORMATO
+        # INPUTS LINHA 1
         salario = c1.number_input("Salário", min_value=0.0, value=10000.0, step=100.0, key="salary_input", help=T.get("salary_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT)
         state_code = c2.selectbox("Estado", list(US_STATE_RATES.keys()), index=0, key="state_select_main", help=T.get("state"), label_visibility="collapsed")
         default_rate = float(US_STATE_RATES.get(state_code, 0.0))
-        # State Rate deve usar format=%.3f para permitir taxas pequenas e precisas
         state_rate = c3.number_input("Taxa Estadual", min_value=0.0, max_value=0.20, value=default_rate, step=0.001, format="%.3f", key="state_rate_input", help=T.get("state_rate"), label_visibility="collapsed")
         other_deductions = c4.number_input("Outras Ded.", min_value=0.0, value=0.0, step=10.0, key="other_ded_input", help=T.get("other_deductions_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT)
-        bonus_anual = c5.number_input("Bônus", min_value=0.0, value=0.0, step=100.0, key="bonus_input", help=T.get("bonus_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT) # Label do input sem "Anual"
+        bonus_anual = c5.number_input("Bônus", min_value=0.0, value=0.0, step=100.0, key="bonus_input", help=T.get("bonus_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT)
         
         # RÓTULOS LINHA 2 (STI)
         st.markdown(f"""
         <div style="display: flex; justify-content: space-between; margin-top: 1rem;">
-            <div style="width: 20%;"><h5>{get_sti_area_label(T)}</h5></div>
-            <div style="width: 20%;"><h5>{get_sti_level_label(T)}</h5></div>
+            <div style="width: 20%;"><h5>{get_sti_label('area', 'Area')}</h5></div>
+            <div style="width: 20%;"><h5>{get_sti_label('level', 'Career Level')}</h5></div>
             <div style="width: 60%;"></div>
         </div>
         """, unsafe_allow_html=True)
         
-        r1, r2, _ = st.columns([1, 1.5, 2.5]) 
+        r1, r2, r3, r4, r5 = st.columns(5) # 5 COLUNAS para simetria
         area_display = r1.selectbox("Área STI", area_options_display, index=0, key="sti_area", help=T.get("sti_area_tooltip"), label_visibility="collapsed")
         area = area_display_map.get(area_display, "Non Sales")
         level_options_display, level_display_map = get_sti_level_map(area, T)
@@ -743,33 +767,34 @@ if active_menu == T.get("menu_calc"):
         level = level_display_map.get(level_display, level_options_display[level_default_index] if level_options_display else "Others")
         dependentes_fixed = 0
         
-    else: # Outros países (3 campos + 2 STI)
+    else: # Outros países (4 colunas para simetria)
         
-        # RÓTULOS PRINCIPAIS EM HTML ACIMA DAS COLUNAS (3 campos + 1 vazio)
+        # RÓTULOS PRINCIPAIS EM HTML ACIMA DAS COLUNAS (4 colunas)
         st.markdown(f"""
         <div style="display: flex; justify-content: space-between;">
-            <div style="width: 25%;"><h5>{T.get('salary', 'Salário Bruto')}<br>({symbol})</h5></div>
-            <div style="width: 25%;"><h5>{T.get('other_deductions', 'Outras Deduções')}<br>({symbol})</h5></div>
-            <div style="width: 25%;"><h5>{T.get('bonus', 'Bônus')}<br>({symbol})</h5></div> <div style="width: 25%;"></div>
+            <div style="width: 25%;"><h5>{get_simple_label('salary', 'Salário Bruto', symbol)}</h5></div>
+            <div style="width: 25%;"><h5>{get_simple_label('other_deductions', 'Outras Deduções', symbol)}</h5></div>
+            <div style="width: 25%;"><h5>{get_simple_label('bonus', 'Bônus', symbol)}</h5></div>
+            <div style="width: 25%;"></div>
         </div>
         """, unsafe_allow_html=True)
         
-        c1, c2, c3, _ = st.columns(4)
-        # APLICANDO FORMATO
+        c1, c2, c3, c4 = st.columns(4) # 4 COLUNAS para simetria
+        # INPUTS LINHA 1
         salario = c1.number_input("Salário", min_value=0.0, value=10000.0, step=100.0, key="salary_input", help=T.get("salary_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT)
         other_deductions = c2.number_input("Outras Ded.", min_value=0.0, value=0.0, step=10.0, key="other_ded_input", help=T.get("other_deductions_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT)
-        bonus_anual = c3.number_input("Bônus", min_value=0.0, value=0.0, step=100.0, key="bonus_input", help=T.get("bonus_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT) # Label do input sem "Anual"
+        bonus_anual = c3.number_input("Bônus", min_value=0.0, value=0.0, step=100.0, key="bonus_input", help=T.get("bonus_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT)
         
         # RÓTULOS LINHA 2 (STI)
         st.markdown(f"""
         <div style="display: flex; justify-content: space-between; margin-top: 1rem;">
-            <div style="width: 25%;"><h5>{get_sti_area_label(T)}</h5></div>
-            <div style="width: 25%;"><h5>{get_sti_level_label(T)}</h5></div>
+            <div style="width: 25%;"><h5>{get_sti_label('area', 'Área')}</h5></div>
+            <div style="width: 25%;"><h5>{get_sti_label('level', 'Career Level')}</h5></div>
             <div style="width: 50%;"></div>
         </div>
         """, unsafe_allow_html=True)
         
-        r1, r2, _ = st.columns([1, 1.5, 1.5])
+        r1, r2, r3, r4 = st.columns(4) # 4 COLUNAS para simetria
         area_display = r1.selectbox("Área STI", area_options_display, index=0, key="sti_area", help=T.get("sti_area_tooltip"), label_visibility="collapsed")
         area = area_display_map.get(area_display, "Non Sales")
         level_options_display, level_display_map = get_sti_level_map(area, T)
@@ -782,7 +807,7 @@ if active_menu == T.get("menu_calc"):
     # 3) DIVISOR ACIMA DE REMUNERAÇÃO MENSAL
     st.write("---") 
     
-    st.subheader(T.get("monthly_comp_title", "Monthly Comp"))
+    st.subheader(T.get("monthly_comp_title", "Remuneração Mensal Bruta e Líquida"))
     
     dependentes = dependentes_fixed
 
@@ -795,10 +820,10 @@ if active_menu == T.get("menu_calc"):
     st.markdown("<div class='table-wrap'>", unsafe_allow_html=True); st.table(df_detalhe); st.markdown("</div>", unsafe_allow_html=True)
 
     cc1, cc2, cc3 = st.columns(3)
-    # Cards Mensais (FIX 1: Emojis únicos)
-    cc1.markdown(f"<div class='metric-card' style='border-left-color: #28a745; background: #e6ffe6;'><h4>💰 {T.get('tot_earnings','Total Earnings')}</h4><h3>{fmt_money(calc['total_earn'], symbol)}</h3></div>", unsafe_allow_html=True)
-    cc2.markdown(f"<div class='metric-card' style='border-left-color: #dc3545; background: #ffe6e6;'><h4>📉 {T.get('tot_deductions','Total Deductions')}</h4><h3>{fmt_money(calc['total_ded'], symbol)}</h3></div>", unsafe_allow_html=True)
-    cc3.markdown(f"<div class='metric-card' style='border-left-color: #007bff; background: #e6f7ff;'><h4>💵 {T.get('net','Net Salary')}</h4><h3>{fmt_money(calc['net'], symbol)}</h3></div>", unsafe_allow_html=True)
+    # Cards Mensais (APLICADAS AS CORES MAIS SUTIS)
+    cc1.markdown(f"<div class='metric-card card-earn'><h4>💰 {T.get('tot_earnings','Total Earnings')}</h4><h3>{fmt_money(calc['total_earn'], symbol)}</h3></div>", unsafe_allow_html=True)
+    cc2.markdown(f"<div class='metric-card card-ded'><h4>📉 {T.get('tot_deductions','Total Deductions')}</h4><h3>{fmt_money(calc['total_ded'], symbol)}</h3></div>", unsafe_allow_html=True)
+    cc3.markdown(f"<div class='metric-card card-net'><h4>💵 {T.get('net','Net Salary')}</h4><h3>{fmt_money(calc['net'], symbol)}</h3></div>", unsafe_allow_html=True)
 
     # 2) REPOSICIONAMENTO DO FGTS ABAIXO DOS CARDS MENSAIS
     if country == "Brasil": 
@@ -813,7 +838,7 @@ if active_menu == T.get("menu_calc"):
 
     st.write("---")
     # NOVO LAYOUT ANUAL: Cards na Horizontal e Gráfico Abaixo
-    st.subheader(T.get("annual_comp_title", "Total Gross Compensation")) # **CORREÇÃO AQUI (Removido 'Anual')**
+    st.subheader(T.get("annual_comp_title", "Composição da Remuneração Total Bruta"))
     
     months = COUNTRY_TABLES.get("REMUN_MONTHS", {}).get(country, 12.0)
     salario_anual = salario * months
@@ -823,8 +848,9 @@ if active_menu == T.get("menu_calc"):
     pct_txt = f"{bonus_pct*100:.1f}%"
     faixa_txt = f"≤ {(max_pct or 0)*100:.0f}%" if level == "Others" else f"{min_pct*100:.0f}% – {max_pct*100:.0f}%"
     dentro = (bonus_pct <= (max_pct or 0)) if level == "Others" else (min_pct <= bonus_pct <= max_pct)
-    cor = "#1976d2" if dentro else "#d32f2f"; status_txt = T.get("sti_in_range", "In") if dentro else T.get("sti_out_range", "Out"); bg_cor = "#e6f7ff" if dentro else "#ffe6e6"
-    sti_note_text = f"STI ratio do bônus: <strong>{pct_txt}</strong> — <strong>{status_txt}</strong> ({faixa_txt}) — <em>{area_display} • {level_display}</em>"
+    cor = "#1976d2" if dentro else "#d32f2f"; status_txt = T.get("sti_in_range", "In") if dentro else T.get("sti_out_range", "Out"); 
+    bg_cor = "card-bonus-in" if dentro else "card-bonus-out" # Usando as novas classes
+    sti_note_text = f"<span style='color:{cor};'><strong>{pct_txt}</strong> — <strong>{status_txt}</strong></span> ({faixa_txt}) — <em>{area_display} • {level_display}</em>"
 
 
     # 1. LINHA DE CARDS NA HORIZONTAL COM ALTURA IGUAL
@@ -832,23 +858,23 @@ if active_menu == T.get("menu_calc"):
 
     # Card Salário Anual
     col_salario.markdown(f"""
-    <div class='metric-card' style='border-left-color: #28a745; background: #e6ffe6; height: 100%;'>
+    <div class='metric-card card-earn'>
         <h4> {T.get('annual_salary','Salário Anual')} </h4>
         <h3>{fmt_money(salario_anual, symbol)}</h3>
     </div>
     """, unsafe_allow_html=True)
 
-    # Card Bônus (Removido "Anual") - Usa 'annual_bonus' do I18N
+    # Card Bônus (Usando a cor STI para o texto, mas a cor sutil para o fundo)
     col_bonus.markdown(f"""
-    <div class='metric-card' style='border-left-color: {cor}; background: {bg_cor}; height: 100%;'>
-        <h4> {T.get('annual_bonus','Bônus')} </h4>
-        <h3>{fmt_money(bonus_anual, symbol)}</h3>
+    <div class='metric-card {bg_cor}'>
+        <h4 style='color:{cor};'> {T.get('annual_bonus','Bônus')} </h4>
+        <h3 style='color:{cor};'>{fmt_money(bonus_anual, symbol)}</h3>
     </div>
     """, unsafe_allow_html=True)
     
-    # Card Remuneração Total (Removido "Anual") - Usa 'annual_total' do I18N
+    # Card Remuneração Total
     col_total.markdown(f"""
-    <div class='metric-card' style='border-left-color: #0a3d62; background: #e6f0f8; height: 100%;'>
+    <div class='metric-card card-total'>
         <h4> {T.get('annual_total','Remuneração Total')} </h4>
         <h3>{fmt_money(total_anual, symbol)}</h3>
     </div>
@@ -860,8 +886,8 @@ if active_menu == T.get("menu_calc"):
         <p style="font-size: 17px; font-weight: 600; color: #0a3d62; margin: 0;">
             📅 {T.get('months_factor','Meses considerados')}: {months}
         </p>
-        <p style="font-size: 17px; font-weight: 600; color: {cor}; margin: 5px 0 0 0;">
-            🎯 {sti_note_text}
+        <p style="font-size: 17px; font-weight: 600; color: #0a3d62; margin: 5px 0 0 0;">
+            🎯 STI Ratio: {sti_note_text}
         </p>
     </div>
     """, unsafe_allow_html=True)
@@ -1008,13 +1034,13 @@ elif active_menu == T.get("menu_rules_sti"):
 # ========================= CUSTO DO EMPREGADOR (MANTIDO) ========================
 elif active_menu == T.get("menu_cost"):
     c1, c2 = st.columns(2)
-    salario = c1.number_input(f"{T.get('salary', 'Salary')} ({symbol})", min_value=0.0, value=10000.0, step=100.0, key="salary_cost", format=INPUT_FORMAT)
-    # **CORREÇÃO AQUI (Label do Bônus)**
-    bonus_anual = c2.number_input(f"{T.get('bonus', 'Bonus')} ({symbol})", min_value=0.0, value=0.0, step=100.0, key="bonus_cost_input", format=INPUT_FORMAT)
+    salario = c1.number_input(f"{T.get('salary', 'Salário Bruto')} ({symbol})", min_value=0.0, value=10000.0, step=100.0, key="salary_cost", format=INPUT_FORMAT)
+    # APLICADO: T.get('bonus', 'Bônus')
+    bonus_anual = c2.number_input(f"{T.get('bonus', 'Bônus')} ({symbol})", min_value=0.0, value=0.0, step=100.0, key="bonus_cost_input", format=INPUT_FORMAT)
     st.write("---")
     anual, mult, df_cost, months = calc_employer_cost(country, salario, bonus_anual, T, tables_ext=COUNTRY_TABLES)
     st.markdown(f"**{T.get('employer_cost_total', 'Total Cost')} (Salário + Bônus + Encargos):** {fmt_money(anual, symbol)}  \n"
                  f"**Multiplicador de Custo (vs Salário Base 12 meses):** {mult:.3f} × (12 meses)  \n"
-                 f"**{T.get('months_factor', 'Months')} (Base Salarial):** {months}")
+                 f"**{T.get('months_factor', 'Meses')} (Base Salarial):** {months}")
     if not df_cost.empty: st.dataframe(df_cost, use_container_width=True, hide_index=True)
     else: st.info("Sem encargos configurados para este país.")
