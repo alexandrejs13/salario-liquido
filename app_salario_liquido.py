@@ -3,6 +3,7 @@
 # Correção: Layout reestruturado para simetria de colunas nos inputs.
 # Modificação: Cards com estilo refinado (removida borda colorida e ajuste de cor).
 # Ajuste: Rótulos Bônus e Remuneração Total ajustados conforme solicitado.
+# NOVO AJUSTE: Tabela de Remuneração Mensal estilizada (HTML) e índice removido.
 # -------------------------------------------------------------
 
 import streamlit as st
@@ -164,7 +165,7 @@ I18N_FALLBACK = {
         "annual_salary": "Annual Salary", 
         "annual_bonus": "Bonus", 
         "annual_total": "Total Compensation", 
-        "months_factor": "Months considered", "pie_title": "Annual Split: Salary vs Bonus", "pie_chart_title_dist": "Total Compensation Distribution", "reload": "Reload tables", "source_remote": "Remote tables", "source_local": "Local fallback", "choose_country": "Select a country", "menu_title": "Menu", "language_title": "🌐 Idioma / Language / Idioma", "area": "Area (STI)", "level": "Career Level (STI)", "rules_expanded": "Details of Mandatory Contributions", "sti_area_non_sales": "Non Sales", "sti_area_sales": "Sales", "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Members of the GEB", "sti_level_executive_manager": "Executive Manager", "sti_level_senior_group_manager": "Senior Group Manager", "sti_level_group_manager": "Group Manager", "sti_level_lead_expert_program_manager": "Lead Expert / Program Manager", "sti_level_senior_manager": "Senior Manager", "sti_level_senior_expert_senior_project_manager": "Senior Expert / Senior Project Manager", "sti_level_manager_selected_expert_project_manager": "Manager / Selected Expert / Project Manager", "sti_level_others": "Others", "sti_level_executive_manager_senior_group_manager": "Executive Manager / Senior Group Manager", "sti_level_group_manager / Lead Sales Manager": "Group Manager / Lead Sales Manager", "sti_level_senior_manager_senior_sales_manager": "Senior Manager / Senior Sales Manager", "sti_level_manager_selected_sales_manager": "Manager / Selected Sales Manager", "sti_in_range": "Within range", "sti_out_range": "Outside range", "cost_header_charge": "Charge", "cost_header_percent": "Percent (%)", "cost_header_base": "Base", "cost_header_obs": "Observation", "cost_header_bonus": "Applies to Bonus", "cost_header_vacation": "Applies to Vacation", "cost_header_13th": "Applies to 13th", "sti_table_header_level": "Career Level", "sti_table_header_pct": "STI %" 
+        "months_factor": "Months considered", "pie_title": "Annual Split: Salary vs Bonus", "pie_chart_title_dist": "Total Compensation Distribution", "reload": "Reload tables", "source_remote": "Remote tables", "source_local": "Local fallback", "choose_country": "Select a country", "menu_title": "Menu", "language_title": "🌐 Idioma / Language / Idioma", "area": "Area (STI)", "level": "Career Level (STI)", "rules_expanded": "Details of Mandatory Contributions", "sti_area_non_sales": "Non Sales", "sti_area_sales": "Sales", "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Members of the GEB", "sti_level_executive_manager": "Executive Manager", "sti_level_senior_group_manager": "Senior Group Manager", "sti_level_group_manager": "Group Manager", "sti_level_lead_expert_program_manager": "Lead Expert / Program Manager", "sti_level_senior_manager": "Senior Manager", "sti_level_senior_expert_senior_project_manager": "Senior Expert / Senior Project Manager", "sti_level_manager_selected_expert_project_manager": "Manager / Selected Expert / Project Manager", "sti_level_others": "Others", "sti_level_executive_manager_senior_group_manager": "Executive Manager / Senior Group Manager", "sti_level_group_manager_lead_sales_manager": "Group Manager / Lead Sales Manager", "sti_level_senior_manager_senior_sales_manager": "Senior Manager / Senior Sales Manager", "sti_level_manager_selected_sales_manager": "Manager / Selected Sales Manager", "sti_in_range": "Within range", "sti_out_range": "Outside range", "cost_header_charge": "Charge", "cost_header_percent": "Percent (%)", "cost_header_base": "Base", "cost_header_obs": "Observation", "cost_header_bonus": "Applies to Bonus", "cost_header_vacation": "Applies to Vacation", "cost_header_13th": "Applies to 13th", "sti_table_header_level": "Career Level", "sti_table_header_pct": "STI %" 
     }, 
     "Español": { 
         "sidebar_title": "Simulador de Remuneración<br>(Región Américas)", 
@@ -209,7 +210,7 @@ I18N_FALLBACK = {
         "annual_salary": "Salario Anual", 
         "annual_bonus": "Bono", 
         "annual_total": "Remuneração Total", 
-        "months_factor": "Meses considerados", "pie_title": "Distribuição Anual: Salario vs Bono", "pie_chart_title_dist": "Distribución de la Remuneração Total", "reload": "Recarregar tablas", "source_remote": "Tablas remotas", "source_local": "Copia local", "choose_country": "Seleccione un país", "menu_title": "Menú", "language_title": "🌐 Idioma / Language / Idioma", "area": "Área (STI)", "level": "Career Level (STI)", "rules_expanded": "Detalles de las Contribuições Obligatorias", "sti_area_non_sales": "No Ventas", "sti_area_sales": "Ventas", "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Miembros del GEB", "sti_level_executive_manager": "Gerente Ejecutivo", "sti_level_senior_group_manager": "Gerente de Grupo Sénior", "sti_level_group_manager": "Gerente de Grupo", "sti_level_lead_expert_program_manager": "Experto Líder / Gerente de Programa", "sti_level_senior_manager": "Gerente Sénior", "sti_level_senior_expert_senior_project_manager": "Experto Sénior / Gerente de Proyecto Sénior", "sti_level_manager_selected_expert_project_manager": "Gerente / Experto Seleccionado / Gerente de Proyecto", "sti_level_others": "Otros", "sti_level_executive_manager_senior_group_manager": "Gerente Ejecutivo / Gerente de Grupo Sénior", "sti_level_group_manager / Lead Sales Manager": "Gerente de Grupo / Gerente de Ventas Líder", "sti_level_senior_manager_senior_sales_manager": "Gerente Sénior / Gerente de Ventas Sénior", "sti_level_manager_selected_sales_manager": "Gerente / Gerente de Ventas Seleccionado", "sti_in_range": "Dentro del rango", "sti_out_range": "Fuera del rango", "cost_header_charge": "Encargo", "cost_header_percent": "Percentual (%)", "cost_header_base": "Base", "cost_header_obs": "Observação", "cost_header_bonus": "Incide Bono", "cost_header_vacation": "Incide Vacaciones", "cost_header_13th": "Incide 13º", "sti_table_header_level": "Nivel de Carrera", "sti_table_header_pct": "STI %" 
+        "months_factor": "Meses considerados", "pie_title": "Distribuição Anual: Salario vs Bono", "pie_chart_title_dist": "Distribución de la Remuneração Total", "reload": "Recarregar tablas", "source_remote": "Tablas remotas", "source_local": "Copia local", "choose_country": "Seleccione un país", "menu_title": "Menú", "language_title": "🌐 Idioma / Language / Idioma", "area": "Área (STI)", "level": "Career Level (STI)", "rules_expanded": "Detalles de las Contribuições Obligatorias", "sti_area_non_sales": "No Ventas", "sti_area_sales": "Ventas", "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Miembros del GEB", "sti_level_executive_manager": "Gerente Ejecutivo", "sti_level_senior_group_manager": "Gerente de Grupo Sénior", "sti_level_group_manager": "Gerente de Grupo", "sti_level_lead_expert_program_manager": "Experto Líder / Gerente de Programa", "sti_level_senior_manager": "Gerente Sénior", "sti_level_senior_expert_senior_project_manager": "Experto Sénior / Gerente de Proyecto Sénior", "sti_level_manager_selected_expert_project_manager": "Gerente / Experto Seleccionado / Gerente de Proyecto", "sti_level_others": "Otros", "sti_level_executive_manager_senior_group_manager": "Gerente Ejecutivo / Gerente de Grupo Sénior", "sti_level_group_manager_lead_sales_manager": "Gerente de Grupo / Gerente de Ventas Líder", "sti_level_senior_manager_senior_sales_manager": "Gerente Sénior / Gerente de Ventas Sénior", "sti_level_manager_selected_sales_manager": "Gerente / Gerente de Ventas Seleccionado", "sti_in_range": "Dentro del rango", "sti_out_range": "Fuera del rango", "cost_header_charge": "Encargo", "cost_header_percent": "Percentual (%)", "cost_header_base": "Base", "cost_header_obs": "Observação", "cost_header_bonus": "Incide Bono", "cost_header_vacation": "Incide Vacaciones", "cost_header_13th": "Incide 13º", "sti_table_header_level": "Nivel de Carrera", "sti_table_header_pct": "STI %" 
     } 
 }
 COUNTRIES_FALLBACK = {"Brasil": {"symbol": "R$", "flag": "🇧🇷", "valid_from": "2025-01-01", "benefits": {"ferias": True, "decimo": True}}, "México": {"symbol": "MX$", "flag": "🇲🇽", "valid_from": "2025-01-01", "benefits": {"ferias": True, "decimo": True}}, "Chile": {"symbol": "CLP$", "flag": "🇨🇱", "valid_from": "2025-01-01", "benefits": {"ferias": True, "decimo": False}}, "Argentina": {"symbol": "ARS$", "flag": "🇦🇷", "valid_from": "2025-01-01", "benefits": {"ferias": True, "decimo": True}}, "Colômbia": {"symbol": "COP$", "flag": "🇨🇴", "valid_from": "2025-01-01", "benefits": {"ferias": True, "decimo": True}}, "Estados Unidos": {"symbol": "US$", "flag": "🇺🇸", "valid_from": "2025-01-01", "benefits": {"ferias": False, "decimo": False}}, "Canadá": {"symbol": "CAD$", "flag": "🇨🇦", "valid_from": "2025-01-01", "benefits": {"ferias": False, "decimo": False}}}
@@ -442,7 +443,7 @@ def get_sti_level_map(area: str, T: Dict[str, str]) -> Tuple[List[str], Dict[str
     display_list = [T.get(STI_I18N_KEYS.get(key, key), key) for key in keys]
     return display_list, dict(zip(display_list, keys))
 
-# ============================== CSS (REFINADO E SIMPLIFICADO) ================================
+# ============================== CSS (REFINADO E SIMPLIFICADO + TABELA) ================================
 st.markdown("""
 <style>
 /* 1. LIMITA LARGURA MÁXIMA E CENTRALIZA O CONTEÚDO PRINCIPAL (REDUZIDO PARA MAIOR ELEGÂNCIA) */
@@ -500,7 +501,7 @@ div.block-container {
     font-weight: 700; 
 }
 
-/* Cores de Fundo Mais Sutis para Cards Mensais */
+/* Cores de Fundo Mais Sutis para Cards Mensais e Anuais */
 .card-earn { background: #f7fff7 !important; }
 .card-ded { background: #fff7f7 !important; }
 .card-net { background: #f7faff !important; }
@@ -508,23 +509,44 @@ div.block-container {
 .card-bonus-out { background: #fff7f7 !important; }
 .card-total { background: #f5f5f5 !important; }
 
-
-/* 4. Estilo de Tabela (Tabela Mensal e Regras) */
+/* 4. Estilo de Tabela HTML (Para Remuneração Mensal - Tabela Injetada) */
 .table-wrap {
+    /* Manter bordas e sombra para o wrapper da tabela */
     background:#fff; 
     border:1px solid #d0d7de; 
     border-radius: 8px; 
     overflow: hidden;
     box-shadow: 0 1px 4px rgba(0,0,0,.06);
 }
-.table-wrap table thead tr {
-    background-color: #ffffff !important; /* Cabeçalho branco puro */
+.monthly-table {
+    width: 100%;
+    border-collapse: collapse; /* Remover bordas duplas */
+    margin: 0;
+    border: none;
+    font-size: 15px;
+}
+.monthly-table thead th {
+    background-color: #0a3d62; /* Cor de destaque (Azul Escuro) */
+    color: white;
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 600;
+}
+.monthly-table tbody td {
+    padding: 10px 15px;
     border-bottom: 1px solid #eee;
 }
-.table-wrap table tbody tr:nth-child(odd) {
-    background-color: #fafafa; /* Listras zebradas muito sutis */
+.monthly-table tbody tr:nth-child(even) {
+    background-color: #fcfcfc; /* Linhas zebradas muito sutis */
 }
-
+.monthly-table tbody tr:last-child td {
+    border-bottom: none;
+}
+/* Estilo para garantir que o Streamlit não interfira no header com o thead */
+.stTable > div:first-child table {
+    border-radius: 8px; /* Cantos arredondados na tabela Streamlit padrão */
+    overflow: hidden;
+}
 
 /* O restante do seu CSS é mantido */
 html, body { font-family:'Segoe UI', Helvetica, Arial, sans-serif; background:#f7f9fb; color:#1a1a1a;}
@@ -816,8 +838,12 @@ if active_menu == T.get("menu_calc"):
     df_detalhe[T.get("earnings","Earnings")] = df_detalhe[T.get("earnings","Earnings")].apply(lambda v: money_or_blank(v, symbol))
     df_detalhe[T.get("deductions","Deductions")] = df_detalhe[T.get("deductions","Deductions")].apply(lambda v: money_or_blank(v, symbol))
     
-    # 5) FORMATANDO TABELA MENSAL
-    st.markdown("<div class='table-wrap'>", unsafe_allow_html=True); st.table(df_detalhe); st.markdown("</div>", unsafe_allow_html=True)
+    # 5) FORMATANDO TABELA MENSAL (CONVERTENDO PARA HTML E INJETANDO COM CSS)
+    
+    # O DataFrame deve ser convertido para HTML com o índice DESABILITADO.
+    table_html = df_detalhe.to_html(index=False, classes='monthly-table')
+    
+    st.markdown(f"<div class='table-wrap'>{table_html}</div>", unsafe_allow_html=True)
 
     cc1, cc2, cc3 = st.columns(3)
     # Cards Mensais (APLICADAS AS CORES MAIS SUTIS)
@@ -972,7 +998,8 @@ elif active_menu == T.get("menu_rules"):
     col_map = { "desc": T.get("rules_table_desc", "Desc"), "rate": T.get("rules_table_rate", "Rate"), "base": T.get("rules_table_base", "Base"), "obs": T.get("rules_table_obs", "Obs") }
     df_emp = pd.DataFrame(emp_contrib_data).rename(columns=col_map) if emp_contrib_data else pd.DataFrame()
     df_er = pd.DataFrame(er_contrib_data).rename(columns=col_map) if er_contrib_data else pd.DataFrame()
-
+    
+    # As tabelas de regras (que usam st.dataframe) manterão o índice por padrão, mas terão um visual melhor.
     if not df_emp.empty: st.markdown(f"#### {T.get('rules_emp', 'Employee')}"); st.dataframe(df_emp, use_container_width=True, hide_index=True)
     if not df_er.empty: st.markdown(f"#### {T.get('rules_er', 'Employer')}"); st.dataframe(df_er, use_container_width=True, hide_index=True)
     st.markdown("---")
@@ -1042,5 +1069,6 @@ elif active_menu == T.get("menu_cost"):
     st.markdown(f"**{T.get('employer_cost_total', 'Total Cost')} (Salário + Bônus + Encargos):** {fmt_money(anual, symbol)}  \n"
                  f"**Multiplicador de Custo (vs Salário Base 12 meses):** {mult:.3f} × (12 meses)  \n"
                  f"**{T.get('months_factor', 'Meses')} (Base Salarial):** {months}")
+    # As tabelas de custo (que usam st.dataframe) manterão o índice por padrão, mas terão um visual melhor.
     if not df_cost.empty: st.dataframe(df_cost, use_container_width=True, hide_index=True)
     else: st.info("Sem encargos configurados para este país.")
