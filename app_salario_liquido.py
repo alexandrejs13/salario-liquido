@@ -78,19 +78,141 @@ def load_json(filepath, default_value={}):
         return default_value
 
 # --- Fallbacks Mínimos (COM TEXTOS ANUAIS AJUSTADOS) ---
-I18N_FALLBACK = { "Português": { "sidebar_title": "Simulador de Remuneração<br>(Região das Americas)", "app_title": "Simulador de Salário Líquido e Custo do Empregador", "menu_calc": "Simulador de Remuneração", "menu_rules": "Regras de Contribuições", "menu_rules_sti": "Regras de Cálculo do STI", "menu_cost": "Custo do Empregador", "title_calc": "Simulador de Remuneração", "title_rules": "Regras de Contribuições", "title_rules_sti": "Regras de Cálculo do STI", "title_cost": "Custo do Empregador", "country": "País", "salary": "Salário Bruto", "state": "Estado (EUA)", "state_rate": "State Tax (%)", "dependents": "Dependentes (IR)", "bonus": "Bônus Anual", "other_deductions": "Outras Deduções Mensais", "earnings": "Proventos", "deductions": "Descontos", "net": "Salário Líquido", "fgts_deposit": "Depósito FGTS", "tot_earnings": "Total de Proventos", "tot_deductions": "Total de Descontos", "valid_from": "Vigência", "rules_emp": "Contribuições do Empregado", "rules_er": "Contribuições do Empregador", "rules_table_desc": "Descrição", "rules_table_rate": "Alíquota (%)", "rules_table_base": "Base de Cálculo", "rules_table_obs": "Observações / Teto", "official_source": "Fonte Oficial", "employer_cost_total": "Custo Total do Empregador", "annual_comp_title": "Composição da Remuneração Total Anual Bruta", "calc_params_title": "Parâmetros de Cálculo da Remuneração", "monthly_comp_title": "Remuneração Mensal Bruta e Líquida", 
-"annual_salary": "Salário Anual", 
-"annual_bonus": "Bônus", # Alterado
-"annual_total": "Remuneração Total", # Alterado
-"months_factor": "Meses considerados", "pie_title": "Distribuição Anual: Salário vs Bônus", "pie_chart_title_dist": "Distribuição da Remuneração Total", "reload": "Recarregar tabelas", "source_remote": "Tabelas remotas", "source_local": "Fallback local", "choose_country": "Selecione o país", "menu_title": "Menu", "language_title": "🌐 Idioma / Language / Idioma", "area": "Área (STI)", "level": "Career Level (STI)", "rules_expanded": "Detalhes das Contribuições Obrigatórias", "salary_tooltip": "Seu salário mensal antes de impostos e deduções.", "dependents_tooltip": "Número de dependentes para dedução no Imposto de Renda (aplicável apenas no Brasil).", "bonus_tooltip": "Valor total do bônus esperado no ano (pago de uma vez ou parcelado).", "other_deductions_tooltip": "Soma de outras deduções mensais recorrentes (ex: plano de saúde, vale-refeição, contribuição sindical).", "sti_area_tooltip": "Selecione sua área de atuação (Vendas ou Não Vendas) para verificar a faixa de bônus (STI).", "sti_level_tooltip": "Selecione seu nível de carreira para verificar a faixa de bônus (STI). 'Others' inclui níveis não listados.", "sti_area_non_sales": "Não Vendas", "sti_area_sales": "Vendas", "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Membros do GEB", "sti_level_executive_manager": "Gerente Executivo", "sti_level_senior_group_manager": "Gerente de Grupo Sênior", "sti_level_group_manager": "Gerente de Grupo", "sti_level_lead_expert_program_manager": "Especialista Líder / Gerente de Programa", "sti_level_senior_manager": "Gerente Sênior", "sti_level_senior_expert_senior_project_manager": "Especialista Sênior / Gerente de Projeto Sênior", "sti_level_manager_selected_expert_project_manager": "Gerente / Especialista Selecionado / Gerente de Projeto", "sti_level_others": "Outros", "sti_level_executive_manager_senior_group_manager": "Gerente Executivo / Gerente de Grupo Sênior", "sti_level_group_manager_lead_sales_manager": "Gerente de Grupo / Gerente de Vendas Líder", "sti_level_senior_manager_senior_sales_manager": "Gerente Sênior / Gerente de Vendas Sênior", "sti_level_manager_selected_sales_manager": "Gerente / Gerente de Vendas Selecionado", "sti_in_range": "Dentro do range", "sti_out_range": "Fora do range", "cost_header_charge": "Encargo", "cost_header_percent": "Percentual (%)", "cost_header_base": "Base", "cost_header_obs": "Observação", "cost_header_bonus": "Incide Bônus", "cost_header_vacation": "Incide Férias", "cost_header_13th": "Incide 13º", "sti_table_header_level": "Nível de Carreira", "sti_table_header_pct": "STI %" }, "English": { "sidebar_title": "Compensation Simulator<br>(Americas Region)", "other_deductions": "Other Monthly Deductions", "salary_tooltip": "Your monthly salary before taxes and deductions.", "dependents_tooltip": "Number of dependents for Income Tax deduction (applicable only in Brazil).", "bonus_tooltip": "Total expected bonus amount for the year (paid lump sum or installments).", "other_deductions_tooltip": "Sum of other recurring monthly deductions (e.g., health plan, meal voucher, union dues).", "sti_area_tooltip": "Select your area (Sales or Non Sales) to check the bonus (STI) range.", "sti_level_tooltip": "Select your career level to check the bonus (STI) range. 'Others' includes unlisted levels.", "app_title": "Net Salary & Employer Cost Simulator", "menu_calc": "Compensation Simulator", "menu_rules": "Contribution Rules", "menu_rules_sti": "STI Calculation Rules", "menu_cost": "Employer Cost", "title_calc": "Compensation Simulator", "title_rules": "Contribution Rules", "title_rules_sti": "STI Calculation Rules", "title_cost": "Employer Cost", "country": "Country", "salary": "Gross Salary", "state": "State (USA)", "state_rate": "State Tax (%)", "dependents": "Dependentes (Tax)", "bonus": "Annual Bonus", "earnings": "Earnings", "deductions": "Deductions", "net": "Net Salary", "fgts_deposit": "FGTS Deposit", "tot_earnings": "Total Earnings", "tot_deductions": "Total Deductions", "valid_from": "Effective Date", "rules_emp": "Employee Contributions", "rules_er": "Employer Contributions", "rules_table_desc": "Description", "rules_table_rate": "Rate (%)", "rules_table_base": "Calculation Base", "rules_table_obs": "Notes / Cap", "official_source": "Official Source", "employer_cost_total": "Total Employer Cost", "annual_comp_title": "Total Annual Gross Compensation", 
-"annual_salary": "Annual Salary", 
-"annual_bonus": "Bonus", # Alterado
-"annual_total": "Total Compensation", # Alterado
-"months_factor": "Months considered", "pie_title": "Annual Split: Salary vs Bonus", "pie_chart_title_dist": "Total Compensation Distribution", "reload": "Reload tables", "source_remote": "Remote tables", "source_local": "Local fallback", "choose_country": "Select a country", "menu_title": "Menu", "language_title": "🌐 Idioma / Language / Idioma", "area": "Area (STI)", "level": "Career Level (STI)", "rules_expanded": "Details of Mandatory Contributions", "sti_area_non_sales": "Non Sales", "sti_area_sales": "Sales", "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Members of the GEB", "sti_level_executive_manager": "Executive Manager", "sti_level_senior_group_manager": "Senior Group Manager", "sti_level_group_manager": "Group Manager", "sti_level_lead_expert_program_manager": "Lead Expert / Program Manager", "sti_level_senior_manager": "Senior Manager", "sti_level_senior_expert_senior_project_manager": "Senior Expert / Senior Project Manager", "sti_level_manager_selected_expert_project_manager": "Manager / Selected Expert / Project Manager", "sti_level_others": "Others", "sti_level_executive_manager_senior_group_manager": "Executive Manager / Senior Group Manager", "sti_level_group_manager_lead_sales_manager": "Group Manager / Lead Sales Manager", "sti_level_senior_manager_senior_sales_manager": "Senior Manager / Senior Sales Manager", "sti_level_manager_selected_sales_manager": "Manager / Selected Sales Manager", "sti_in_range": "Within range", "sti_out_range": "Outside range", "cost_header_charge": "Charge", "cost_header_percent": "Percent (%)", "cost_header_base": "Base", "cost_header_obs": "Observation", "cost_header_bonus": "Applies to Bonus", "cost_header_vacation": "Applies to Vacation", "cost_header_13th": "Applies to 13th", "sti_table_header_level": "Career Level", "sti_table_header_pct": "STI %" }, "Español": { "sidebar_title": "Simulador de Remuneración<br>(Región Américas)", "other_deductions": "Otras Deducciones Mensuales", "salary_tooltip": "Su salario mensual antes de impuestos y deducciones.", "dependents_tooltip": "Número de dependientes para deducción en el Impuesto de Renta (solo aplicable en Brasil).", "bonus_tooltip": "Monto total del bono esperado en el año (pago único o en cuotas).", "other_deductions_tooltip": "Suma de otras deducciones mensuales recurrentes (ej: plan de salud, ticket de comida, cuota sindical).", "sti_area_tooltip": "Seleccione su área (Ventas o No Ventas) para verificar el rango del bono (STI).", "sti_level_tooltip": "Seleccione su nivel de carrera para verificar el rango del bono (STI). 'Otros' incluye niveles no listados.", "app_title": "Simulador de Salario Neto y Costo del Empleador", "menu_calc": "Simulador de Remuneração", "menu_rules": "Regras de Contribuições", "menu_rules_sti": "Regras de Cálculo del STI", "menu_cost": "Costo del Empleador", "title_calc": "Simulador de Remuneración", "title_rules": "Regras de Contribuições", "title_rules_sti": "Reglas de Cálculo del STI", "title_cost": "Costo del Empleador", "country": "País", "salary": "Salario Bruto", "state": "Estado (EE. UU.)", "state_rate": "Impuesto Estatal (%)", "dependents": "Dependientes (Impuesto)", "bonus": "Bono Anual", "earnings": "Ingresos", "deductions": "Descuentos", "net": "Salario Neto", "fgts_deposit": "Depósito de FGTS", "tot_earnings": "Total Ingresos", "tot_deductions": "Total Descuentos", "valid_from": "Vigencia", "rules_emp": "Contribuições del Empleado", "rules_er": "Contribuições del Empleador", "rules_table_desc": "Descripción", "rules_table_rate": "Tasa (%)", "rules_table_base": "Base de Cálculo", "rules_table_obs": "Notas / Tope", "official_source": "Fuente Oficial", "employer_cost_total": "Costo Total del Empleador", "annual_comp_title": "Composição de la Remuneração Anual Bruta", 
-"annual_salary": "Salario Anual", 
-"annual_bonus": "Bono", # Alterado
-"annual_total": "Remuneração Total", # Alterado
-"months_factor": "Meses considerados", "pie_title": "Distribuição Anual: Salario vs Bono", "pie_chart_title_dist": "Distribución de la Remuneração Total", "reload": "Recarregar tablas", "source_remote": "Tablas remotas", "source_local": "Copia local", "choose_country": "Seleccione un país", "menu_title": "Menú", "language_title": "🌐 Idioma / Language / Idioma", "area": "Área (STI)", "level": "Career Level (STI)", "rules_expanded": "Detalles de las Contribuições Obligatorias", "sti_area_non_sales": "No Ventas", "sti_area_sales": "Ventas", "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Miembros del GEB", "sti_level_executive_manager": "Gerente Ejecutivo", "sti_level_senior_group_manager": "Gerente de Grupo Sénior", "sti_level_group_manager": "Gerente de Grupo", "sti_level_lead_expert_program_manager": "Experto Líder / Gerente de Programa", "sti_level_senior_manager": "Gerente Sénior", "sti_level_senior_expert_senior_project_manager": "Experto Sénior / Gerente de Proyecto Sénior", "sti_level_manager_selected_expert_project_manager": "Gerente / Experto Seleccionado / Gerente de Proyecto", "sti_level_others": "Otros", "sti_level_executive_manager_senior_group_manager": "Gerente Ejecutivo / Gerente de Grupo Sénior", "sti_level_group_manager_lead_sales_manager": "Gerente de Grupo / Gerente de Ventas Líder", "sti_level_senior_manager_senior_sales_manager": "Gerente Sénior / Gerente de Ventas Sénior", "sti_level_manager_selected_sales_manager": "Gerente / Gerente de Ventas Seleccionado", "sti_in_range": "Dentro del rango", "sti_out_range": "Fuera del rango", "cost_header_charge": "Encargo", "cost_header_percent": "Percentual (%)", "cost_header_base": "Base", "cost_header_obs": "Observação", "cost_header_bonus": "Incide Bono", "cost_header_vacation": "Incide Vacaciones", "cost_header_13th": "Incide 13º", "sti_table_header_level": "Nivel de Carrera", "sti_table_header_pct": "STI %" } }
+I18N_FALLBACK = { 
+    "Português": { 
+        "sidebar_title": "Simulador de Remuneração<br>(Região das Americas)", 
+        "app_title": "Simulador de Salário Líquido e Custo do Empregador", 
+        "menu_calc": "Simulador de Remuneração", 
+        "menu_rules": "Regras de Contribuições", 
+        "menu_rules_sti": "Regras de Cálculo do STI", 
+        "menu_cost": "Custo do Empregador", 
+        "title_calc": "Simulador de Remuneração", 
+        "title_rules": "Regras de Contribuições", 
+        "title_rules_sti": "Regras de Cálculo do STI", 
+        "title_cost": "Custo do Empregador", 
+        "country": "País", 
+        "salary": "Salário Bruto", 
+        "state": "Estado (EUA)", 
+        "state_rate": "State Tax (%)", 
+        "dependents": "Dependentes (IR)", 
+        "bonus": "Bônus", # **CORREÇÃO AQUI (De Bônus Anual para Bônus)**
+        "other_deductions": "Outras Deduções Mensais", 
+        "earnings": "Proventos", 
+        "deductions": "Descontos", 
+        "net": "Salário Líquido", 
+        "fgts_deposit": "Depósito FGTS", 
+        "tot_earnings": "Total de Proventos", 
+        "tot_deductions": "Total de Descontos", 
+        "valid_from": "Vigência", 
+        "rules_emp": "Contribuições do Empregado", 
+        "rules_er": "Contribuições do Empregador", 
+        "rules_table_desc": "Descrição", 
+        "rules_table_rate": "Alíquota (%)", 
+        "rules_table_base": "Base de Cálculo", 
+        "rules_table_obs": "Observações / Teto", 
+        "official_source": "Fonte Oficial", 
+        "employer_cost_total": "Custo Total do Empregador", 
+        "annual_comp_title": "Composição da Remuneração Total Bruta", # **CORREÇÃO AQUI (De Anual para 'Vazio')**
+        "calc_params_title": "Parâmetros de Cálculo da Remuneração", 
+        "monthly_comp_title": "Remuneração Mensal Bruta e Líquida", 
+        "annual_salary": "Salário Anual", 
+        "annual_bonus": "Bônus", # Já estava corrigido
+        "annual_total": "Remuneração Total", # Já estava corrigido
+        "months_factor": "Meses considerados", "pie_title": "Distribuição Anual: Salário vs Bônus", "pie_chart_title_dist": "Distribuição da Remuneração Total", "reload": "Recarregar tabelas", "source_remote": "Tabelas remotas", "source_local": "Fallback local", "choose_country": "Selecione o país", "menu_title": "Menu", "language_title": "🌐 Idioma / Language / Idioma", "area": "Área (STI)", "level": "Career Level (STI)", "rules_expanded": "Detalhes das Contribuições Obrigatórias", "salary_tooltip": "Seu salário mensal antes de impostos e deduções.", "dependents_tooltip": "Número de dependentes para dedução no Imposto de Renda (aplicável apenas no Brasil).", 
+        "bonus_tooltip": "Valor total do bônus esperado no ano (pago de uma vez ou parcelado).", # O texto do tooltip permanece o mesmo
+        "other_deductions_tooltip": "Soma de outras deduções mensais recorrentes (ex: plano de saúde, vale-refeição, contribuição sindical).", "sti_area_tooltip": "Selecione sua área de atuação (Vendas ou Não Vendas) para verificar a faixa de bônus (STI).", "sti_level_tooltip": "Selecione seu nível de carreira para verificar a faixa de bônus (STI). 'Others' inclui níveis não listados.", "sti_area_non_sales": "Não Vendas", "sti_area_sales": "Vendas", "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Membros do GEB", "sti_level_executive_manager": "Gerente Executivo", "sti_level_senior_group_manager": "Gerente de Grupo Sênior", "sti_level_group_manager": "Gerente de Grupo", "sti_level_lead_expert_program_manager": "Especialista Líder / Gerente de Programa", "sti_level_senior_manager": "Gerente Sênior", "sti_level_senior_expert_senior_project_manager": "Especialista Sênior / Gerente de Projeto Sênior", "sti_level_manager_selected_expert_project_manager": "Gerente / Especialista Selecionado / Gerente de Projeto", "sti_level_others": "Outros", "sti_level_executive_manager_senior_group_manager": "Gerente Executivo / Gerente de Grupo Sênior", "sti_level_group_manager_lead_sales_manager": "Gerente de Grupo / Gerente de Vendas Líder", "sti_level_senior_manager_senior_sales_manager": "Gerente Sênior / Gerente de Vendas Sênior", "sti_level_manager_selected_sales_manager": "Gerente / Gerente de Vendas Selecionado", "sti_in_range": "Dentro do range", "sti_out_range": "Fora do range", "cost_header_charge": "Encargo", "cost_header_percent": "Percentual (%)", "cost_header_base": "Base", "cost_header_obs": "Observação", "cost_header_bonus": "Incide Bônus", "cost_header_vacation": "Incide Férias", "cost_header_13th": "Incide 13º", "sti_table_header_level": "Nível de Carreira", "sti_table_header_pct": "STI %" 
+    }, 
+    "English": { 
+        "sidebar_title": "Compensation Simulator<br>(Americas Region)", 
+        "other_deductions": "Other Monthly Deductions", 
+        "salary_tooltip": "Your monthly salary before taxes and deductions.", 
+        "dependents_tooltip": "Number of dependents for Income Tax deduction (applicable only in Brazil).", 
+        "bonus_tooltip": "Total expected bonus amount for the year (paid lump sum or installments).", 
+        "other_deductions_tooltip": "Sum of other recurring monthly deductions (e.g., health plan, meal voucher, union dues).", 
+        "sti_area_tooltip": "Select your area (Sales or Non Sales) to check the bonus (STI) range.", 
+        "sti_level_tooltip": "Select your career level to check the bonus (STI) range. 'Others' includes unlisted levels.", 
+        "app_title": "Net Salary & Employer Cost Simulator", 
+        "menu_calc": "Compensation Simulator", 
+        "menu_rules": "Contribution Rules", 
+        "menu_rules_sti": "STI Calculation Rules", 
+        "menu_cost": "Employer Cost", 
+        "title_calc": "Compensation Simulator", 
+        "title_rules": "Contribution Rules", 
+        "title_rules_sti": "STI Calculation Rules", 
+        "title_cost": "Employer Cost", 
+        "country": "Country", 
+        "salary": "Gross Salary", 
+        "state": "State (USA)", 
+        "state_rate": "State Tax (%)", 
+        "dependents": "Dependentes (Tax)", 
+        "bonus": "Bonus", # **CORREÇÃO AQUI (De Annual Bonus para Bonus)**
+        "earnings": "Earnings", 
+        "deductions": "Deductions", 
+        "net": "Net Salary", 
+        "fgts_deposit": "FGTS Deposit", 
+        "tot_earnings": "Total Earnings", 
+        "tot_deductions": "Total Deductions", 
+        "valid_from": "Effective Date", 
+        "rules_emp": "Employee Contributions", 
+        "rules_er": "Employer Contributions", 
+        "rules_table_desc": "Description", 
+        "rules_table_rate": "Rate (%)", 
+        "rules_table_base": "Calculation Base", 
+        "rules_table_obs": "Notes / Cap", 
+        "official_source": "Official Source", 
+        "employer_cost_total": "Total Employer Cost", 
+        "annual_comp_title": "Total Gross Compensation", # **CORREÇÃO AQUI (De Annual para 'Vazio')**
+        "annual_salary": "Annual Salary", 
+        "annual_bonus": "Bonus", # Já estava corrigido
+        "annual_total": "Total Compensation", # Já estava corrigido
+        "months_factor": "Months considered", "pie_title": "Annual Split: Salary vs Bonus", "pie_chart_title_dist": "Total Compensation Distribution", "reload": "Reload tables", "source_remote": "Remote tables", "source_local": "Local fallback", "choose_country": "Select a country", "menu_title": "Menu", "language_title": "🌐 Idioma / Language / Idioma", "area": "Area (STI)", "level": "Career Level (STI)", "rules_expanded": "Details of Mandatory Contributions", "sti_area_non_sales": "Non Sales", "sti_area_sales": "Sales", "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Members of the GEB", "sti_level_executive_manager": "Executive Manager", "sti_level_senior_group_manager": "Senior Group Manager", "sti_level_group_manager": "Group Manager", "sti_level_lead_expert_program_manager": "Lead Expert / Program Manager", "sti_level_senior_manager": "Senior Manager", "sti_level_senior_expert_senior_project_manager": "Senior Expert / Senior Project Manager", "sti_level_manager_selected_expert_project_manager": "Manager / Selected Expert / Project Manager", "sti_level_others": "Others", "sti_level_executive_manager_senior_group_manager": "Executive Manager / Senior Group Manager", "sti_level_group_manager_lead_sales_manager": "Group Manager / Lead Sales Manager", "sti_level_senior_manager_senior_sales_manager": "Senior Manager / Senior Sales Manager", "sti_level_manager_selected_sales_manager": "Manager / Selected Sales Manager", "sti_in_range": "Within range", "sti_out_range": "Outside range", "cost_header_charge": "Charge", "cost_header_percent": "Percent (%)", "cost_header_base": "Base", "cost_header_obs": "Observation", "cost_header_bonus": "Applies to Bonus", "cost_header_vacation": "Applies to Vacation", "cost_header_13th": "Applies to 13th", "sti_table_header_level": "Career Level", "sti_table_header_pct": "STI %" 
+    }, 
+    "Español": { 
+        "sidebar_title": "Simulador de Remuneración<br>(Región Américas)", 
+        "other_deductions": "Otras Deducciones Mensuales", 
+        "salary_tooltip": "Su salario mensual antes de impuestos y deducciones.", 
+        "dependents_tooltip": "Número de dependientes para deducción en el Impuesto de Renta (solo aplicable en Brasil).", 
+        "bonus_tooltip": "Monto total del bono esperado en el año (pago único o en cuotas).", 
+        "other_deductions_tooltip": "Suma de otras deducciones mensuales recurrentes (ej: plan de salud, ticket de comida, cuota sindical).", 
+        "sti_area_tooltip": "Seleccione su área (Ventas o No Ventas) para verificar el rango del bono (STI).", 
+        "sti_level_tooltip": "Seleccione su nivel de carrera para verificar el rango del bono (STI). 'Otros' incluye niveles no listados.", 
+        "app_title": "Simulador de Salario Neto y Costo del Empleador", 
+        "menu_calc": "Simulador de Remuneração", 
+        "menu_rules": "Regras de Contribuições", 
+        "menu_rules_sti": "Regras de Cálculo del STI", 
+        "menu_cost": "Costo del Empleador", 
+        "title_calc": "Simulador de Remuneração", 
+        "title_rules": "Regras de Contribuições", 
+        "title_rules_sti": "Reglas de Cálculo del STI", 
+        "title_cost": "Costo del Empleador", 
+        "country": "País", 
+        "salary": "Salario Bruto", 
+        "state": "Estado (EE. UU.)", 
+        "state_rate": "Impuesto Estatal (%)", 
+        "dependents": "Dependientes (Impuesto)", 
+        "bonus": "Bono", # **CORREÇÃO AQUI (De Bono Anual para Bono)**
+        "earnings": "Ingresos", 
+        "deductions": "Descuentos", 
+        "net": "Salario Neto", 
+        "fgts_deposit": "Depósito de FGTS", 
+        "tot_earnings": "Total Ingresos", 
+        "tot_deductions": "Total Descuentos", 
+        "valid_from": "Vigencia", 
+        "rules_emp": "Contribuições del Empleado", 
+        "rules_er": "Contribuições del Empleador", 
+        "rules_table_desc": "Descripción", 
+        "rules_table_rate": "Tasa (%)", 
+        "rules_table_base": "Base de Cálculo", 
+        "rules_table_obs": "Notas / Tope", 
+        "official_source": "Fuente Oficial", 
+        "employer_cost_total": "Costo Total del Empleador", 
+        "annual_comp_title": "Composição de la Remuneração Bruta", # **CORREÇÃO AQUI (De Anual para 'Vazio')**
+        "annual_salary": "Salario Anual", 
+        "annual_bonus": "Bono", # Já estava corrigido
+        "annual_total": "Remuneração Total", # Já estava corrigido
+        "months_factor": "Meses considerados", "pie_title": "Distribuição Anual: Salario vs Bono", "pie_chart_title_dist": "Distribución de la Remuneração Total", "reload": "Recarregar tablas", "source_remote": "Tablas remotas", "source_local": "Copia local", "choose_country": "Seleccione un país", "menu_title": "Menú", "language_title": "🌐 Idioma / Language / Idioma", "area": "Área (STI)", "level": "Career Level (STI)", "rules_expanded": "Detalles de las Contribuições Obligatorias", "sti_area_non_sales": "No Ventas", "sti_area_sales": "Ventas", "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Miembros del GEB", "sti_level_executive_manager": "Gerente Ejecutivo", "sti_level_senior_group_manager": "Gerente de Grupo Sénior", "sti_level_group_manager": "Gerente de Grupo", "sti_level_lead_expert_program_manager": "Experto Líder / Gerente de Programa", "sti_level_senior_manager": "Gerente Sénior", "sti_level_senior_expert_senior_project_manager": "Experto Sénior / Gerente de Proyecto Sénior", "sti_level_manager_selected_expert_project_manager": "Gerente / Experto Seleccionado / Gerente de Proyecto", "sti_level_others": "Otros", "sti_level_executive_manager_senior_group_manager": "Gerente Ejecutivo / Gerente de Grupo Sénior", "sti_level_group_manager_lead_sales_manager": "Gerente de Grupo / Gerente de Ventas Líder", "sti_level_senior_manager_senior_sales_manager": "Gerente Sénior / Gerente de Ventas Sénior", "sti_level_manager_selected_sales_manager": "Gerente / Gerente de Ventas Seleccionado", "sti_in_range": "Dentro del rango", "sti_out_range": "Fuera del rango", "cost_header_charge": "Encargo", "cost_header_percent": "Percentual (%)", "cost_header_base": "Base", "cost_header_obs": "Observação", "cost_header_bonus": "Incide Bono", "cost_header_vacation": "Incide Vacaciones", "cost_header_13th": "Incide 13º", "sti_table_header_level": "Nivel de Carrera", "sti_table_header_pct": "STI %" 
+    } 
+}
 COUNTRIES_FALLBACK = {"Brasil": {"symbol": "R$", "flag": "🇧🇷", "valid_from": "2025-01-01", "benefits": {"ferias": True, "decimo": True}}, "México": {"symbol": "MX$", "flag": "🇲🇽", "valid_from": "2025-01-01", "benefits": {"ferias": True, "decimo": True}}, "Chile": {"symbol": "CLP$", "flag": "🇨🇱", "valid_from": "2025-01-01", "benefits": {"ferias": True, "decimo": False}}, "Argentina": {"symbol": "ARS$", "flag": "🇦🇷", "valid_from": "2025-01-01", "benefits": {"ferias": True, "decimo": True}}, "Colômbia": {"symbol": "COP$", "flag": "🇨🇴", "valid_from": "2025-01-01", "benefits": {"ferias": True, "decimo": True}}, "Estados Unidos": {"symbol": "US$", "flag": "🇺🇸", "valid_from": "2025-01-01", "benefits": {"ferias": False, "decimo": False}}, "Canadá": {"symbol": "CAD$", "flag": "🇨🇦", "valid_from": "2025-01-01", "benefits": {"ferias": False, "decimo": False}}}
 STI_CONFIG_FALLBACK = {"STI_RANGES": { "Non Sales": { "CEO": [1.00, 1.00], "Members of the GEB": [0.50, 0.80], "Executive Manager": [0.45, 0.70], "Senior Group Manager": [0.40, 0.60], "Group Manager": [0.30, 0.50], "Lead Expert / Program Manager": [0.25, 0.40], "Senior Manager": [0.20, 0.40], "Senior Expert / Senior Project Manager": [0.15, 0.35], "Manager / Selected Expert / Project Manager": [0.10, 0.30], "Others": [0.0, 0.10] }, "Sales": { "Executive Manager / Senior Group Manager": [0.45, 0.70], "Group Manager / Lead Sales Manager": [0.35, 0.50], "Senior Manager / Senior Sales Manager": [0.25, 0.45], "Manager / Selected Sales Manager": [0.20, 0.35], "Others": [0.0, 0.15] } }, "STI_LEVEL_OPTIONS": { "Non Sales": [ "CEO", "Members of the GEB", "Executive Manager", "Senior Group Manager", "Group Manager", "Lead Expert / Program Manager", "Senior Manager", "Senior Expert / Senior Project Manager", "Manager / Selected Expert / Project Manager", "Others" ], "Sales": [ "Executive Manager / Senior Group Manager", "Group Manager / Lead Sales Manager", "Senior Manager / Senior Sales Manager", "Manager / Selected Sales Manager", "Others" ]}}
 BR_INSS_FALLBACK = { "vigencia": "2025-01-01", "teto_contribuicao": 1146.68, "teto_base": 8157.41, "faixas": [ {"ate": 1412.00, "aliquota": 0.075}, {"ate": 2666.68, "aliquota": 0.09}, {"ate": 4000.03, "aliquota": 0.12}, {"ate": 8157.41, "aliquota": 0.14} ] }
@@ -549,18 +671,17 @@ if active_menu == T.get("menu_calc"):
         st.markdown(f"""
         <div style="display: flex; justify-content: space-between;">
             <div style="width: 25%;"><h5>{T.get('salary', 'Salário Bruto')}<br>({symbol})</h5></div>
-            <div style="width: 25%;"><h5>{T.get('dependentes', 'Dependentes')}<br>(IR)</h5></div>
+            <div style="width: 25%;"><h5>{T.get('dependents', 'Dependentes')}<br>(IR)</h5></div>
             <div style="width: 25%;"><h5>{T.get('other_deductions', 'Outras Deduções')}<br>({symbol})</h5></div>
-            <div style="width: 25%;"><h5>{T.get('bonus', 'Bônus Anual')}<br>({symbol})</h5></div>
-        </div>
+            <div style="width: 25%;"><h5>{T.get('bonus', 'Bônus')}<br>({symbol})</h5></div> </div>
         """, unsafe_allow_html=True)
         
         cols = st.columns(4) 
         # APLICANDO FORMATO
         salario = cols[0].number_input("Salário", min_value=0.0, value=10000.0, step=100.0, key="salary_input", help=T.get("salary_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT)
-        dependentes = cols[1].number_input("Dependentes", min_value=0, value=0, step=1, key="dep_input", help=T.get("dependentes_tooltip"), label_visibility="collapsed")
+        dependentes = cols[1].number_input("Dependentes", min_value=0, value=0, step=1, key="dep_input", help=T.get("dependents_tooltip"), label_visibility="collapsed")
         other_deductions = cols[2].number_input("Outras Deduções", min_value=0.0, value=0.0, step=10.0, key="other_ded_input", help=T.get("other_deductions_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT)
-        bonus_anual = cols[3].number_input("Bônus Anual", min_value=0.0, value=0.0, step=100.0, key="bonus_input", help=T.get("bonus_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT)
+        bonus_anual = cols[3].number_input("Bônus", min_value=0.0, value=0.0, step=100.0, key="bonus_input", help=T.get("bonus_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT) # Label do input sem "Anual"
         
         # RÓTULOS LINHA 2 (STI)
         st.markdown(f"""
@@ -591,8 +712,7 @@ if active_menu == T.get("menu_calc"):
             <div style="width: 20%;"><h5>{T.get('state', 'State')}</h5></div>
             <div style="width: 20%;"><h5>{T.get('state_rate', 'State Tax')}<br>(%)</h5></div>
             <div style="width: 20%;"><h5>{T.get('other_deductions', 'Other Deductions')}<br>({symbol})</h5></div>
-            <div style="width: 20%;"><h5>{T.get('bonus', 'Annual Bonus')}<br>({symbol})</h5></div>
-        </div>
+            <div style="width: 20%;"><h5>{T.get('bonus', 'Bonus')}<br>({symbol})</h5></div> </div>
         """, unsafe_allow_html=True)
         
         c1, c2, c3, c4, c5 = st.columns(5)
@@ -603,7 +723,7 @@ if active_menu == T.get("menu_calc"):
         # State Rate deve usar format=%.3f para permitir taxas pequenas e precisas
         state_rate = c3.number_input("Taxa Estadual", min_value=0.0, max_value=0.20, value=default_rate, step=0.001, format="%.3f", key="state_rate_input", help=T.get("state_rate"), label_visibility="collapsed")
         other_deductions = c4.number_input("Outras Ded.", min_value=0.0, value=0.0, step=10.0, key="other_ded_input", help=T.get("other_deductions_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT)
-        bonus_anual = c5.number_input("Bônus Anual", min_value=0.0, value=0.0, step=100.0, key="bonus_input", help=T.get("bonus_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT)
+        bonus_anual = c5.number_input("Bônus", min_value=0.0, value=0.0, step=100.0, key="bonus_input", help=T.get("bonus_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT) # Label do input sem "Anual"
         
         # RÓTULOS LINHA 2 (STI)
         st.markdown(f"""
@@ -630,8 +750,7 @@ if active_menu == T.get("menu_calc"):
         <div style="display: flex; justify-content: space-between;">
             <div style="width: 25%;"><h5>{T.get('salary', 'Salário Bruto')}<br>({symbol})</h5></div>
             <div style="width: 25%;"><h5>{T.get('other_deductions', 'Outras Deduções')}<br>({symbol})</h5></div>
-            <div style="width: 25%;"><h5>{T.get('bonus', 'Bônus Anual')}<br>({symbol})</h5></div>
-            <div style="width: 25%;"></div>
+            <div style="width: 25%;"><h5>{T.get('bonus', 'Bônus')}<br>({symbol})</h5></div> <div style="width: 25%;"></div>
         </div>
         """, unsafe_allow_html=True)
         
@@ -639,7 +758,7 @@ if active_menu == T.get("menu_calc"):
         # APLICANDO FORMATO
         salario = c1.number_input("Salário", min_value=0.0, value=10000.0, step=100.0, key="salary_input", help=T.get("salary_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT)
         other_deductions = c2.number_input("Outras Ded.", min_value=0.0, value=0.0, step=10.0, key="other_ded_input", help=T.get("other_deductions_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT)
-        bonus_anual = c3.number_input("Bônus Anual", min_value=0.0, value=0.0, step=100.0, key="bonus_input", help=T.get("bonus_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT)
+        bonus_anual = c3.number_input("Bônus", min_value=0.0, value=0.0, step=100.0, key="bonus_input", help=T.get("bonus_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT) # Label do input sem "Anual"
         
         # RÓTULOS LINHA 2 (STI)
         st.markdown(f"""
@@ -694,7 +813,7 @@ if active_menu == T.get("menu_calc"):
 
     st.write("---")
     # NOVO LAYOUT ANUAL: Cards na Horizontal e Gráfico Abaixo
-    st.subheader(T.get("annual_comp_title", "Annual Comp"))
+    st.subheader(T.get("annual_comp_title", "Total Gross Compensation")) # **CORREÇÃO AQUI (Removido 'Anual')**
     
     months = COUNTRY_TABLES.get("REMUN_MONTHS", {}).get(country, 12.0)
     salario_anual = salario * months
@@ -719,7 +838,7 @@ if active_menu == T.get("menu_calc"):
     </div>
     """, unsafe_allow_html=True)
 
-    # Card Bônus (Removido "Anual")
+    # Card Bônus (Removido "Anual") - Usa 'annual_bonus' do I18N
     col_bonus.markdown(f"""
     <div class='metric-card' style='border-left-color: {cor}; background: {bg_cor}; height: 100%;'>
         <h4> {T.get('annual_bonus','Bônus')} </h4>
@@ -727,7 +846,7 @@ if active_menu == T.get("menu_calc"):
     </div>
     """, unsafe_allow_html=True)
     
-    # Card Remuneração Total (Removido "Anual")
+    # Card Remuneração Total (Removido "Anual") - Usa 'annual_total' do I18N
     col_total.markdown(f"""
     <div class='metric-card' style='border-left-color: #0a3d62; background: #e6f0f8; height: 100%;'>
         <h4> {T.get('annual_total','Remuneração Total')} </h4>
@@ -890,6 +1009,7 @@ elif active_menu == T.get("menu_rules_sti"):
 elif active_menu == T.get("menu_cost"):
     c1, c2 = st.columns(2)
     salario = c1.number_input(f"{T.get('salary', 'Salary')} ({symbol})", min_value=0.0, value=10000.0, step=100.0, key="salary_cost", format=INPUT_FORMAT)
+    # **CORREÇÃO AQUI (Label do Bônus)**
     bonus_anual = c2.number_input(f"{T.get('bonus', 'Bonus')} ({symbol})", min_value=0.0, value=0.0, step=100.0, key="bonus_cost_input", format=INPUT_FORMAT)
     st.write("---")
     anual, mult, df_cost, months = calc_employer_cost(country, salario, bonus_anual, T, tables_ext=COUNTRY_TABLES)
