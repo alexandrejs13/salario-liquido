@@ -5,6 +5,7 @@
 # Ajuste: Rótulos Bônus e Remuneração Total ajustados conforme solicitado.
 # NOVO AJUSTE: Tabela de Remuneração Mensal estilizada (HTML) e índice removido.
 # ÚLTIMO AJUSTE: Cards Mensais/Anuais centralizados e espaçamento entre Tabela e Cards corrigido.
+# NOTA IMPORTANTE: Problemas de tela branca no iOS (iPhone) são geralmente causados por bugs de compatibilidade do JavaScript/WebSocket em versões Streamlit > 1.32.0. Recomenda-se fixar a versão para 1.32.0 no requirements.txt.
 # -------------------------------------------------------------
 
 import streamlit as st
@@ -96,7 +97,7 @@ I18N_FALLBACK = {
         "state": "Estado (EUA)", 
         "state_rate": "State Tax (%)", 
         "dependents": "Dependentes (IR)", 
-        "bonus": "Bônus", # CORREÇÃO
+        "bonus": "Bônus", 
         "other_deductions": "Outras Deduções Mensais", 
         "earnings": "Proventos", 
         "deductions": "Descontos", 
@@ -113,7 +114,7 @@ I18N_FALLBACK = {
         "rules_table_obs": "Observações / Teto", 
         "official_source": "Fonte Oficial", 
         "employer_cost_total": "Custo Total do Empregador", 
-        "annual_comp_title": "Composição da Remuneração Total Bruta", # CORREÇÃO
+        "annual_comp_title": "Composição da Remuneração Total Bruta", 
         "calc_params_title": "Parâmetros de Cálculo da Remuneração", 
         "monthly_comp_title": "Remuneração Mensal Bruta e Líquida", 
         "annual_salary": "Salário Anual", 
@@ -146,7 +147,7 @@ I18N_FALLBACK = {
         "state": "State (USA)", 
         "state_rate": "State Tax (%)", 
         "dependents": "Dependentes (Tax)", 
-        "bonus": "Bonus", # CORREÇÃO
+        "bonus": "Bonus", 
         "earnings": "Earnings", 
         "deductions": "Deductions", 
         "net": "Net Salary", 
@@ -162,7 +163,7 @@ I18N_FALLBACK = {
         "rules_table_obs": "Notes / Cap", 
         "official_source": "Official Source", 
         "employer_cost_total": "Total Employer Cost", 
-        "annual_comp_title": "Total Gross Compensation", # CORREÇÃO
+        "annual_comp_title": "Total Gross Compensation", 
         "annual_salary": "Annual Salary", 
         "annual_bonus": "Bonus", 
         "annual_total": "Total Compensation", 
@@ -191,7 +192,7 @@ I18N_FALLBACK = {
         "state": "Estado (EE. UU.)", 
         "state_rate": "Impuesto Estatal (%)", 
         "dependents": "Dependientes (Impuesto)", 
-        "bonus": "Bono", # CORREÇÃO
+        "bonus": "Bono", 
         "earnings": "Ingresos", 
         "deductions": "Descuentos", 
         "net": "Salario Neto", 
@@ -207,7 +208,7 @@ I18N_FALLBACK = {
         "rules_table_obs": "Notas / Tope", 
         "official_source": "Fuente Oficial", 
         "employer_cost_total": "Costo Total del Empleador", 
-        "annual_comp_title": "Composição de la Remuneração Total Bruta", # CORREÇÃO
+        "annual_comp_title": "Composição de la Remuneração Total Bruta", 
         "annual_salary": "Salario Anual", 
         "annual_bonus": "Bono", 
         "annual_total": "Remuneração Total", 
