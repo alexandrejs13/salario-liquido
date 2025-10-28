@@ -1,8 +1,7 @@
 # -------------------------------------------------------------
-# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.46 - Comparador de Remuneração)
-# NOVO: Adicionada tela de "Comparador de Remuneração" (Comparison Mode).
-# O comparador utiliza inputs e cálculos existentes para gerar um relatório
-# profissional lado a lado (Mensal Líquido e Anual Bruto).
+# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.47 - FIX TITULOS E COMPARADOR VAZIO)
+# Correção: Títulos do menu e da página de comparação ajustados.
+# Correção: Conteúdo da página "Comparador de Remuneração" injetado corretamente.
 # -------------------------------------------------------------
 
 import streamlit as st
@@ -77,7 +76,7 @@ def load_json(filepath, default_value={}):
         return default_value
 
 # --- Fallbacks Mínimos (COM TEXTOS ANUAIS AJUSTADOS) ---
-# ADICIONADO: menu_compare, title_compare
+# CORRIGIDO: menu_compare, title_compare
 I18N_FALLBACK = { 
     "Português": { 
         "sidebar_title": "Simulador de Remuneração<br><span style='font-size: 14px; font-weight: 400;'>Região das Américas</span>", 
@@ -86,12 +85,12 @@ I18N_FALLBACK = {
         "menu_rules": "Regras de Contribuições", 
         "menu_rules_sti": "Regras de Cálculo do STI", 
         "menu_cost": "Custo do Empregador", 
-        "menu_compare": "Comparador de Remuneração", # NOVO
+        "menu_compare": "Comparador de Remuneração", 
         "title_calc": "Simulador de Remuneração", 
         "title_rules": "Regras de Contribuições", 
         "title_rules_sti": "Regras de Cálculo do STI", 
         "title_cost": "Custo do Empregador", 
-        "title_compare": "Comparador de Proposta (Candidato vs. Referência)", # NOVO
+        "title_compare": "Comparador de Remuneração (Candidato vs. Referência)", 
         "country": "País", 
         "salary": "Salário Bruto", 
         "state": "Estado (EUA)", 
@@ -123,14 +122,14 @@ I18N_FALLBACK = {
         "months_factor": "Meses considerados", "pie_title": "Distribuição Anual: Salário vs Bônus", "pie_chart_title_dist": "Distribuição da Remuneração Total", "reload": "Recarregar tabelas", "source_remote": "Tabelas remotas", "source_local": "Fallback local", "choose_country": "Selecione o país", "menu_title": "Menu", "language_title": "🌐 Idioma / Language / Idioma", "area": "Área (STI)", "level": "Career Level (STI)", "rules_expanded": "Detalhes das Contribuições Obrigatórias", "salary_tooltip": "Seu salário mensal antes de impostos e deduções.", "dependents_tooltip": "Número de dependentes para dedução no Imposto de Renda (aplicável apenas no Brasil).", 
         "bonus_tooltip": "Valor total do bônus esperado no ano (pago de uma vez ou parcelado).", 
         "other_deductions_tooltip": "Soma de outras deduções mensais recorrentes (ex: plano de saúde, vale-refeição, contribuição sindical).", "sti_area_tooltip": "Selecione sua área de atuação (Vendas ou Não Vendas) para verificar a faixa de bônus (STI).", "sti_level_tooltip": "Selecione seu nível de carreira para verificar a faixa de bônus (STI). 'Others' inclui níveis não listados.", "sti_area_non_sales": "Não Vendas", "sti_area_sales": "Vendas", "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Membros do GEB", "sti_level_executive_manager": "Gerente Executivo", "sti_level_senior_group_manager": "Gerente de Grupo Sênior", "sti_level_group_manager": "Gerente de Grupo", "sti_level_lead_expert_program_manager": "Especialista Líder / Gerente de Programa", "sti_level_senior_manager": "Gerente Sênior", "sti_level_senior_expert_senior_project_manager": "Especialista Sênior / Gerente de Projeto Sênior", "sti_level_manager_selected_expert_project_manager": "Gerente / Especialista Selecionado / Gerente de Projeto", "sti_level_others": "Outros", "sti_level_executive_manager_senior_group_manager": "Gerente Executivo / Gerente de Grupo Sênior", "sti_level_group_manager_lead_sales_manager": "Gerente de Grupo / Gerente de Vendas Líder", "sti_level_senior_manager_senior_sales_manager": "Gerente Sênior / Gerente de Vendas Sênior", "sti_level_manager_selected_sales_manager": "Gerente / Gerente de Vendas Selecionado", "sti_in_range": "Dentro do range", "sti_out_range": "Fora do range", "cost_header_charge": "Encargo", "cost_header_percent": "Percentual (%)", "cost_header_base": "Base", "cost_header_obs": "Observação", "cost_header_bonus": "Incide Bônus", "cost_header_vacation": "Incide Férias", "cost_header_13th": "Incide 13º", "sti_table_header_level": "Nível de Carreira", "sti_table_header_pct": "STI %",
-        "candidate_title": "Candidato (Proposta)", # NOVO
-        "reference_title": "Referência (Atual)", # NOVO
-        "comp_monthly_title": "Comparativo Mensal Líquido", # NOVO
-        "comp_annual_title": "Comparativo Anual Bruto (Remuneração Total)", # NOVO
-        "comp_net_diff": "Diferença Líquida Mensal", # NOVO
-        "comp_annual_diff": "Diferença Bruta Anual", # NOVO
-        "comp_salary_diff": "Diferença Salário Anual", # NOVO
-        "generate_pdf": "Gerar Proposta em PDF", # NOVO
+        "candidate_title": "Candidato (Proposta)", 
+        "reference_title": "Referência (Atual)", 
+        "comp_monthly_title": "Comparativo Mensal Líquido", 
+        "comp_annual_title": "Comparativo Anual Bruto (Remuneração Total)", 
+        "comp_net_diff": "Diferença Líquida Mensal", 
+        "comp_annual_diff": "Diferença Bruta Anual", 
+        "comp_salary_diff": "Diferença Salário Anual", 
+        "generate_pdf": "Gerar Proposta em PDF", 
     }, 
     "English": { 
         "sidebar_title": "Compensation Simulator<br><span style='font-size: 14px; font-weight: 400;'>Americas Region</span>", 
@@ -146,18 +145,18 @@ I18N_FALLBACK = {
         "menu_rules": "Contribution Rules", 
         "menu_rules_sti": "STI Calculation Rules", 
         "menu_cost": "Employer Cost", 
-        "menu_compare": "Compensation Comparison", # NOVO
+        "menu_compare": "Compensation Comparison", 
         "title_calc": "Compensation Simulator", 
         "title_rules": "Contribution Rules", 
         "title_rules_sti": "STI Calculation Rules", 
         "title_cost": "Employer Cost", 
-        "title_compare": "Proposal Comparison (Candidate vs. Reference)", # NOVO
+        "title_compare": "Compensation Comparison (Candidate vs. Reference)", 
         "country": "Country", 
         "salary": "Gross Salary", 
         "state": "State (USA)", 
         "state_rate": "State Tax (%)", 
-        "dependents": "Dependentes (Tax)", 
-        "bonus": "Bonus", # CORREÇÃO
+        "dependents": "Dependents (Tax)", 
+        "bonus": "Bonus", 
         "earnings": "Earnings", 
         "deductions": "Deductions", 
         "net": "Net Salary", 
@@ -173,19 +172,19 @@ I18N_FALLBACK = {
         "rules_table_obs": "Notes / Cap", 
         "official_source": "Official Source", 
         "employer_cost_total": "Total Employer Cost", 
-        "annual_comp_title": "Total Gross Compensation", # CORREÇÃO
+        "annual_comp_title": "Total Gross Compensation", 
         "annual_salary": "Annual Salary", 
         "annual_bonus": "Bonus", 
         "annual_total": "Total Compensation", 
-        "months_factor": "Months considered", "pie_title": "Annual Split: Salary vs Bonus", "pie_chart_title_dist": "Total Compensation Distribution", "reload": "Reload tables", "source_remote": "Remote tables", "source_local": "Local fallback", "choose_country": "Select a country", "menu_title": "Menu", "language_title": "🌐 Idioma / Language / Idioma", "area": "Area (STI)", "level": "Career Level (STI)", "rules_expanded": "Details of Mandatory Contributions", "sti_area_non_sales": "Non Sales", "sti_area_sales": "Sales", "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Members of the GEB", "sti_level_executive_manager": "Executive Manager", "sti_level_senior_group_manager": "Senior Group Manager", "sti_level_group_manager": "Group Manager", "sti_level_lead_expert_program_manager": "Lead Expert / Program Manager", "sti_level_senior_manager": "Senior Manager", "sti_level_senior_expert_senior_project_manager": "Senior Expert / Senior Project Manager", "sti_level_manager_selected_expert_project_manager": "Manager / Selected Expert / Project Manager", "sti_level_others": "Others", "sti_level_executive_manager_senior_group_manager": "Executive Manager / Senior Group Manager", "sti_level_group_manager_lead_sales_manager": "Group Manager / Lead Sales Manager", "sti_level_senior_manager_senior_sales_manager": "Senior Manager / Senior Sales Manager", "sti_level_manager_selected_sales_manager": "Manager / Selected Sales Manager", "sti_in_range": "Within range", "sti_out_range": "Outside range", "cost_header_charge": "Charge", "cost_header_percent": "Percent (%)", "cost_header_base": "Base", "cost_header_obs": "Observation", "cost_header_bonus": "Applies to Bonus", "cost_header_vacation": "Applies to Vacation", "cost_header_13th": "Applies to 13th", "sti_table_header_level": "Career Level", "sti_table_header_pct": "STI %",
-        "candidate_title": "Candidate (Proposal)", # NOVO
-        "reference_title": "Reference (Current)", # NOVO
-        "comp_monthly_title": "Monthly Net Compensation Comparison", # NOVO
-        "comp_annual_title": "Annual Gross Compensation Comparison", # NOVO
-        "comp_net_diff": "Monthly Net Difference", # NOVO
-        "comp_annual_diff": "Annual Gross Difference", # NOVO
-        "comp_salary_diff": "Annual Salary Difference", # NOVO
-        "generate_pdf": "Generate PDF Proposal", # NOVO
+        "months_factor": "Months considered", "pie_title": "Annual Split: Salary vs Bonus", "pie_chart_title_dist": "Total Compensation Distribution", "reload": "Reload tables", "source_remote": "Remote tables", "source_local": "Local fallback", "choose_country": "Select a country", "menu_title": "Menu", "language_title": "🌐 Idioma / Language / Idioma", "area": "Area (STI)", "level": "Career Level (STI)", "rules_expanded": "Details of Mandatory Contributions", "sti_area_non_sales": "Non Sales", "sti_area_sales": "Sales", "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Members of the GEB", "sti_level_executive_manager": "Executive Manager", "sti_level_senior_group_manager": "Senior Group Manager", "sti_level_group_manager": "Group Manager", "sti_level_lead_expert_program_manager": "Lead Expert / Program Manager", "sti_level_senior_manager": "Senior Manager", "sti_level_senior_expert_senior_project_manager": "Senior Expert / Senior Project Manager", "sti_level_manager_selected_expert_project_manager": "Manager / Selected Expert / Project Manager", "sti_level_others": "Others", "sti_level_executive_manager_senior_group_manager": "Executive Manager / Senior Group Manager", "sti_level_group_manager / Lead Sales Manager": "Group Manager / Lead Sales Manager", "sti_level_senior_manager_senior_sales_manager": "Senior Manager / Senior Sales Manager", "sti_level_manager_selected_sales_manager": "Manager / Selected Sales Manager", "sti_in_range": "Within range", "sti_out_range": "Outside range", "cost_header_charge": "Charge", "cost_header_percent": "Percent (%)", "cost_header_base": "Base", "cost_header_obs": "Observation", "cost_header_bonus": "Applies to Bonus", "cost_header_vacation": "Applies to Vacation", "cost_header_13th": "Applies to 13th", "sti_table_header_level": "Career Level", "sti_table_header_pct": "STI %",
+        "candidate_title": "Candidate (Proposal)", 
+        "reference_title": "Reference (Current)", 
+        "comp_monthly_title": "Monthly Net Compensation Comparison", 
+        "comp_annual_title": "Annual Gross Compensation Comparison", 
+        "comp_net_diff": "Monthly Net Difference", 
+        "comp_annual_diff": "Annual Gross Difference", 
+        "comp_salary_diff": "Annual Salary Difference", 
+        "generate_pdf": "Generate PDF Proposal", 
     }, 
     "Español": { 
         "sidebar_title": "Simulador de Remuneración<br><span style='font-size: 14px; font-weight: 400;'>Región Américas</span>", 
@@ -201,18 +200,18 @@ I18N_FALLBACK = {
         "menu_rules": "Regras de Contribuições", 
         "menu_rules_sti": "Regras de Cálculo del STI", 
         "menu_cost": "Costo del Empleador", 
-        "menu_compare": "Comparador de Remuneración", # NOVO
+        "menu_compare": "Comparador de Remuneración", 
         "title_calc": "Simulador de Remuneração", 
         "title_rules": "Regras de Contribuições", 
         "title_rules_sti": "Reglas de Cálculo del STI", 
         "title_cost": "Costo del Empleador", 
-        "title_compare": "Comparador de Propuesta (Candidato vs. Referencia)", # NOVO
+        "title_compare": "Comparador de Remuneración (Candidato vs. Referencia)", 
         "country": "País", 
         "salary": "Salario Bruto", 
         "state": "Estado (EE. UU.)", 
         "state_rate": "Impuesto Estatal (%)", 
         "dependents": "Dependientes (Impuesto)", 
-        "bonus": "Bono", # CORREÇÃO
+        "bonus": "Bono", 
         "earnings": "Ingresos", 
         "deductions": "Descuentos", 
         "net": "Salario Neto", 
@@ -228,19 +227,19 @@ I18N_FALLBACK = {
         "rules_table_obs": "Notas / Tope", 
         "official_source": "Fuente Oficial", 
         "employer_cost_total": "Costo Total del Empleador", 
-        "annual_comp_title": "Composição de la Remuneração Total Bruta", # CORREÇÃO
+        "annual_comp_title": "Composição de la Remuneração Total Bruta", 
         "annual_salary": "Salario Anual", 
         "annual_bonus": "Bono", 
         "annual_total": "Remuneração Total", 
         "months_factor": "Meses considerados", "pie_title": "Distribuição Anual: Salario vs Bono", "pie_chart_title_dist": "Distribución de la Remuneração Total", "reload": "Recarregar tablas", "source_remote": "Tablas remotas", "source_local": "Copia local", "choose_country": "Seleccione un país", "menu_title": "Menu", "language_title": "🌐 Idioma / Language / Idioma", "area": "Área (STI)", "level": "Career Level (STI)", "rules_expanded": "Detalles de las Contribuições Obligatorias", "sti_area_non_sales": "No Ventas", "sti_area_sales": "Ventas", "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Miembros del GEB", "sti_level_executive_manager": "Gerente Ejecutivo", "sti_level_senior_group_manager": "Gerente de Grupo Sénior", "sti_level_group_manager": "Gerente de Grupo", "sti_level_lead_expert_program_manager": "Experto Líder / Gerente de Programa", "sti_level_senior_manager": "Gerente Sénior", "sti_level_senior_expert_senior_project_manager": "Experto Sénior / Gerente de Proyecto Sénior", "sti_level_manager_selected_expert_project_manager": "Gerente / Experto Seleccionado / Gerente de Proyecto", "sti_level_others": "Otros", "sti_level_executive_manager_senior_group_manager": "Gerente Ejecutivo / Gerente de Grupo Sénior", "sti_level_group_manager_lead_sales_manager": "Gerente de Grupo / Gerente de Ventas Líder", "sti_level_senior_manager_senior_sales_manager": "Gerente Sénior / Gerente de Ventas Sénior", "sti_level_manager_selected_sales_manager": "Gerente / Gerente de Ventas Seleccionado", "sti_in_range": "Dentro del rango", "sti_out_range": "Fuera del rango", "cost_header_charge": "Encargo", "cost_header_percent": "Percentual (%)", "cost_header_base": "Base", "cost_header_obs": "Observação", "cost_header_bonus": "Incide Bono", "cost_header_vacation": "Incide Vacaciones", "cost_header_13th": "Incide 13º", "sti_table_header_level": "Nivel de Carrera", "sti_table_header_pct": "STI %",
-        "candidate_title": "Candidato (Propuesta)", # NOVO
-        "reference_title": "Referencia (Actual)", # NOVO
-        "comp_monthly_title": "Comparación Mensual Neta", # NOVO
-        "comp_annual_title": "Comparación Anual Bruta (Remuneración Total)", # NOVO
-        "comp_net_diff": "Diferencia Neta Mensual", # NOVO
-        "comp_annual_diff": "Diferencia Bruta Anual", # NOVO
-        "comp_salary_diff": "Diferencia Salario Anual", # NOVO
-        "generate_pdf": "Generar Propuesta en PDF", # NOVO
+        "candidate_title": "Candidato (Propuesta)", 
+        "reference_title": "Referencia (Actual)", 
+        "comp_monthly_title": "Comparación Mensual Neta", 
+        "comp_annual_title": "Comparación Anual Bruta (Remuneración Total)", 
+        "comp_net_diff": "Diferencia Neta Mensual", 
+        "comp_annual_diff": "Diferencia Bruta Anual", 
+        "comp_salary_diff": "Diferencia Salario Anual", 
+        "generate_pdf": "Generar Propuesta en PDF", 
     } 
 }
 COUNTRIES_FALLBACK = {"Brasil": {"symbol": "R$", "flag": "🇧🇷", "valid_from": "2025-01-01", "benefits": {"ferias": True, "decimo": True}}, "México": {"symbol": "MX$", "flag": "🇲🇽", "valid_from": "2025-01-01", "benefits": {"ferias": True, "decimo": True}}, "Chile": {"symbol": "CLP$", "flag": "🇨🇱", "valid_from": "2025-01-01", "benefits": {"ferias": True, "decimo": False}}, "Argentina": {"symbol": "ARS$", "flag": "🇦🇷", "valid_from": "2025-01-01", "benefits": {"ferias": True, "decimo": True}}, "Colômbia": {"symbol": "COP$", "flag": "🇨🇴", "valid_from": "2025-01-01", "benefits": {"ferias": True, "decimo": True}}, "Estados Unidos": {"symbol": "US$", "flag": "🇺🇸", "valid_from": "2025-01-01", "benefits": {"ferias": False, "decimo": False}}, "Canadá": {"symbol": "CAD$", "flag": "🇨🇦", "valid_from": "2025-01-01", "benefits": {"ferias": False, "decimo": False}}}
@@ -418,39 +417,14 @@ def calc_country_net(country_code: str, salary: float, other_deductions: float, 
         lines, te, td, net = generic_net(salary, other_deductions, rates, country_code)
         return {"lines": lines, "total_earn": te, "total_ded": td, "net": net, "fgts": 0.0}
 
-# Função auxiliar para renderizar a tabela mensal em HTML
+# Função auxiliar para renderizar a tabela mensal em HTML (Adaptada para Comparador)
 def render_monthly_table(calc_results: Dict[str, Any], T: Dict[str, str], symbol: str):
     df_detalhe = pd.DataFrame(calc_results["lines"], columns=["Descrição", T.get("earnings","Earnings"), T.get("deductions","Deductions")])
     df_detalhe[T.get("earnings","Earnings")] = df_detalhe[T.get("earnings","Earnings")].apply(lambda v: money_or_blank(v, symbol))
     df_detalhe[T.get("deductions","Deductions")] = df_detalhe[T.get("deductions","Deductions")].apply(lambda v: money_or_blank(v, symbol))
     
-    # Adicionar linha do líquido/totalizadores ao final da tabela (sem corpo de tabela)
-    total_earn_fmt = fmt_money(calc_results['total_earn'], symbol)
-    total_ded_fmt = fmt_money(calc_results['total_ded'], symbol)
-    net_fmt = fmt_money(calc_results['net'], symbol)
-
-    # Convertendo o DataFrame para HTML
-    table_html = df_detalhe.to_html(index=False, classes='monthly-table-comp')
-    
-    # Adicionando o Footer customizado
-    footer_html = f"""
-    <tr class="footer-earn">
-        <td><strong>{T.get("tot_earnings","Total Earnings")}</strong></td>
-        <td><strong>{total_earn_fmt}</strong></td>
-        <td></td>
-    </tr>
-    <tr class="footer-ded">
-        <td><strong>{T.get("tot_deductions","Total Deductions")}</strong></td>
-        <td></td>
-        <td><strong>{total_ded_fmt}</strong></td>
-    </tr>
-    <tr class="footer-net">
-        <td><strong>{T.get("net","Net Salary")}</strong></td>
-        <td colspan="2"><strong>{net_fmt}</strong></td>
-    </tr>
-    """
-    # Injetando o footer na tabela HTML
-    table_html = table_html.replace('</tbody>', footer_html + '</tbody>')
+    # Linhas de totalização são removidas aqui para usar a versão 'monthly-table'
+    table_html = df_detalhe.to_html(index=False, classes='monthly-table')
 
     return f"<div class='table-wrap'>{table_html}</div>"
 
@@ -589,18 +563,22 @@ div.block-container {
 .monthly-table-comp tbody td:first-child { text-align: left; }
 
 /* Linhas de totalização */
-.monthly-table-comp .footer-earn td,
-.monthly-table-comp .footer-ded td,
 .monthly-table-comp .footer-net td {
-    border-top: 1px solid #ccc;
+    border-top: 2px solid #0a3d62;
+    font-weight: 700;
+    padding: 10px 15px;
+    background: #e0e6f0; 
+    font-size: 16px; 
+    color: #0a3d62; 
+}
+.monthly-table-comp .footer-diff td {
+    border-top: 1px dashed #ccc;
     font-weight: 600;
     padding: 10px 15px;
-    background: #f0f4f8; /* Fundo sutil para rodapé */
+    background: #f0f4f8; 
 }
-.monthly-table-comp .footer-net td { background: #e0e6f0; font-size: 16px; color: #0a3d62; }
-.monthly-table-comp .footer-earn td:nth-child(2), 
-.monthly-table-comp .footer-ded td:nth-child(3),
-.monthly-table-comp .footer-net td:nth-child(2) { text-align: right; }
+.monthly-table-comp .footer-net td:nth-child(2),
+.monthly-table-comp .footer-net td:nth-child(3) { text-align: right; }
 
 
 /* O restante do seu CSS é mantido */
@@ -711,8 +689,8 @@ with st.sidebar:
 
     # 4. MENU DE NAVEGAÇÃO
     st.markdown(f"<h3 style='margin-top: 1.5rem; margin-bottom: 0.5rem;'>{T.get('menu_title', 'Menu')}</h3>", unsafe_allow_html=True)
-    # ADICIONADO: menu_compare
-    menu_options = [T.get("menu_calc", "Calc"), T.get("menu_compare", "Compare"), T.get("menu_rules", "Rules"), T.get("menu_rules_sti", "STI Rules"), T.get("menu_cost", "Cost")]
+    # AJUSTADO: Usando as chaves de I18N
+    menu_options = [T.get("menu_calc", "Simulador de Remuneração"), T.get("menu_compare", "Comparador de Remuneração"), T.get("menu_rules", "Regras de Contribuições"), T.get("menu_rules_sti", "Regras de Cálculo do STI"), T.get("menu_cost", "Custo do Empregador")]
 
     if 'active_menu' not in st.session_state or st.session_state.active_menu not in menu_options:
         st.session_state.active_menu = menu_options[0]
@@ -741,7 +719,7 @@ else:
     T = I18N_FALLBACK["Português"]
 
 country = st.session_state.get('country_select', 'Brasil') 
-active_menu = st.session_state.get('active_menu', T.get("menu_calc", "Calc"))
+active_menu = st.session_state.get('active_menu', T.get("menu_calc", "Simulador de Remuneração"))
 
 US_STATE_RATES_LOADED, COUNTRY_TABLES_LOADED, BR_INSS_TBL_LOADED, BR_IRRF_TBL_LOADED = load_tables_data()
 COUNTRY_TABLES = COUNTRY_TABLES_LOADED
@@ -759,11 +737,11 @@ except KeyError as e:
     st.stop()
     
 # ======================= TÍTULO DINÂMICO (MANTIDO) ==============================
-if active_menu == T.get("menu_calc"): title = T.get("title_calc", "Calculator")
-elif active_menu == T.get("menu_rules"): title = T.get("title_rules", "Rules")
-elif active_menu == T.get("menu_rules_sti"): title = T.get("title_rules_sti", "STI Rules")
-elif active_menu == T.get("menu_compare"): title = T.get("title_compare", "Comparison") # NOVO
-else: title = T.get("title_cost", "Cost")
+if active_menu == T.get("menu_calc"): title = T.get("title_calc", "Simulador de Remuneração")
+elif active_menu == T.get("menu_rules"): title = T.get("title_rules", "Regras de Contribuições")
+elif active_menu == T.get("menu_rules_sti"): title = T.get("title_rules_sti", "Regras de Cálculo do STI")
+elif active_menu == T.get("menu_compare"): title = T.get("title_compare", "Comparador de Remuneração (Candidato vs. Referência)") 
+else: title = T.get("title_cost", "Custo do Empregador")
 
 st.markdown(f"<div class='country-header'><div class='country-title'>{title}</div><div class='country-flag'>{flag}</div></div>", unsafe_allow_html=True)
 st.write("---")
@@ -832,7 +810,7 @@ def render_country_inputs(country: str, T: Dict[str, str], symbol: str, prefix: 
         state_code, state_rate = None, None
         
         st.markdown(f"""<div style="display: flex; justify-content: space-between; margin-top: 1rem;"><div style="width: 25%;"><h5>{get_sti_label('area', 'Área')}</h5></div><div style="width: 25%;"><h5>{get_sti_label('level', 'Career Level')}</h5></div><div style="width: 50%;"></div></div>""", unsafe_allow_html=True)
-        r1, r2, r3, r4 = st.columns(4)
+        r1, r2, r3, r4 = st.columns(4) 
         area_display = r1.selectbox(f"Área STI_{prefix}", area_options_display, index=0, key=f"{prefix}_sti_area", help=T.get("sti_area_tooltip"), label_visibility="collapsed")
         area = area_display_map.get(area_display, "Non Sales")
         level_options_display, level_display_map = get_sti_level_map(area, T)
@@ -847,7 +825,8 @@ def render_country_inputs(country: str, T: Dict[str, str], symbol: str, prefix: 
     }
 
 
-# ========================= COMPARADOR DE REMUNERAÇÃO (NOVA TELA) ==========================
+# ========================= COMPARADOR DE REMUNERAÇÃO (NOVA TELA - FIX) ==========================
+# O conteúdo que faltava foi movido para dentro deste bloco
 if active_menu == T.get("menu_compare"):
     
     st.subheader(T.get("calc_params_title", "Parâmetros de Cálculo da Remuneração"))
@@ -880,7 +859,10 @@ if active_menu == T.get("menu_compare"):
         elif country == "Estados Unidos":
              candidate_data["state_code"] = cc2.selectbox(f"Estado Cand.", list(US_STATE_RATES.keys()), index=0, key="cand_state_select", help=T.get("state"), label_visibility="collapsed")
              candidate_data["state_rate"] = float(US_STATE_RATES.get(candidate_data["state_code"], 0.0))
-
+        # Para STI (apenas um placeholder visual aqui, os detalhes não são exibidos no comparador)
+        area_options_display, area_display_map = get_sti_area_map(T)
+        level_options_display, level_display_map = get_sti_level_map(area_display_map.get(area_options_display[0], "Non Sales"), T)
+        
     # --- 2. Inputs da Referência (Atual) ---
     with col_reference:
         st.markdown(f"#### 👥 {T.get('reference_title', 'Referência')}")
@@ -922,7 +904,7 @@ if active_menu == T.get("menu_compare"):
     
     
     # --- 4. Comparativo Mensal Líquido (Tabela) ---
-    st.subheader(T.get("comp_monthly_title", "Comparativo Mensal Líquido"))
+    st.subheader(f"1. 💵 {T.get('comp_monthly_title', 'Comparativo Mensal Líquido')}")
     
     # Prepara a tabela de comparação mensal (apenas as linhas de Deduções/Proventos)
     df_cand = pd.DataFrame(calc_cand["lines"], columns=["Descrição", "Cand_Earn", "Cand_Ded"])
@@ -931,21 +913,6 @@ if active_menu == T.get("menu_compare"):
     # Combina as linhas dos dois cálculos
     df_comp = pd.merge(df_cand[["Descrição", "Cand_Earn", "Cand_Ded"]], df_ref[["Descrição", "Ref_Earn", "Ref_Ded"]], on="Descrição", how="outer").fillna(0.0)
     
-    # Agrupa Proventos e Descontos (para simplificar a visualização do relatório)
-    def aggregate_comp_lines(df, T):
-        
-        # Cria um DataFrame final com apenas o que o usuário precisa ver
-        data = {
-            T.get("salary", "Salário Bruto"): [candidate_data["salario"], reference_data["salario"]],
-            T.get("tot_deductions", "Total de Descontos"): [calc_cand["total_ded"], calc_ref["total_ded"]],
-            T.get("net", "Salário Líquido"): [calc_cand["net"], calc_ref["net"]],
-        }
-        
-        df_final = pd.DataFrame(data, index=[T.get("candidate_title"), T.get("reference_title")]).T
-        df_final.columns.name = T.get("rules_table_desc", "Descrição")
-        return df_final.applymap(lambda x: fmt_money(x, symbol))
-
-
     # Tabela com detalhe (HTML) - mantendo a estrutura original, mas lado a lado
     
     # Mesclar linhas de cada coluna (Descrição, Valor Cand, Valor Ref)
@@ -953,7 +920,6 @@ if active_menu == T.get("menu_compare"):
     df_ref_tbl = pd.DataFrame(calc_ref["lines"], columns=["Descrição", T.get("earnings","Proventos"), T.get("deductions","Descontos")])
     
     # Cria uma tabela única no formato necessário para o layout de comparação
-    # A tabela de comparação é construída à mão em HTML para garantir o layout de 3 colunas (Desc | Cand | Ref)
     
     # Lista única de descrições
     all_descriptions = sorted(list(set(df_cand_tbl['Descrição'].tolist() + df_ref_tbl['Descrição'].tolist())))
@@ -979,10 +945,16 @@ if active_menu == T.get("menu_compare"):
         cand_value = cand_row[T.get("earnings")].iloc[0] if not cand_row.empty and cand_row[T.get("earnings")].iloc[0] else (-cand_row[T.get("deductions")].iloc[0] if not cand_row.empty and cand_row[T.get("deductions")].iloc[0] else 0.0)
         ref_value = ref_row[T.get("earnings")].iloc[0] if not ref_row.empty and ref_row[T.get("earnings")].iloc[0] else (-ref_row[T.get("deductions")].iloc[0] if not ref_row.empty and ref_row[T.get("deductions")].iloc[0] else 0.0)
         
-        cand_fmt = fmt_money(cand_value, symbol) if cand_value > 0 else f'<span style="color: #c0392b;">{fmt_money(cand_value, symbol)}</span>'
-        ref_fmt = fmt_money(ref_value, symbol) if ref_value > 0 else f'<span style="color: #c0392b;">{fmt_money(ref_value, symbol)}</span>'
-        if abs(cand_value) < 1e-9: cand_fmt = '—'
-        if abs(ref_value) < 1e-9: ref_fmt = '—'
+        # Ajusta a exibição: valores negativos (deduções) em vermelho, valores positivos (proventos) normais
+        cand_fmt = fmt_money(abs(cand_value), symbol)
+        ref_fmt = fmt_money(abs(ref_value), symbol)
+        
+        # Cor de dedução
+        if cand_value < 0: cand_fmt = f'<span style="color: #c0392b;">({cand_fmt})</span>'
+        if ref_value < 0: ref_fmt = f'<span style="color: #c0392b;">({ref_fmt})</span>'
+
+        if abs(cand_value) < 1e-9 and desc not in ["Salário Base", "Base Pay"]: cand_fmt = '—'
+        if abs(ref_value) < 1e-9 and desc not in ["Salário Base", "Base Pay"]: ref_fmt = '—'
         
         # Tratamento especial para Salário Base/Base Pay
         if desc in ["Salário Base", "Base Pay"]:
@@ -1000,7 +972,11 @@ if active_menu == T.get("menu_compare"):
     # Linhas de totalização
     diff_net = calc_cand["net"] - calc_ref["net"]
     color_net = "#4caf50" if diff_net >= 0 else "#f44336" # Verde positivo, Vermelho negativo
-    diff_net_fmt = f'<span style="color: {color_net};"><strong>{fmt_money(diff_net, symbol)}</strong></span>' if abs(diff_net) > 1e-9 else '—'
+    
+    diff_net_fmt = fmt_money(abs(diff_net), symbol)
+    if diff_net < 0: diff_net_fmt = f'({diff_net_fmt})'
+    
+    diff_net_style = f'<span style="color: {color_net};"><strong>{diff_net_fmt}</strong></span>' if abs(diff_net) > 1e-9 else '—'
     
     # Rodapé da tabela com o NET e a Diferença
     footer_html_comp = f"""
@@ -1009,9 +985,9 @@ if active_menu == T.get("menu_compare"):
         <td><strong>{fmt_money(calc_cand["net"], symbol)}</strong></td>
         <td><strong>{fmt_money(calc_ref["net"], symbol)}</strong></td>
     </tr>
-    <tr>
+    <tr class="footer-diff">
         <td><strong>{T.get("comp_net_diff", "Diferença Líquida Mensal")}</strong></td>
-        <td colspan="2" style="text-align: right; background: #f0f4f8;">{diff_net_fmt}</td>
+        <td colspan="2" style="text-align: right;">{diff_net_style}</td>
     </tr>
     """
     
@@ -1019,7 +995,7 @@ if active_menu == T.get("menu_compare"):
     
     # --- 5. Comparativo Anual Bruto (Cards) ---
     st.markdown("<hr style='margin-top: 35px;'>", unsafe_allow_html=True)
-    st.subheader(T.get("comp_annual_title", "Comparativo Anual Bruto"))
+    st.subheader(f"2. 💰 {T.get('comp_annual_title', 'Comparativo Anual Bruto')}")
     
     diff_salary_annual = annual_cand["salario_anual"] - annual_ref["salario_anual"]
     diff_total_annual = annual_cand["total_anual"] - annual_ref["total_anual"]
@@ -1034,11 +1010,14 @@ if active_menu == T.get("menu_compare"):
         value_fmt = fmt_money(abs(value), symbol)
         
         icon = '⬆️' if value > 0 else ('⬇️' if value < 0 else '➖')
+        value_color = "#4caf50" if value > 0 else ("#f44336" if value < 0 else "#0a3d62")
+        
+        value_display = f'({value_fmt})' if value < 0 else value_fmt
         
         st.markdown(f"""
         <div class='comp-card {color_class}' style='min-height: 120px !important;'>
             <h4>{icon} {title}</h4>
-            <h3 style='color:#1a1a1a;'>{value_fmt}</h3>
+            <h3 style='color:{value_color};'>{value_display}</h3>
             <p style='margin:0; font-size:12px; color:#555;'>Candidato vs. Referência</p>
         </div>
         """, unsafe_allow_html=True)
@@ -1053,6 +1032,7 @@ if active_menu == T.get("menu_compare"):
             <h4>{T.get('annual_total','Remuneração Total')} - {T.get('candidate_title', 'Candidato')}</h4>
             <h3>{fmt_money(annual_cand['total_anual'], symbol)}</h3>
             <p style='margin:0; font-size:12px; color:#555;'>{T.get('annual_salary', 'Salário Anual')}: {fmt_money(annual_cand['salario_anual'], symbol)}</p>
+            <p style='margin:0; font-size:12px; color:#555;'>{T.get('annual_bonus', 'Bônus')}: {fmt_money(annual_cand['bonus_anual'], symbol)}</p>
         </div>
         """, unsafe_allow_html=True)
         
@@ -1063,6 +1043,7 @@ if active_menu == T.get("menu_compare"):
             <h4>{T.get('annual_total','Remuneração Total')} - {T.get('reference_title', 'Referência')}</h4>
             <h3>{fmt_money(annual_ref['total_anual'], symbol)}</h3>
             <p style='margin:0; font-size:12px; color:#555;'>{T.get('annual_salary', 'Salário Anual')}: {fmt_money(annual_ref['salario_anual'], symbol)}</p>
+            <p style='margin:0; font-size:12px; color:#555;'>{T.get('annual_bonus', 'Bônus')}: {fmt_money(annual_ref['bonus_anual'], symbol)}</p>
         </div>
         """, unsafe_allow_html=True)
         
@@ -1074,7 +1055,7 @@ if active_menu == T.get("menu_compare"):
     st.markdown("<div class='card-row-spacing'>", unsafe_allow_html=True)
     comp_c4, comp_c5, comp_c6 = st.columns(3)
     with comp_c4:
-        st.markdown(f"**{T.get('months_factor','Meses considerados')}:** {months}")
+        st.markdown(f"**📅 {T.get('months_factor','Meses considerados')}:** {months}")
         
     with comp_c5:
         # Espaço
@@ -1089,7 +1070,8 @@ if active_menu == T.get("menu_compare"):
     # --- 6. Botão de PDF (Placeholder) ---
     pdf_col1, pdf_col2, pdf_col3 = st.columns([1, 2, 1])
     if pdf_col2.button(T.get("generate_pdf", "Gerar Proposta em PDF"), use_container_width=True, type="primary"):
-        st.success(f"✅ {T.get('generate_pdf')} gerado com sucesso! (Funcionalidade de geração de PDF ainda é um placeholder no código atual. Você precisará de bibliotecas como `reportlab` ou `weasyprint` para gerar um PDF real a partir do HTML/Markdown.")
+        st.success(f"✅ {T.get('generate_pdf')} gerado com sucesso! (Funcionalidade de geração de PDF ainda é um placeholder no código atual.)")
+
 
 # ========================= SIMULADOR DE REMUNERAÇÃO (MANTIDO) ==========================
 elif active_menu == T.get("menu_calc"):
