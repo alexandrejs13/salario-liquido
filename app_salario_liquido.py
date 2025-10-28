@@ -1415,4 +1415,3 @@ elif active_menu == T.get("menu_cost"):
     # As tabelas de custo (que usam st.dataframe) manterão o índice por padrão, mas terão um visual melhor.
     if not df_cost.empty: st.dataframe(df_cost, use_container_width=True, hide_index=True)
     else: st.info("Sem encargos configurados para este país.")
-9
