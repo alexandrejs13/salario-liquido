@@ -1,7 +1,10 @@
 # -------------------------------------------------------------
 # 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.45 - FIX FINAL ESTILO EMOJI/ALINHAMENTO)
-# FIX CRÍTICO: Removido 'sidebar_width' do st.set_page_config e movido para CSS,
-# Resolvendo o TypeError em ambientes de Streamlit/Python mais antigos/incompatíveis.
+# Correção: Layout reestruturado para simetria de colunas nos inputs.
+# Modificação: Cards com estilo refinado (removida borda colorida e ajuste de cor).
+# Ajuste: Rótulos Bônus e Remuneração Total ajustados conforme solicitado.
+# NOVO AJUSTE: Tabela de Remuneração Mensal estilizada (HTML) e índice removido.
+# ÚLTIMO AJUSTE: Cards Mensais/Anuais centralizados e espaçamento entre Tabela e Cards corrigido.
 # -------------------------------------------------------------
 
 import streamlit as st
@@ -14,12 +17,7 @@ import math
 import json
 import os 
 
-# 1. CONFIGURAÇÃO INICIAL COM LARGURA PADRÃO E LAYOUT WIDE
-st.set_page_config(
-    page_title="Simulador de Salário Líquido", 
-    layout="wide",
-    # sidebar_width e initial_sidebar_state foram removidos daqui para estabilidade.
-)
+st.set_page_config(page_title="Simulador de Salário Líquido", layout="wide")
 
 # ======================== HELPERS INICIAIS (Formatação - NOVO TOPO ABSOLUTO) =========================
 # Variável global temporária para o código do país, será definida na sidebar
@@ -98,7 +96,7 @@ I18N_FALLBACK = {
         "state": "Estado (EUA)", 
         "state_rate": "State Tax (%)", 
         "dependents": "Dependentes (IR)", 
-        "bonus": "Bônus", 
+        "bonus": "Bônus", # CORREÇÃO
         "other_deductions": "Outras Deduções Mensais", 
         "earnings": "Proventos", 
         "deductions": "Descontos", 
@@ -115,7 +113,7 @@ I18N_FALLBACK = {
         "rules_table_obs": "Observações / Teto", 
         "official_source": "Fonte Oficial", 
         "employer_cost_total": "Custo Total do Empregador", 
-        "annual_comp_title": "Composição da Remuneração Total Bruta", 
+        "annual_comp_title": "Composição da Remuneração Total Bruta", # CORREÇÃO
         "calc_params_title": "Parâmetros de Cálculo da Remuneração", 
         "monthly_comp_title": "Remuneração Mensal Bruta e Líquida", 
         "annual_salary": "Salário Anual", 
@@ -148,7 +146,7 @@ I18N_FALLBACK = {
         "state": "State (USA)", 
         "state_rate": "State Tax (%)", 
         "dependents": "Dependentes (Tax)", 
-        "bonus": "Bonus", 
+        "bonus": "Bonus", # CORREÇÃO
         "earnings": "Earnings", 
         "deductions": "Deductions", 
         "net": "Net Salary", 
@@ -164,9 +162,7 @@ I18N_FALLBACK = {
         "rules_table_obs": "Notes / Cap", 
         "official_source": "Official Source", 
         "employer_cost_total": "Total Employer Cost", 
-        "annual_comp_title": "Total Gross Compensation", 
-        "calc_params_title": "Parameters for Compensation Calculation", 
-        "monthly_comp_title": "Gross and Net Monthly Compensation", 
+        "annual_comp_title": "Total Gross Compensation", # CORREÇÃO
         "annual_salary": "Annual Salary", 
         "annual_bonus": "Bonus", 
         "annual_total": "Total Compensation", 
@@ -195,7 +191,7 @@ I18N_FALLBACK = {
         "state": "Estado (EE. UU.)", 
         "state_rate": "Impuesto Estatal (%)", 
         "dependents": "Dependientes (Impuesto)", 
-        "bonus": "Bono", 
+        "bonus": "Bono", # CORREÇÃO
         "earnings": "Ingresos", 
         "deductions": "Descuentos", 
         "net": "Salario Neto", 
@@ -211,9 +207,7 @@ I18N_FALLBACK = {
         "rules_table_obs": "Notas / Tope", 
         "official_source": "Fuente Oficial", 
         "employer_cost_total": "Costo Total del Empleador", 
-        "annual_comp_title": "Composição de la Remuneração Total Bruta", 
-        "calc_params_title": "Parâmetros de Cálculo da Remuneração", 
-        "monthly_comp_title": "Remuneração Mensal Bruta e Líquida", 
+        "annual_comp_title": "Composição de la Remuneração Total Bruta", # CORREÇÃO
         "annual_salary": "Salario Anual", 
         "annual_bonus": "Bono", 
         "annual_total": "Remuneração Total", 
@@ -450,59 +444,40 @@ def get_sti_level_map(area: str, T: Dict[str, str]) -> Tuple[List[str], Dict[str
     display_list = [T.get(STI_I18N_KEYS.get(key, key), key) for key in keys]
     return display_list, dict(zip(display_list, keys))
 
-# ============================== CSS (FIXED SIDEBAR + RESPONSIVITY) ================================
+# ============================== CSS (REFINADO E SIMPLIFICADO + TABELA) ================================
 st.markdown("""
 <style>
-/* 1. LAYOUT PRINCIPAL: Centralizado e Limitado, Garantindo Responsividade */
+/* 1. LIMITA LARGURA MÁXIMA E CENTRALIZA O CONTEÚDO PRINCIPAL (REDUZIDO PARA MAIOR ELEGÂNCIA) */
 div.block-container {
-    /* Largura Maxima para evitar distorção e manter o foco */
-    max-width: 1100px; 
+    max-width: 1100px; /* Largura máxima para visualização elegante */
     padding-left: 1rem;
     padding-right: 1rem;
 }
 
-/* 2. BARRA LATERAL FIXA E ESTILO */
-section[data-testid="stSidebar"]{ 
-    /* FIX CRÍTICO: Definindo largura e fixação via CSS, pois o argumento pode falhar */
-    width: 250px !important; 
-    min-width: 250px !important;
-    max-width: 250px !important;
-
-    background:#0a3d62 !important; 
-    padding-top:15px; 
-    position: fixed; 
-    top: 0;
-    left: 0;
-    height: 100vh; /* Ocupa a altura total da viewport */
-    z-index: 999; 
+/* 2. ESTILOS DE TÍTULOS E LABELS DE INPUT */
+.stMarkdown h5 {
+    font-size: 15px; /* Ligeiramente maior para visibilidade */
+    font-weight: 500; 
+    line-height: 1.2; 
+    color: #0a3d62;
+    margin-bottom: 0.2rem !important;
+}
+.stMarkdown h5 span { /* Para aplicar estilo ao símbolo dentro do h5, se houver */
+    font-weight: 400;
+    color: #555;
+    font-size: 14px;
 }
 
-/* 3. CONTEÚDO PRINCIPAL: Empurra o conteúdo para a direita da sidebar fixa */
-div[data-testid="stSidebarContent"] {
-    padding-left: 20px; 
-    padding-right: 20px; 
-}
-div[data-testid="stAppViewBlock"] {
-    /* Adiciona uma margem à esquerda ao corpo do app que corresponde à largura da sidebar,
-       garantindo que o conteúdo não fique escondido. (250px + 10px de margem) */
-    margin-left: 260px;
-}
-/* Se for tela muito pequena (mobile), desativamos o margin para que o conteúdo caiba */
-@media (max-width: 768px) {
-    div[data-testid="stAppViewBlock"] {
-        margin-left: 0px; /* Remove a margem para tela cheia */
-    }
-}
-
-
-/* 4. PADRONIZAÇÃO DE CARDS: Elegância, Simetria e Centralização */
+/* 3. PADRONIZAÇÃO DE CARDS: Elegância, Simetria e Centralização */
 .metric-card, .annual-card-base {
     min-height: 95px !important; 
     padding: 10px 15px !important; 
     display: flex;
     flex-direction: column; 
-    justify-content: center; /* Centralização Vertical */
-    text-align: center; /* Centralização Horizontal */
+    /* AJUSTE 1: Centralização Vertical */
+    justify-content: center; 
+    /* AJUSTE 2: Centralização Horizontal */
+    text-align: center; 
     box-sizing: border-box;
     background: #fff;
     border-radius: 10px; 
@@ -538,8 +513,9 @@ div[data-testid="stAppViewBlock"] {
 .card-bonus-out { background: #fff7f7 !important; }
 .card-total { background: #f5f5f5 !important; }
 
-/* 5. ESTILO DE TABELA HTML */
+/* 4. Estilo de Tabela HTML (Para Remuneração Mensal - Tabela Injetada) */
 .table-wrap {
+    /* Manter bordas e sombra para o wrapper da tabela */
     background:#fff; 
     border:1px solid #d0d7de; 
     border-radius: 8px; 
@@ -548,55 +524,66 @@ div[data-testid="stAppViewBlock"] {
 }
 .monthly-table {
     width: 100%;
-    border-collapse: collapse; 
+    border-collapse: collapse; /* Remover bordas duplas */
     margin: 0;
     border: none;
     font-size: 15px;
-    text-align: left; /* Mantém o alinhamento da coluna de descrição à esquerda */
 }
 .monthly-table thead th {
-    background-color: #0a3d62; 
+    background-color: #0a3d62; /* Cor de destaque (Azul Escuro) */
     color: white;
     padding: 12px 15px;
+    text-align: left;
     font-weight: 600;
 }
 .monthly-table tbody td {
     padding: 10px 15px;
     border-bottom: 1px solid #eee;
-    text-align: left;
 }
 .monthly-table tbody tr:nth-child(even) {
-    background-color: #fcfcfc; 
+    background-color: #fcfcfc; /* Linhas zebradas muito sutis */
 }
 .monthly-table tbody tr:last-child td {
     border-bottom: none;
 }
 /* Estilo para garantir que o Streamlit não interfira no header com o thead */
 .stTable > div:first-child table {
-    border-radius: 8px; 
+    border-radius: 8px; /* Cantos arredondados na tabela Streamlit padrão */
     overflow: hidden;
 }
 
-
-/* OUTROS ESTILOS GERAIS */
+/* O restante do seu CSS é mantido */
 html, body { font-family:'Segoe UI', Helvetica, Arial, sans-serif; background:#f7f9fb; color:#1a1a1a;}
 h1,h2,h3 { color:#0a3d62; }
 hr { border:0; height:1px; background:#e2e6ea; margin:24px 0; border-radius:1px; }
-
-section[data-testid="stSidebar"] h2 { margin-bottom: 25px !important; }
-/* Garantindo que o título não quebre na sidebar (largura 250px) */
+section[data-testid="stSidebar"]{ background:#0a3d62 !important; padding-top:15px; }
+section[data-testid="stSidebar"] h1,
 section[data-testid="stSidebar"] h2,
-section[data-testid="stSidebar"] h3 { white-space: nowrap; }
-
+section[data-testid="stSidebar"] h3,
+section[data-testid="stSidebar"] p,
+section[data-testid="stSidebar"] .stMarkdown,
+section[data-testid="stSidebar"] label,
+section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] label span { color:#ffffff !important; }
+section[data-testid="stSidebar"] h2 { margin-bottom: 25px !important; }
+section[data-testid="stSidebar"] h3 { margin-bottom: 0.5rem !important; margin-top: 1rem !important; }
+section[data-testid="stSidebar"] div[data-testid="stSelectbox"] label { margin-bottom: 0.5rem !important; }
+section[data-testid="stSidebar"] div[data-testid="stSelectbox"] > div[data-baseweb="select"] { margin-top: 0 !important; }
+section[data-testid="stSidebar"] .stTextInput input,
+section[data-testid="stSidebar"] .stNumberInput input,
+section[data-testid="stSidebar"] .stSelectbox input,
+section[data-testid="stSidebar"] .stNumberInput input:focus,
+section[data-testid="stSidebar"] .stSelectbox div[role="combobox"] *,
+section[data-testid="stSidebar"] [data-baseweb="menu"] div[role="option"]{ color:#0b1f33 !important; background:#fff !important; }
+section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] label span { color: #ffffff !important; }
 .country-header{ display:flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 5px; }
 .country-flag{ font-size:45px; }
 .country-title{ font-size:36px; font-weight:700; color:#0a3d62; }
 .vega-embed{ padding-bottom: 16px; }
 
 .annual-card-label .sti-note { display: block; font-size: 14px; font-weight: 400; line-height: 1.3; margin-top: 2px; }
-/* Container customizado para espaçamento entre Tabela e Cards de Resumo */
+/* Container customizado para espaçamento */
 .card-row-spacing {
-    margin-top: 20px; 
+    margin-top: 20px; /* Adiciona espaçamento entre a tabela e os cards de resumo */
 }
 </style>
 """, unsafe_allow_html=True)
@@ -606,9 +593,7 @@ section[data-testid="stSidebar"] h3 { white-space: nowrap; }
 with st.sidebar:
     # 1. TÍTULO PRINCIPAL (Ordem Corrigida)
     T_temp = I18N.get(st.session_state.get('idioma', 'Português'), I18N_FALLBACK["Português"])
-    # Ajustado para usar uma quebra de linha opcional (caso a fixação CSS falhe ou o texto mude)
-    sidebar_title_html = T_temp.get('sidebar_title', 'Simulador de Remuneração<br>(Região das Americas)').replace('<br>', ' ')
-    st.markdown(f"<h2 style='color:white; text-align:center; font-size:20px; margin-bottom: 25px;'>{sidebar_title_html}</h2>", unsafe_allow_html=True)
+    st.markdown(f"<h2 style='color:white; text-align:center; font-size:20px; margin-bottom: 25px;'>{T_temp.get('sidebar_title', 'Simulador')}</h2>", unsafe_allow_html=True)
     
     # 2. SELETOR DE IDIOMA
     st.markdown(f"<h3 style='margin-bottom: 0.5rem;'>{T_temp.get('language_title', '🌐 Idioma / Language / Idioma')}</h3>", unsafe_allow_html=True)
@@ -723,7 +708,6 @@ if active_menu == T.get("menu_calc"):
     def get_simple_label(T_key, default_text, symbol=None):
         label = T.get(T_key, default_text)
         if label.endswith('(STI)'): label = label.replace('(STI)', '').strip()
-        # Usa <span> para aplicar CSS ao símbolo/unidade
         if symbol: label = f"{label} <span>({symbol})</span>"
         return label
 
@@ -873,7 +857,7 @@ if active_menu == T.get("menu_calc"):
     st.markdown("<div class='card-row-spacing'>", unsafe_allow_html=True)
     
     cc1, cc2, cc3 = st.columns(3)
-    # Cards Mensais (APLICADAS AS CORES MAIS SUTIS E CENTRALIZAÇÃO NO CSS)
+    # Cards Mensais (APLICADAS AS CORES MAIS SUTIS)
     cc1.markdown(f"<div class='metric-card card-earn'><h4>💰 {T.get('tot_earnings','Total Earnings')}</h4><h3>{fmt_money(calc['total_earn'], symbol)}</h3></div>", unsafe_allow_html=True)
     cc2.markdown(f"<div class='metric-card card-ded'><h4>📉 {T.get('tot_deductions','Total Deductions')}</h4><h3>{fmt_money(calc['total_ded'], symbol)}</h3></div>", unsafe_allow_html=True)
     cc3.markdown(f"<div class='metric-card card-net'><h4>💵 {T.get('net','Net Salary')}</h4><h3>{fmt_money(calc['net'], symbol)}</h3></div>", unsafe_allow_html=True)
@@ -884,7 +868,7 @@ if active_menu == T.get("menu_calc"):
     if country == "Brasil": 
         st.markdown(f"""
         <div style="margin-top: 10px; padding: 5px 0;">
-            <p style="font-size: 17px; font-weight: 600; color: #0a3d62; margin: 0; text-align: center;">
+            <p style="font-size: 17px; font-weight: 600; color: #0a3d62; margin: 0;">
                 💼 {T.get('fgts_deposit','Depósito FGTS')}: {fmt_money(calc['fgts'], symbol)}
             </p>
         </div>
@@ -938,10 +922,10 @@ if active_menu == T.get("menu_calc"):
     # 2. NOTAS ABAIXO DA LINHA DE CARDS (APLICANDO FORMATO FGTS E EMOJIS)
     st.markdown(f"""
     <div style="margin-top: 10px; padding: 5px 0;">
-        <p style="font-size: 17px; font-weight: 600; color: #0a3d62; margin: 0; text-align: center;">
+        <p style="font-size: 17px; font-weight: 600; color: #0a3d62; margin: 0;">
             📅 {T.get('months_factor','Meses considerados')}: {months}
         </p>
-        <p style="font-size: 17px; font-weight: 600; color: #0a3d62; margin: 5px 0 0 0; text-align: center;">
+        <p style="font-size: 17px; font-weight: 600; color: #0a3d62; margin: 5px 0 0 0;">
             🎯 STI Ratio: {sti_note_text}
         </p>
     </div>
