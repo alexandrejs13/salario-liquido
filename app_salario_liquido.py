@@ -5,6 +5,7 @@
 # Ajuste: Rótulos Bônus e Remuneração Total ajustados conforme solicitado.
 # NOVO AJUSTE: Tabela de Remuneração Mensal estilizada (HTML) e índice removido.
 # ÚLTIMO AJUSTE: Cards Mensais/Anuais centralizados e espaçamento entre Tabela e Cards corrigido.
+# AJUSTE SOLICITADO: Sidebar fixa e Título da Sidebar ajustado e com subtítulo na linha de baixo.
 # -------------------------------------------------------------
 
 import streamlit as st
@@ -79,9 +80,10 @@ def load_json(filepath, default_value={}):
         return default_value
 
 # --- Fallbacks Mínimos (COM TEXTOS ANUAIS AJUSTADOS) ---
+# ALTERAÇÃO: sidebar_title ajustado com quebra de linha e subtítulo
 I18N_FALLBACK = { 
     "Português": { 
-        "sidebar_title": "Simulador de Remuneração<br>(Região das Americas)", 
+        "sidebar_title": "Simulador de Remuneração<br><span style='font-size: 14px; font-weight: 400;'>Região das Américas</span>", 
         "app_title": "Simulador de Salário Líquido e Custo do Empregador", 
         "menu_calc": "Simulador de Remuneração", 
         "menu_rules": "Regras de Contribuições", 
@@ -124,7 +126,7 @@ I18N_FALLBACK = {
         "other_deductions_tooltip": "Soma de outras deduções mensais recorrentes (ex: plano de saúde, vale-refeição, contribuição sindical).", "sti_area_tooltip": "Selecione sua área de atuação (Vendas ou Não Vendas) para verificar a faixa de bônus (STI).", "sti_level_tooltip": "Selecione seu nível de carreira para verificar a faixa de bônus (STI). 'Others' inclui níveis não listados.", "sti_area_non_sales": "Não Vendas", "sti_area_sales": "Vendas", "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Membros do GEB", "sti_level_executive_manager": "Gerente Executivo", "sti_level_senior_group_manager": "Gerente de Grupo Sênior", "sti_level_group_manager": "Gerente de Grupo", "sti_level_lead_expert_program_manager": "Especialista Líder / Gerente de Programa", "sti_level_senior_manager": "Gerente Sênior", "sti_level_senior_expert_senior_project_manager": "Especialista Sênior / Gerente de Projeto Sênior", "sti_level_manager_selected_expert_project_manager": "Gerente / Especialista Selecionado / Gerente de Projeto", "sti_level_others": "Outros", "sti_level_executive_manager_senior_group_manager": "Gerente Executivo / Gerente de Grupo Sênior", "sti_level_group_manager_lead_sales_manager": "Gerente de Grupo / Gerente de Vendas Líder", "sti_level_senior_manager_senior_sales_manager": "Gerente Sênior / Gerente de Vendas Sênior", "sti_level_manager_selected_sales_manager": "Gerente / Gerente de Vendas Selecionado", "sti_in_range": "Dentro do range", "sti_out_range": "Fora do range", "cost_header_charge": "Encargo", "cost_header_percent": "Percentual (%)", "cost_header_base": "Base", "cost_header_obs": "Observação", "cost_header_bonus": "Incide Bônus", "cost_header_vacation": "Incide Férias", "cost_header_13th": "Incide 13º", "sti_table_header_level": "Nível de Carreira", "sti_table_header_pct": "STI %" 
     }, 
     "English": { 
-        "sidebar_title": "Compensation Simulator<br>(Americas Region)", 
+        "sidebar_title": "Compensation Simulator<br><span style='font-size: 14px; font-weight: 400;'>Americas Region</span>", 
         "other_deductions": "Other Monthly Deductions", 
         "salary_tooltip": "Your monthly salary before taxes and deductions.", 
         "dependents_tooltip": "Number of dependents for Income Tax deduction (applicable only in Brazil).", 
@@ -145,7 +147,7 @@ I18N_FALLBACK = {
         "salary": "Gross Salary", 
         "state": "State (USA)", 
         "state_rate": "State Tax (%)", 
-        "dependents": "Dependentes (Tax)", 
+        "dependents": "Dependents (Tax)", 
         "bonus": "Bonus", # CORREÇÃO
         "earnings": "Earnings", 
         "deductions": "Deductions", 
@@ -169,7 +171,7 @@ I18N_FALLBACK = {
         "months_factor": "Months considered", "pie_title": "Annual Split: Salary vs Bonus", "pie_chart_title_dist": "Total Compensation Distribution", "reload": "Reload tables", "source_remote": "Remote tables", "source_local": "Local fallback", "choose_country": "Select a country", "menu_title": "Menu", "language_title": "🌐 Idioma / Language / Idioma", "area": "Area (STI)", "level": "Career Level (STI)", "rules_expanded": "Details of Mandatory Contributions", "sti_area_non_sales": "Non Sales", "sti_area_sales": "Sales", "sti_level_ceo": "CEO", "sti_level_members_of_the_geb": "Members of the GEB", "sti_level_executive_manager": "Executive Manager", "sti_level_senior_group_manager": "Senior Group Manager", "sti_level_group_manager": "Group Manager", "sti_level_lead_expert_program_manager": "Lead Expert / Program Manager", "sti_level_senior_manager": "Senior Manager", "sti_level_senior_expert_senior_project_manager": "Senior Expert / Senior Project Manager", "sti_level_manager_selected_expert_project_manager": "Manager / Selected Expert / Project Manager", "sti_level_others": "Others", "sti_level_executive_manager_senior_group_manager": "Executive Manager / Senior Group Manager", "sti_level_group_manager_lead_sales_manager": "Group Manager / Lead Sales Manager", "sti_level_senior_manager_senior_sales_manager": "Senior Manager / Senior Sales Manager", "sti_level_manager_selected_sales_manager": "Manager / Selected Sales Manager", "sti_in_range": "Within range", "sti_out_range": "Outside range", "cost_header_charge": "Charge", "cost_header_percent": "Percent (%)", "cost_header_base": "Base", "cost_header_obs": "Observation", "cost_header_bonus": "Applies to Bonus", "cost_header_vacation": "Applies to Vacation", "cost_header_13th": "Applies to 13th", "sti_table_header_level": "Career Level", "sti_table_header_pct": "STI %" 
     }, 
     "Español": { 
-        "sidebar_title": "Simulador de Remuneración<br>(Región Américas)", 
+        "sidebar_title": "Simulador de Remuneración<br><span style='font-size: 14px; font-weight: 400;'>Región Américas</span>", 
         "other_deductions": "Otras Deducciones Mensuales", 
         "salary_tooltip": "Su salario mensual antes de impuestos y deducciones.", 
         "dependents_tooltip": "Número de dependientes para deducción en el Impuesto de Renta (solo aplicable en Brasil).", 
@@ -556,7 +558,16 @@ div.block-container {
 html, body { font-family:'Segoe UI', Helvetica, Arial, sans-serif; background:#f7f9fb; color:#1a1a1a;}
 h1,h2,h3 { color:#0a3d62; }
 hr { border:0; height:1px; background:#e2e6ea; margin:24px 0; border-radius:1px; }
-section[data-testid="stSidebar"]{ background:#0a3d62 !important; padding-top:15px; }
+
+/* FIX: Garante que a sidebar seja fixa e ocupe a altura total (padrão do Streamlit no desktop) */
+section[data-testid="stSidebar"]{ 
+    background:#0a3d62 !important; 
+    padding-top:15px; 
+    position: fixed; /* Força ser fixo */
+    height: 100vh; /* Garante altura total */
+}
+
+/* Estilos de texto da sidebar */
 section[data-testid="stSidebar"] h1,
 section[data-testid="stSidebar"] h2,
 section[data-testid="stSidebar"] h3,
@@ -564,6 +575,8 @@ section[data-testid="stSidebar"] p,
 section[data-testid="stSidebar"] .stMarkdown,
 section[data-testid="stSidebar"] label,
 section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] label span { color:#ffffff !important; }
+
+/* Espaçamentos do título na sidebar */
 section[data-testid="stSidebar"] h2 { margin-bottom: 25px !important; }
 section[data-testid="stSidebar"] h3 { margin-bottom: 0.5rem !important; margin-top: 1rem !important; }
 section[data-testid="stSidebar"] div[data-testid="stSelectbox"] label { margin-bottom: 0.5rem !important; }
@@ -593,7 +606,12 @@ section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] label span { co
 with st.sidebar:
     # 1. TÍTULO PRINCIPAL (Ordem Corrigida)
     T_temp = I18N.get(st.session_state.get('idioma', 'Português'), I18N_FALLBACK["Português"])
-    st.markdown(f"<h2 style='color:white; text-align:center; font-size:20px; margin-bottom: 25px;'>{T_temp.get('sidebar_title', 'Simulador')}</h2>", unsafe_allow_html=True)
+    # ALTERAÇÃO: Título da sidebar formatado com H2 e estilo para aceitar a quebra de linha do HTML e garantir que a barra azul não fique justa.
+    st.markdown(f"""
+        <h2 style='color:white; text-align:center; font-size:20px; line-height: 1.3; margin-bottom: 25px;'>
+            {T_temp.get('sidebar_title', 'Simulador de Remuneração<br><span style="font-size: 14px; font-weight: 400;">Região das Américas</span>')}
+        </h2>
+    """, unsafe_allow_html=True)
     
     # 2. SELETOR DE IDIOMA
     st.markdown(f"<h3 style='margin-bottom: 0.5rem;'>{T_temp.get('language_title', '🌐 Idioma / Language / Idioma')}</h3>", unsafe_allow_html=True)
