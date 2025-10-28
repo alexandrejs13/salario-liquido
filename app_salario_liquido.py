@@ -1,7 +1,7 @@
 # -------------------------------------------------------------
 # 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.45 - FIX FINAL ESTILO EMOJI/ALINHAMENTO)
-# NOVO AJUSTE CRÍTICO: Removido 'initial_sidebar_state' do st.set_page_config para corrigir TypeError.
-# Sidebar Fixa, largura definida (aprox. 250px), e layout principal centralizado/responsivo.
+# FIX CRÍTICO: Removido 'sidebar_width' do st.set_page_config e movido para CSS,
+# Resolvendo o TypeError em ambientes de Streamlit/Python mais antigos/incompatíveis.
 # -------------------------------------------------------------
 
 import streamlit as st
@@ -14,13 +14,11 @@ import math
 import json
 import os 
 
-# 1. CONFIGURAÇÃO INICIAL COM LARGURA DA BARRA LATERAL (250px para acomodar o título)
+# 1. CONFIGURAÇÃO INICIAL COM LARGURA PADRÃO E LAYOUT WIDE
 st.set_page_config(
     page_title="Simulador de Salário Líquido", 
     layout="wide",
-    # O argumento initial_sidebar_state foi removido para evitar TypeError,
-    # pois a funcionalidade 'expanded' é o padrão ou é forçada pelo CSS fixo.
-    sidebar_width="250px" 
+    # sidebar_width e initial_sidebar_state foram removidos daqui para estabilidade.
 )
 
 # ======================== HELPERS INICIAIS (Formatação - NOVO TOPO ABSOLUTO) =========================
@@ -167,6 +165,8 @@ I18N_FALLBACK = {
         "official_source": "Official Source", 
         "employer_cost_total": "Total Employer Cost", 
         "annual_comp_title": "Total Gross Compensation", 
+        "calc_params_title": "Parameters for Compensation Calculation", 
+        "monthly_comp_title": "Gross and Net Monthly Compensation", 
         "annual_salary": "Annual Salary", 
         "annual_bonus": "Bonus", 
         "annual_total": "Total Compensation", 
@@ -463,20 +463,22 @@ div.block-container {
 
 /* 2. BARRA LATERAL FIXA E ESTILO */
 section[data-testid="stSidebar"]{ 
+    /* FIX CRÍTICO: Definindo largura e fixação via CSS, pois o argumento pode falhar */
+    width: 250px !important; 
+    min-width: 250px !important;
+    max-width: 250px !important;
+
     background:#0a3d62 !important; 
     padding-top:15px; 
-    /* FIX CRÍTICO: Deixa a sidebar fixa */
     position: fixed; 
     top: 0;
     left: 0;
     height: 100vh; /* Ocupa a altura total da viewport */
-    z-index: 999; /* Garante que fique acima de outros elementos */
-    /* Streamlit define a largura, mas forçamos a fixação */
+    z-index: 999; 
 }
 
 /* 3. CONTEÚDO PRINCIPAL: Empurra o conteúdo para a direita da sidebar fixa */
 div[data-testid="stSidebarContent"] {
-    /* Ajusta o padding do conteúdo dentro da sidebar (se necessário) */
     padding-left: 20px; 
     padding-right: 20px; 
 }
