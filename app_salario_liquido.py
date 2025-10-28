@@ -1,7 +1,7 @@
 # -------------------------------------------------------------
-# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.48 - FIX TELA EM BRANCO COMPARADOR)
-# Correção: Conteúdo da página "Comparador de Remuneração" (inputs e outputs) injetado
-#           diretamente no bloco, garantindo a renderização dos widgets Streamlit.
+# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.49 - FIX FINAL COMPARADOR VISÍVEL)
+# Correção: Garantia de chaves de widgets únicas entre as páginas 'Simulador' e 'Comparador'
+#           para resolver o erro de tela em branco causado por conflitos de inputs (keys).
 # -------------------------------------------------------------
 
 import streamlit as st
@@ -758,9 +758,8 @@ def get_sti_label(T_key, default_text):
     return label
 
 # Função para Inputs específicos de País (usada no calc e compare)
-# NOTA: Esta função não é mais usada no compare para garantir a renderização direta.
 def render_country_inputs(country: str, T: Dict[str, str], symbol: str, prefix: str):
-    # Apenas mantendo a lógica de layout e inputs do CALCULATOR mode
+    # Esta função está agora focada apenas na renderização do modo CALCULATOR para evitar conflito.
     salario, dependentes, other_deductions, bonus_anual = 0.0, 0, 0.0, 0.0
     state_code, state_rate = None, None
     area_display, level_display = "", ""
@@ -847,6 +846,7 @@ if active_menu == T.get("menu_compare"):
         
         # Inputs principais
         c_salario, c_bonus = st.columns(2)
+        # CHAVES FIXAS PARA O COMPARADOR: cand_
         candidate_data = {
             "salario": c_salario.number_input("Salário Candidato", min_value=0.0, value=12000.0, step=100.0, key="cand_salary_input", label_visibility="collapsed", format=INPUT_FORMAT),
             "bonus_anual": c_bonus.number_input("Bônus Candidato", min_value=0.0, value=24000.0, step=100.0, key="cand_bonus_input", label_visibility="collapsed", format=INPUT_FORMAT),
@@ -856,6 +856,7 @@ if active_menu == T.get("menu_compare"):
         # Inputs Opcionais/Dependentes
         st.markdown(f"##### Outros Parâmetros (Opcionais)")
         cc1, cc2 = st.columns(2)
+        # CHAVES FIXAS PARA O COMPARADOR: cand_
         candidate_data["other_deductions"] = cc1.number_input(f"Outras Ded. Cand.", min_value=0.0, value=0.0, step=10.0, key="cand_other_ded_input", help=T.get("other_deductions_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT)
         if country == "Brasil":
             candidate_data["dependentes"] = cc2.number_input(f"Dependentes Cand.", min_value=0, value=0, step=1, key="cand_dep_input", help=T.get("dependents_tooltip"), label_visibility="collapsed")
@@ -878,6 +879,7 @@ if active_menu == T.get("menu_compare"):
 
         # Inputs principais
         r_salario, r_bonus = st.columns(2)
+        # CHAVES FIXAS PARA O COMPARADOR: ref_
         reference_data = {
             "salario": r_salario.number_input("Salário Referência", min_value=0.0, value=10000.0, step=100.0, key="ref_salary_input", label_visibility="collapsed", format=INPUT_FORMAT),
             "bonus_anual": r_bonus.number_input("Bônus Referência", min_value=0.0, value=20000.0, step=100.0, key="ref_bonus_input", label_visibility="collapsed", format=INPUT_FORMAT),
@@ -887,6 +889,7 @@ if active_menu == T.get("menu_compare"):
         # Inputs Opcionais/Dependentes
         st.markdown(f"##### Outros Parâmetros (Opcionais)")
         rc1, rc2 = st.columns(2)
+        # CHAVES FIXAS PARA O COMPARADOR: ref_
         reference_data["other_deductions"] = rc1.number_input(f"Outras Ded. Ref.", min_value=0.0, value=0.0, step=10.0, key="ref_other_ded_input", help=T.get("other_deductions_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT)
         if country == "Brasil":
             reference_data["dependentes"] = rc2.number_input(f"Dependentes Ref.", min_value=0, value=0, step=1, key="ref_dep_input", help=T.get("dependents_tooltip"), label_visibility="collapsed")
