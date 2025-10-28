@@ -1,6 +1,7 @@
 # -------------------------------------------------------------
 # 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.45 - FIX FINAL ESTILO EMOJI/ALINHAMENTO)
-# NOVO AJUSTE CRÍTICO: Sidebar Fixa, largura definida (aprox. 250px), e layout principal centralizado/responsivo.
+# NOVO AJUSTE CRÍTICO: Removido 'initial_sidebar_state' do st.set_page_config para corrigir TypeError.
+# Sidebar Fixa, largura definida (aprox. 250px), e layout principal centralizado/responsivo.
 # -------------------------------------------------------------
 
 import streamlit as st
@@ -17,9 +18,8 @@ import os
 st.set_page_config(
     page_title="Simulador de Salário Líquido", 
     layout="wide",
-    initial_sidebar_state="expanded",
-    # Define a largura da sidebar. 250px é suficiente para o texto "Simulador de Remuneração"
-    # com a fonte padrão do Streamlit.
+    # O argumento initial_sidebar_state foi removido para evitar TypeError,
+    # pois a funcionalidade 'expanded' é o padrão ou é forçada pelo CSS fixo.
     sidebar_width="250px" 
 )
 
@@ -212,6 +212,8 @@ I18N_FALLBACK = {
         "official_source": "Fuente Oficial", 
         "employer_cost_total": "Costo Total del Empleador", 
         "annual_comp_title": "Composição de la Remuneração Total Bruta", 
+        "calc_params_title": "Parâmetros de Cálculo da Remuneração", 
+        "monthly_comp_title": "Remuneração Mensal Bruta e Líquida", 
         "annual_salary": "Salario Anual", 
         "annual_bonus": "Bono", 
         "annual_total": "Remuneração Total", 
@@ -567,6 +569,11 @@ div[data-testid="stAppViewBlock"] {
 .monthly-table tbody tr:last-child td {
     border-bottom: none;
 }
+/* Estilo para garantir que o Streamlit não interfira no header com o thead */
+.stTable > div:first-child table {
+    border-radius: 8px; 
+    overflow: hidden;
+}
 
 
 /* OUTROS ESTILOS GERAIS */
@@ -575,7 +582,7 @@ h1,h2,h3 { color:#0a3d62; }
 hr { border:0; height:1px; background:#e2e6ea; margin:24px 0; border-radius:1px; }
 
 section[data-testid="stSidebar"] h2 { margin-bottom: 25px !important; }
-/* Garantindo que o título não quebre, se for o caso */
+/* Garantindo que o título não quebre na sidebar (largura 250px) */
 section[data-testid="stSidebar"] h2,
 section[data-testid="stSidebar"] h3 { white-space: nowrap; }
 
