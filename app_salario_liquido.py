@@ -1,11 +1,6 @@
 # -------------------------------------------------------------
 # 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.45 - FIX FINAL ESTILO EMOJI/ALINHAMENTO)
-# Correção: Layout reestruturado para simetria de colunas nos inputs.
-# Modificação: Cards com estilo refinado (removida borda colorida e ajuste de cor).
-# Ajuste: Rótulos Bônus e Remuneração Total ajustados conforme solicitado.
-# NOVO AJUSTE: Tabela de Remuneração Mensal estilizada (HTML) e índice removido.
-# ÚLTIMO AJUSTE: Cards Mensais/Anuais centralizados e espaçamento entre Tabela e Cards corrigido.
-# NOTA IMPORTANTE: Problemas de tela branca no iOS (iPhone) são geralmente causados por bugs de compatibilidade do JavaScript/WebSocket em versões Streamlit > 1.32.0. Recomenda-se fixar a versão para 1.32.0 no requirements.txt.
+# NOVO AJUSTE CRÍTICO: Sidebar Fixa, largura definida (aprox. 250px), e layout principal centralizado/responsivo.
 # -------------------------------------------------------------
 
 import streamlit as st
@@ -18,7 +13,15 @@ import math
 import json
 import os 
 
-st.set_page_config(page_title="Simulador de Salário Líquido", layout="wide")
+# 1. CONFIGURAÇÃO INICIAL COM LARGURA DA BARRA LATERAL (250px para acomodar o título)
+st.set_page_config(
+    page_title="Simulador de Salário Líquido", 
+    layout="wide",
+    initial_sidebar_state="expanded",
+    # Define a largura da sidebar. 250px é suficiente para o texto "Simulador de Remuneração"
+    # com a fonte padrão do Streamlit.
+    sidebar_width="250px" 
+)
 
 # ======================== HELPERS INICIAIS (Formatação - NOVO TOPO ABSOLUTO) =========================
 # Variável global temporária para o código do país, será definida na sidebar
@@ -445,40 +448,57 @@ def get_sti_level_map(area: str, T: Dict[str, str]) -> Tuple[List[str], Dict[str
     display_list = [T.get(STI_I18N_KEYS.get(key, key), key) for key in keys]
     return display_list, dict(zip(display_list, keys))
 
-# ============================== CSS (REFINADO E SIMPLIFICADO + TABELA) ================================
+# ============================== CSS (FIXED SIDEBAR + RESPONSIVITY) ================================
 st.markdown("""
 <style>
-/* 1. LIMITA LARGURA MÁXIMA E CENTRALIZA O CONTEÚDO PRINCIPAL (REDUZIDO PARA MAIOR ELEGÂNCIA) */
+/* 1. LAYOUT PRINCIPAL: Centralizado e Limitado, Garantindo Responsividade */
 div.block-container {
-    max-width: 1100px; /* Largura máxima para visualização elegante */
+    /* Largura Maxima para evitar distorção e manter o foco */
+    max-width: 1100px; 
     padding-left: 1rem;
     padding-right: 1rem;
 }
 
-/* 2. ESTILOS DE TÍTULOS E LABELS DE INPUT */
-.stMarkdown h5 {
-    font-size: 15px; /* Ligeiramente maior para visibilidade */
-    font-weight: 500; 
-    line-height: 1.2; 
-    color: #0a3d62;
-    margin-bottom: 0.2rem !important;
-}
-.stMarkdown h5 span { /* Para aplicar estilo ao símbolo dentro do h5, se houver */
-    font-weight: 400;
-    color: #555;
-    font-size: 14px;
+/* 2. BARRA LATERAL FIXA E ESTILO */
+section[data-testid="stSidebar"]{ 
+    background:#0a3d62 !important; 
+    padding-top:15px; 
+    /* FIX CRÍTICO: Deixa a sidebar fixa */
+    position: fixed; 
+    top: 0;
+    left: 0;
+    height: 100vh; /* Ocupa a altura total da viewport */
+    z-index: 999; /* Garante que fique acima de outros elementos */
+    /* Streamlit define a largura, mas forçamos a fixação */
 }
 
-/* 3. PADRONIZAÇÃO DE CARDS: Elegância, Simetria e Centralização */
+/* 3. CONTEÚDO PRINCIPAL: Empurra o conteúdo para a direita da sidebar fixa */
+div[data-testid="stSidebarContent"] {
+    /* Ajusta o padding do conteúdo dentro da sidebar (se necessário) */
+    padding-left: 20px; 
+    padding-right: 20px; 
+}
+div[data-testid="stAppViewBlock"] {
+    /* Adiciona uma margem à esquerda ao corpo do app que corresponde à largura da sidebar,
+       garantindo que o conteúdo não fique escondido. (250px + 10px de margem) */
+    margin-left: 260px;
+}
+/* Se for tela muito pequena (mobile), desativamos o margin para que o conteúdo caiba */
+@media (max-width: 768px) {
+    div[data-testid="stAppViewBlock"] {
+        margin-left: 0px; /* Remove a margem para tela cheia */
+    }
+}
+
+
+/* 4. PADRONIZAÇÃO DE CARDS: Elegância, Simetria e Centralização */
 .metric-card, .annual-card-base {
     min-height: 95px !important; 
     padding: 10px 15px !important; 
     display: flex;
     flex-direction: column; 
-    /* AJUSTE 1: Centralização Vertical */
-    justify-content: center; 
-    /* AJUSTE 2: Centralização Horizontal */
-    text-align: center; 
+    justify-content: center; /* Centralização Vertical */
+    text-align: center; /* Centralização Horizontal */
     box-sizing: border-box;
     background: #fff;
     border-radius: 10px; 
@@ -514,9 +534,8 @@ div.block-container {
 .card-bonus-out { background: #fff7f7 !important; }
 .card-total { background: #f5f5f5 !important; }
 
-/* 4. Estilo de Tabela HTML (Para Remuneração Mensal - Tabela Injetada) */
+/* 5. ESTILO DE TABELA HTML */
 .table-wrap {
-    /* Manter bordas e sombra para o wrapper da tabela */
     background:#fff; 
     border:1px solid #d0d7de; 
     border-radius: 8px; 
@@ -525,66 +544,50 @@ div.block-container {
 }
 .monthly-table {
     width: 100%;
-    border-collapse: collapse; /* Remover bordas duplas */
+    border-collapse: collapse; 
     margin: 0;
     border: none;
     font-size: 15px;
+    text-align: left; /* Mantém o alinhamento da coluna de descrição à esquerda */
 }
 .monthly-table thead th {
-    background-color: #0a3d62; /* Cor de destaque (Azul Escuro) */
+    background-color: #0a3d62; 
     color: white;
     padding: 12px 15px;
-    text-align: left;
     font-weight: 600;
 }
 .monthly-table tbody td {
     padding: 10px 15px;
     border-bottom: 1px solid #eee;
+    text-align: left;
 }
 .monthly-table tbody tr:nth-child(even) {
-    background-color: #fcfcfc; /* Linhas zebradas muito sutis */
+    background-color: #fcfcfc; 
 }
 .monthly-table tbody tr:last-child td {
     border-bottom: none;
 }
-/* Estilo para garantir que o Streamlit não interfira no header com o thead */
-.stTable > div:first-child table {
-    border-radius: 8px; /* Cantos arredondados na tabela Streamlit padrão */
-    overflow: hidden;
-}
 
-/* O restante do seu CSS é mantido */
+
+/* OUTROS ESTILOS GERAIS */
 html, body { font-family:'Segoe UI', Helvetica, Arial, sans-serif; background:#f7f9fb; color:#1a1a1a;}
 h1,h2,h3 { color:#0a3d62; }
 hr { border:0; height:1px; background:#e2e6ea; margin:24px 0; border-radius:1px; }
-section[data-testid="stSidebar"]{ background:#0a3d62 !important; padding-top:15px; }
-section[data-testid="stSidebar"] h1,
-section[data-testid="stSidebar"] h2,
-section[data-testid="stSidebar"] h3,
-section[data-testid="stSidebar"] p,
-section[data-testid="stSidebar"] .stMarkdown,
-section[data-testid="stSidebar"] label,
-section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] label span { color:#ffffff !important; }
+
 section[data-testid="stSidebar"] h2 { margin-bottom: 25px !important; }
-section[data-testid="stSidebar"] h3 { margin-bottom: 0.5rem !important; margin-top: 1rem !important; }
-section[data-testid="stSidebar"] div[data-testid="stSelectbox"] label { margin-bottom: 0.5rem !important; }
-section[data-testid="stSidebar"] div[data-testid="stSelectbox"] > div[data-baseweb="select"] { margin-top: 0 !important; }
-section[data-testid="stSidebar"] .stTextInput input,
-section[data-testid="stSidebar"] .stNumberInput input,
-section[data-testid="stSidebar"] .stSelectbox input,
-section[data-testid="stSidebar"] .stNumberInput input:focus,
-section[data-testid="stSidebar"] .stSelectbox div[role="combobox"] *,
-section[data-testid="stSidebar"] [data-baseweb="menu"] div[role="option"]{ color:#0b1f33 !important; background:#fff !important; }
-section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] label span { color: #ffffff !important; }
+/* Garantindo que o título não quebre, se for o caso */
+section[data-testid="stSidebar"] h2,
+section[data-testid="stSidebar"] h3 { white-space: nowrap; }
+
 .country-header{ display:flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 5px; }
 .country-flag{ font-size:45px; }
 .country-title{ font-size:36px; font-weight:700; color:#0a3d62; }
 .vega-embed{ padding-bottom: 16px; }
 
 .annual-card-label .sti-note { display: block; font-size: 14px; font-weight: 400; line-height: 1.3; margin-top: 2px; }
-/* Container customizado para espaçamento */
+/* Container customizado para espaçamento entre Tabela e Cards de Resumo */
 .card-row-spacing {
-    margin-top: 20px; /* Adiciona espaçamento entre a tabela e os cards de resumo */
+    margin-top: 20px; 
 }
 </style>
 """, unsafe_allow_html=True)
@@ -594,7 +597,9 @@ section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] label span { co
 with st.sidebar:
     # 1. TÍTULO PRINCIPAL (Ordem Corrigida)
     T_temp = I18N.get(st.session_state.get('idioma', 'Português'), I18N_FALLBACK["Português"])
-    st.markdown(f"<h2 style='color:white; text-align:center; font-size:20px; margin-bottom: 25px;'>{T_temp.get('sidebar_title', 'Simulador')}</h2>", unsafe_allow_html=True)
+    # Ajustado para usar uma quebra de linha opcional (caso a fixação CSS falhe ou o texto mude)
+    sidebar_title_html = T_temp.get('sidebar_title', 'Simulador de Remuneração<br>(Região das Americas)').replace('<br>', ' ')
+    st.markdown(f"<h2 style='color:white; text-align:center; font-size:20px; margin-bottom: 25px;'>{sidebar_title_html}</h2>", unsafe_allow_html=True)
     
     # 2. SELETOR DE IDIOMA
     st.markdown(f"<h3 style='margin-bottom: 0.5rem;'>{T_temp.get('language_title', '🌐 Idioma / Language / Idioma')}</h3>", unsafe_allow_html=True)
@@ -709,6 +714,7 @@ if active_menu == T.get("menu_calc"):
     def get_simple_label(T_key, default_text, symbol=None):
         label = T.get(T_key, default_text)
         if label.endswith('(STI)'): label = label.replace('(STI)', '').strip()
+        # Usa <span> para aplicar CSS ao símbolo/unidade
         if symbol: label = f"{label} <span>({symbol})</span>"
         return label
 
@@ -858,7 +864,7 @@ if active_menu == T.get("menu_calc"):
     st.markdown("<div class='card-row-spacing'>", unsafe_allow_html=True)
     
     cc1, cc2, cc3 = st.columns(3)
-    # Cards Mensais (APLICADAS AS CORES MAIS SUTIS)
+    # Cards Mensais (APLICADAS AS CORES MAIS SUTIS E CENTRALIZAÇÃO NO CSS)
     cc1.markdown(f"<div class='metric-card card-earn'><h4>💰 {T.get('tot_earnings','Total Earnings')}</h4><h3>{fmt_money(calc['total_earn'], symbol)}</h3></div>", unsafe_allow_html=True)
     cc2.markdown(f"<div class='metric-card card-ded'><h4>📉 {T.get('tot_deductions','Total Deductions')}</h4><h3>{fmt_money(calc['total_ded'], symbol)}</h3></div>", unsafe_allow_html=True)
     cc3.markdown(f"<div class='metric-card card-net'><h4>💵 {T.get('net','Net Salary')}</h4><h3>{fmt_money(calc['net'], symbol)}</h3></div>", unsafe_allow_html=True)
@@ -869,7 +875,7 @@ if active_menu == T.get("menu_calc"):
     if country == "Brasil": 
         st.markdown(f"""
         <div style="margin-top: 10px; padding: 5px 0;">
-            <p style="font-size: 17px; font-weight: 600; color: #0a3d62; margin: 0;">
+            <p style="font-size: 17px; font-weight: 600; color: #0a3d62; margin: 0; text-align: center;">
                 💼 {T.get('fgts_deposit','Depósito FGTS')}: {fmt_money(calc['fgts'], symbol)}
             </p>
         </div>
@@ -923,10 +929,10 @@ if active_menu == T.get("menu_calc"):
     # 2. NOTAS ABAIXO DA LINHA DE CARDS (APLICANDO FORMATO FGTS E EMOJIS)
     st.markdown(f"""
     <div style="margin-top: 10px; padding: 5px 0;">
-        <p style="font-size: 17px; font-weight: 600; color: #0a3d62; margin: 0;">
+        <p style="font-size: 17px; font-weight: 600; color: #0a3d62; margin: 0; text-align: center;">
             📅 {T.get('months_factor','Meses considerados')}: {months}
         </p>
-        <p style="font-size: 17px; font-weight: 600; color: #0a3d62; margin: 5px 0 0 0;">
+        <p style="font-size: 17px; font-weight: 600; color: #0a3d62; margin: 5px 0 0 0; text-align: center;">
             🎯 STI Ratio: {sti_note_text}
         </p>
     </div>
