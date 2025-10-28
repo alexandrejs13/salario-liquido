@@ -1,7 +1,7 @@
 # -------------------------------------------------------------
-# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.47 - FIX TITULOS E COMPARADOR VAZIO)
-# Correção: Títulos do menu e da página de comparação ajustados.
-# Correção: Conteúdo da página "Comparador de Remuneração" injetado corretamente.
+# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.48 - FIX TELA EM BRANCO COMPARADOR)
+# Correção: Conteúdo da página "Comparador de Remuneração" (inputs e outputs) injetado
+#           diretamente no bloco, garantindo a renderização dos widgets Streamlit.
 # -------------------------------------------------------------
 
 import streamlit as st
@@ -76,7 +76,6 @@ def load_json(filepath, default_value={}):
         return default_value
 
 # --- Fallbacks Mínimos (COM TEXTOS ANUAIS AJUSTADOS) ---
-# CORRIGIDO: menu_compare, title_compare
 I18N_FALLBACK = { 
     "Português": { 
         "sidebar_title": "Simulador de Remuneração<br><span style='font-size: 14px; font-weight: 400;'>Região das Américas</span>", 
@@ -155,7 +154,7 @@ I18N_FALLBACK = {
         "salary": "Gross Salary", 
         "state": "State (USA)", 
         "state_rate": "State Tax (%)", 
-        "dependents": "Dependents (Tax)", 
+        "dependents": "Dependentes (Tax)", 
         "bonus": "Bonus", 
         "earnings": "Earnings", 
         "deductions": "Deductions", 
@@ -453,7 +452,7 @@ def get_sti_level_map(area: str, T: Dict[str, str]) -> Tuple[List[str], Dict[str
     display_list = [T.get(STI_I18N_KEYS.get(key, key), key) for key in keys]
     return display_list, dict(zip(display_list, keys))
 
-# ============================== CSS (REFINADO E SIMPLIFICADO + TABELA) ================================
+# ============================== CSS (MANTIDO) ================================
 st.markdown("""
 <style>
 /* 1. LIMITA LARGURA MÁXIMA E CENTRALIZA O CONTEÚDO PRINCIPAL (REDUZIDO PARA MAIOR ELEGÂNCIA) */
@@ -759,7 +758,9 @@ def get_sti_label(T_key, default_text):
     return label
 
 # Função para Inputs específicos de País (usada no calc e compare)
+# NOTA: Esta função não é mais usada no compare para garantir a renderização direta.
 def render_country_inputs(country: str, T: Dict[str, str], symbol: str, prefix: str):
+    # Apenas mantendo a lógica de layout e inputs do CALCULATOR mode
     salario, dependentes, other_deductions, bonus_anual = 0.0, 0, 0.0, 0.0
     state_code, state_rate = None, None
     area_display, level_display = "", ""
@@ -826,7 +827,6 @@ def render_country_inputs(country: str, T: Dict[str, str], symbol: str, prefix: 
 
 
 # ========================= COMPARADOR DE REMUNERAÇÃO (NOVA TELA - FIX) ==========================
-# O conteúdo que faltava foi movido para dentro deste bloco
 if active_menu == T.get("menu_compare"):
     
     st.subheader(T.get("calc_params_title", "Parâmetros de Cálculo da Remuneração"))
@@ -836,6 +836,8 @@ if active_menu == T.get("menu_compare"):
     # --- 1. Inputs do Candidato (Proposta) ---
     with col_candidate:
         st.markdown(f"#### 👤 {T.get('candidate_title', 'Candidato')}")
+        
+        # RÓTULOS (Salário, Bônus)
         st.markdown(f"""
         <div style="display: flex; justify-content: space-between;">
             <div style="width: 48%;"><h5>{get_simple_label('salary', 'Salário Bruto', symbol)}</h5></div>
@@ -843,7 +845,7 @@ if active_menu == T.get("menu_compare"):
         </div>
         """, unsafe_allow_html=True)
         
-        # Inputs simplificados para comparação (Salário, Bônus)
+        # Inputs principais
         c_salario, c_bonus = st.columns(2)
         candidate_data = {
             "salario": c_salario.number_input("Salário Candidato", min_value=0.0, value=12000.0, step=100.0, key="cand_salary_input", label_visibility="collapsed", format=INPUT_FORMAT),
@@ -851,6 +853,7 @@ if active_menu == T.get("menu_compare"):
             "dependentes": 0, "other_deductions": 0.0, "state_code": None, "state_rate": None,
         }
         
+        # Inputs Opcionais/Dependentes
         st.markdown(f"##### Outros Parâmetros (Opcionais)")
         cc1, cc2 = st.columns(2)
         candidate_data["other_deductions"] = cc1.number_input(f"Outras Ded. Cand.", min_value=0.0, value=0.0, step=10.0, key="cand_other_ded_input", help=T.get("other_deductions_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT)
@@ -859,13 +862,13 @@ if active_menu == T.get("menu_compare"):
         elif country == "Estados Unidos":
              candidate_data["state_code"] = cc2.selectbox(f"Estado Cand.", list(US_STATE_RATES.keys()), index=0, key="cand_state_select", help=T.get("state"), label_visibility="collapsed")
              candidate_data["state_rate"] = float(US_STATE_RATES.get(candidate_data["state_code"], 0.0))
-        # Para STI (apenas um placeholder visual aqui, os detalhes não são exibidos no comparador)
-        area_options_display, area_display_map = get_sti_area_map(T)
-        level_options_display, level_display_map = get_sti_level_map(area_display_map.get(area_options_display[0], "Non Sales"), T)
+
         
     # --- 2. Inputs da Referência (Atual) ---
     with col_reference:
         st.markdown(f"#### 👥 {T.get('reference_title', 'Referência')}")
+        
+        # RÓTULOS (Salário, Bônus)
         st.markdown(f"""
         <div style="display: flex; justify-content: space-between;">
             <div style="width: 48%;"><h5>{get_simple_label('salary', 'Salário Bruto', symbol)}</h5></div>
@@ -873,7 +876,7 @@ if active_menu == T.get("menu_compare"):
         </div>
         """, unsafe_allow_html=True)
 
-        # Inputs simplificados para comparação (Salário, Bônus)
+        # Inputs principais
         r_salario, r_bonus = st.columns(2)
         reference_data = {
             "salario": r_salario.number_input("Salário Referência", min_value=0.0, value=10000.0, step=100.0, key="ref_salary_input", label_visibility="collapsed", format=INPUT_FORMAT),
@@ -881,21 +884,28 @@ if active_menu == T.get("menu_compare"):
             "dependentes": 0, "other_deductions": 0.0, "state_code": None, "state_rate": None,
         }
 
+        # Inputs Opcionais/Dependentes
         st.markdown(f"##### Outros Parâmetros (Opcionais)")
         rc1, rc2 = st.columns(2)
         reference_data["other_deductions"] = rc1.number_input(f"Outras Ded. Ref.", min_value=0.0, value=0.0, step=10.0, key="ref_other_ded_input", help=T.get("other_deductions_tooltip"), label_visibility="collapsed", format=INPUT_FORMAT)
         if country == "Brasil":
             reference_data["dependentes"] = rc2.number_input(f"Dependentes Ref.", min_value=0, value=0, step=1, key="ref_dep_input", help=T.get("dependents_tooltip"), label_visibility="collapsed")
         elif country == "Estados Unidos":
-            reference_data["state_code"] = cc2.selectbox(f"Estado Ref.", list(US_STATE_RATES.keys()), index=0, key="ref_state_select", help=T.get("state"), label_visibility="collapsed")
+            reference_data["state_code"] = rc2.selectbox(f"Estado Ref.", list(US_STATE_RATES.keys()), index=0, key="ref_state_select", help=T.get("state"), label_visibility="collapsed")
             reference_data["state_rate"] = float(US_STATE_RATES.get(reference_data["state_code"], 0.0))
 
     st.write("---") 
 
     # --- 3. Execução dos Cálculos ---
     
-    calc_cand = calc_country_net(country, candidate_data["salario"], candidate_data["other_deductions"], state_code=candidate_data["state_code"], state_rate=candidate_data["state_rate"], dependentes=candidate_data["dependentes"], tables_ext=COUNTRY_TABLES, br_inss_tbl=BR_INSS_TBL, br_irrf_tbl=BR_IRRF_TBL)
-    calc_ref = calc_country_net(country, reference_data["salario"], reference_data["other_deductions"], state_code=reference_data["state_code"], state_rate=reference_data["state_rate"], dependentes=reference_data["dependentes"], tables_ext=COUNTRY_TABLES, br_inss_tbl=BR_INSS_TBL, br_irrf_tbl=BR_IRRF_TBL)
+    # É NECESSÁRIO VERIFICAR SE O PAÍS FOI SELECIONADO ANTES DE CALCULAR
+    if country in COUNTRIES:
+        calc_cand = calc_country_net(country, candidate_data["salario"], candidate_data["other_deductions"], state_code=candidate_data["state_code"], state_rate=candidate_data["state_rate"], dependentes=candidate_data["dependentes"], tables_ext=COUNTRY_TABLES, br_inss_tbl=BR_INSS_TBL, br_irrf_tbl=BR_IRRF_TBL)
+        calc_ref = calc_country_net(country, reference_data["salario"], reference_data["other_deductions"], state_code=reference_data["state_code"], state_rate=reference_data["state_rate"], dependentes=reference_data["dependentes"], tables_ext=COUNTRY_TABLES, br_inss_tbl=BR_INSS_TBL, br_irrf_tbl=BR_IRRF_TBL)
+    else:
+        # Caso o país não esteja definido (fallback seguro)
+        calc_cand = {"lines": [("Base", 0.0, 0.0)], "total_earn": 0.0, "total_ded": 0.0, "net": 0.0, "fgts": 0.0}
+        calc_ref = {"lines": [("Base", 0.0, 0.0)], "total_earn": 0.0, "total_ded": 0.0, "net": 0.0, "fgts": 0.0}
 
     # CÁLCULO ANUAL (Simplificado para o comparador - apenas base e bônus)
     months = COUNTRY_TABLES.get("REMUN_MONTHS", {}).get(country, 12.0)
@@ -906,22 +916,11 @@ if active_menu == T.get("menu_compare"):
     # --- 4. Comparativo Mensal Líquido (Tabela) ---
     st.subheader(f"1. 💵 {T.get('comp_monthly_title', 'Comparativo Mensal Líquido')}")
     
-    # Prepara a tabela de comparação mensal (apenas as linhas de Deduções/Proventos)
-    df_cand = pd.DataFrame(calc_cand["lines"], columns=["Descrição", "Cand_Earn", "Cand_Ded"])
-    df_ref = pd.DataFrame(calc_ref["lines"], columns=["Descrição", "Ref_Earn", "Ref_Ded"])
-    
-    # Combina as linhas dos dois cálculos
-    df_comp = pd.merge(df_cand[["Descrição", "Cand_Earn", "Cand_Ded"]], df_ref[["Descrição", "Ref_Earn", "Ref_Ded"]], on="Descrição", how="outer").fillna(0.0)
-    
-    # Tabela com detalhe (HTML) - mantendo a estrutura original, mas lado a lado
-    
-    # Mesclar linhas de cada coluna (Descrição, Valor Cand, Valor Ref)
+    # Prepara as tabelas de dados
     df_cand_tbl = pd.DataFrame(calc_cand["lines"], columns=["Descrição", T.get("earnings","Proventos"), T.get("deductions","Descontos")])
     df_ref_tbl = pd.DataFrame(calc_ref["lines"], columns=["Descrição", T.get("earnings","Proventos"), T.get("deductions","Descontos")])
     
-    # Cria uma tabela única no formato necessário para o layout de comparação
-    
-    # Lista única de descrições
+    # Lista única de descrições para a tabela comparativa
     all_descriptions = sorted(list(set(df_cand_tbl['Descrição'].tolist() + df_ref_tbl['Descrição'].tolist())))
 
     table_html_start = f"""
@@ -942,21 +941,26 @@ if active_menu == T.get("menu_compare"):
         cand_row = df_cand_tbl[df_cand_tbl['Descrição'] == desc]
         ref_row = df_ref_tbl[df_ref_tbl['Descrição'] == desc]
 
-        cand_value = cand_row[T.get("earnings")].iloc[0] if not cand_row.empty and cand_row[T.get("earnings")].iloc[0] else (-cand_row[T.get("deductions")].iloc[0] if not cand_row.empty and cand_row[T.get("deductions")].iloc[0] else 0.0)
-        ref_value = ref_row[T.get("earnings")].iloc[0] if not ref_row.empty and ref_row[T.get("earnings")].iloc[0] else (-ref_row[T.get("deductions")].iloc[0] if not ref_row.empty and ref_row[T.get("deductions")].iloc[0] else 0.0)
+        cand_value_e = cand_row[T.get("earnings")].iloc[0] if not cand_row.empty else 0.0
+        cand_value_d = cand_row[T.get("deductions")].iloc[0] if not cand_row.empty else 0.0
+        ref_value_e = ref_row[T.get("earnings")].iloc[0] if not ref_row.empty else 0.0
+        ref_value_d = ref_row[T.get("deductions")].iloc[0] if not ref_row.empty else 0.0
+
+        # Decide o valor a ser mostrado (Provento ou Dedução)
+        cand_value = cand_value_e if cand_value_e > 0 else -cand_value_d
+        ref_value = ref_value_e if ref_value_e > 0 else -ref_value_d
         
-        # Ajusta a exibição: valores negativos (deduções) em vermelho, valores positivos (proventos) normais
+        # Formatação e cores
         cand_fmt = fmt_money(abs(cand_value), symbol)
         ref_fmt = fmt_money(abs(ref_value), symbol)
         
-        # Cor de dedução
         if cand_value < 0: cand_fmt = f'<span style="color: #c0392b;">({cand_fmt})</span>'
         if ref_value < 0: ref_fmt = f'<span style="color: #c0392b;">({ref_fmt})</span>'
 
         if abs(cand_value) < 1e-9 and desc not in ["Salário Base", "Base Pay"]: cand_fmt = '—'
         if abs(ref_value) < 1e-9 and desc not in ["Salário Base", "Base Pay"]: ref_fmt = '—'
         
-        # Tratamento especial para Salário Base/Base Pay
+        # Tratamento especial para Salário Base/Base Pay (sem parenteses de dedução)
         if desc in ["Salário Base", "Base Pay"]:
             cand_fmt = fmt_money(candidate_data["salario"], symbol)
             ref_fmt = fmt_money(reference_data["salario"], symbol)
@@ -971,7 +975,7 @@ if active_menu == T.get("menu_compare"):
     
     # Linhas de totalização
     diff_net = calc_cand["net"] - calc_ref["net"]
-    color_net = "#4caf50" if diff_net >= 0 else "#f44336" # Verde positivo, Vermelho negativo
+    color_net = "#4caf50" if diff_net >= 0 else "#f44336" 
     
     diff_net_fmt = fmt_money(abs(diff_net), symbol)
     if diff_net < 0: diff_net_fmt = f'({diff_net_fmt})'
@@ -1411,3 +1415,4 @@ elif active_menu == T.get("menu_cost"):
     # As tabelas de custo (que usam st.dataframe) manterão o índice por padrão, mas terão um visual melhor.
     if not df_cost.empty: st.dataframe(df_cost, use_container_width=True, hide_index=True)
     else: st.info("Sem encargos configurados para este país.")
+9
