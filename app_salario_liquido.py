@@ -3,7 +3,7 @@
 # DESIGN: Aplicada nova paleta de cores (SIG Sky, Sand) em todo o app.
 # DESIGN/CSS: Barra lateral agora tem largura fixa (350px) e não pode ser redimensionada.
 # DESIGN/CSS: Fonte dos valores nos cards de resumo foi reduzida para melhor equilíbrio visual.
-# CORREÇÃO: Lógica de menu refatorada para garantir a tradução correta dos títulos da página e do menu, eliminando "None" e "Comp".
+# CORREÇÃO: Lógica de menu refatorada para garantir a tradução correta dos títulos da página e do menu.
 # CORREÇÃO: Layout dos cards no Comparador agora são simétricos e centralizados.
 # CORREÇÃO: Adicionadas traduções ausentes na página "Custo do Empregador".
 # -------------------------------------------------------------
@@ -344,7 +344,7 @@ h1, h2, h3, h4, .country-title { color: var(--sig-sky); }
 .monthly-table tbody tr:nth-child(even) { background-color: #fcfcfc; }
 .monthly-table tbody tr:last-child td { border-bottom: none; }
 hr { border:0; height:1px; background:#e2e6ea; margin:24px 0; border-radius:1px; }
-section[data-testid="stSidebar"]{ background-color: var(--sig-sky) !important; width: 350px !important; min-width: 350px !important; max-width: 350px !important; }
+section[data-testid="stSidebar"]{ background-color: var(--sig-sand4) !important; width: 350px !important; min-width: 350px !important; max-width: 350px !important; }
 div[data-testid="stSidebar-resizer"] { display: none; }
 section[data-testid="stSidebar"] h1, section[data-testid="stSidebar"] h2, section[data-testid="stSidebar"] h3, section[data-testid="stSidebar"] p, section[data-testid="stSidebar"] .stMarkdown, section[data-testid="stSidebar"] label, section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] label span { color: var(--white) !important; }
 section[data-testid="stSidebar"] h2 { margin-bottom: 25px !important; }
@@ -387,7 +387,7 @@ with st.sidebar:
         st.session_state.country_select = country_selected
         st.rerun()
 
-    st.markdown(f"<h3 style='margin-top: 1.5rem; margin-bottom: 0.5rem;'>{T.get('menu_title')}</h3>", unsafe_allow_html=True)
+    st.markdown(f"<h3 style='margin-top: 1.5rem; margin-bottom: 0.5rem;'>{T.get('menu_title', 'Menu')}</h3>", unsafe_allow_html=True)
     
     MENU_KEYS = ["calc", "comp", "rules", "sti_rules", "cost"]
     menu_labels = {key: T.get(f"menu_{key}", key.replace('_', ' ').title()) for key in MENU_KEYS}
@@ -505,7 +505,7 @@ if active_menu_key == "calc":
     cc2.markdown(f"<div class='metric-card card-ded'><h4>📉 {T.get('tot_deductions')}</h4><h3>{fmt_money(calc['total_ded'], symbol)}</h3></div>", unsafe_allow_html=True)
     cc3.markdown(f"<div class='metric-card card-net'><h4>💵 {T.get('net')}</h4><h3>{fmt_money(calc['net'], symbol)}</h3></div>", unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
-    if country == "Brasil": st.markdown(f"<div style='margin-top: 10px; padding: 5px 0;'><p style='font-size: 17px; font-weight: 600; color: #0a3d62; margin: 0;'>💼 {T.get('fgts_deposit')}: {fmt_money(calc['fgts'], symbol)}</p></div>", unsafe_allow_html=True)
+    if country == "Brasil": st.markdown(f"<div style='margin-top: 10px; padding: 5px 0;'><p style='font-size: 17px; font-weight: 600; color: #145efc;'>💼 {T.get('fgts_deposit')}: {fmt_money(calc['fgts'], symbol)}</p></div>", unsafe_allow_html=True)
     st.write("---")
     st.subheader(T.get("annual_comp_title"))
     months = COUNTRY_TABLES.get("REMUN_MONTHS", {}).get(country, 12.0)
