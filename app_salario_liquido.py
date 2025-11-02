@@ -1,10 +1,11 @@
 # -------------------------------------------------------------
-# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.52 - CORREÇÕES FINAIS DE UI E TRADUÇÃO)
-# CORREÇÃO: Lógica de menu refatorada para garantir a tradução correta dos títulos da página e do menu.
-# CORREÇÃO: Ajustado o CSS para diminuir o tamanho da fonte dos valores nos cards de resumo.
+# 📄 Simulador de Salário Líquido e Custo do Empregador (v2025.50.53 - REDESIGN COMPLETO E CORREÇÕES FINAIS)
+# DESIGN: Aplicada nova paleta de cores (SIG Sky, Sand) em todo o app.
+# DESIGN/CSS: Barra lateral agora tem largura fixa (350px) e não pode ser redimensionada.
+# DESIGN/CSS: Fonte dos valores nos cards de resumo foi reduzida para melhor equilíbrio visual.
+# CORREÇÃO: Lógica de menu refatorada para garantir a tradução correta dos títulos da página e do menu, eliminando "None" e "Comp".
+# CORREÇÃO: Layout dos cards no Comparador agora são simétricos e centralizados.
 # CORREÇÃO: Adicionadas traduções ausentes na página "Custo do Empregador".
-# ROBUSTEZ: Adicionados textos padrão a todas as chamadas T.get() para eliminar a exibição de 'None'.
-# VERSÃO: Este script é completo e autocontido.
 # -------------------------------------------------------------
 
 import streamlit as st
@@ -243,15 +244,15 @@ def calc_employer_cost(country_code: str, salary: float, bonus: float, T: Dict[s
     df = pd.DataFrame(enc_list); df_display = pd.DataFrame()
     if not df.empty:
         df_display = df.copy()
-        df_display[T.get("cost_header_charge")] = df_display["nome"]
+        df_display[T.get("cost_header_charge", "Encargo")] = df_display["nome"]
         df_display["percentual"] = df_display["percentual"].astype(float)
-        df_display[T.get("cost_header_percent")] = df_display["percentual"].apply(lambda p: f"{p:.2f}%")
-        df_display[T.get("cost_header_base")] = df_display["base"]
-        df_display[T.get("cost_header_obs")] = df_display.apply(lambda row: fmt_cap(row.get('teto'), symbol_local) if row.get('teto') is not None else row.get('obs', '—'), axis=1)
-        df_display[T.get("cost_header_bonus")] = ["✅" if b else "❌" for b in df_display["bonus"]]
+        df_display[T.get("cost_header_percent", "%")] = df_display["percentual"].apply(lambda p: f"{p:.2f}%")
+        df_display[T.get("cost_header_base", "Base")] = df_display["base"]
+        df_display[T.get("cost_header_obs", "Obs")] = df_display.apply(lambda row: fmt_cap(row.get('teto'), symbol_local) if row.get('teto') is not None else row.get('obs', '—'), axis=1)
+        df_display[T.get("cost_header_bonus", "Incide Bônus")] = ["✅" if b else "❌" for b in df_display["bonus"]]
         cols = [T.get("cost_header_charge"), T.get("cost_header_percent"), T.get("cost_header_base"), T.get("cost_header_bonus"), T.get("cost_header_obs")]
-        if benefits.get("ferias", False): df_display[T.get("cost_header_vacation")] = ["✅" if b else "❌" for b in df_display["ferias"]]; cols.insert(3, T.get("cost_header_vacation"))
-        if benefits.get("decimo", False): df_display[T.get("cost_header_13th")] = ["✅" if b else "❌" for b in df_display["decimo"]]; insert_pos = 4 if benefits.get("ferias", False) else 3; cols.insert(insert_pos, T.get("cost_header_13th"))
+        if benefits.get("ferias", False): df_display[T.get("cost_header_vacation", "Incide Férias")] = ["✅" if b else "❌" for b in df_display["ferias"]]; cols.insert(3, T.get("cost_header_vacation"))
+        if benefits.get("decimo", False): df_display[T.get("cost_header_13th", "Incide 13º")] = ["✅" if b else "❌" for b in df_display["decimo"]]; insert_pos = 4 if benefits.get("ferias", False) else 3; cols.insert(insert_pos, T.get("cost_header_13th"))
         df_display = df_display[cols]
     salario_anual_base = salary * 12.0; salario_anual_beneficios = salary * months; total_cost_items = []
     for index, item in df.iterrows():
@@ -317,40 +318,43 @@ def display_input_fields_comparator(prefix: str, defaults: dict, T: dict, countr
 
 # ============================== CSS ================================
 st.markdown("""<style>
+:root {
+    --sig-sky: #145efc;
+    --sig-sand1: #f2efeb;
+    --sig-sand4: #73706d;
+    --white: #ffffff;
+    --black: #000000;
+}
 div.block-container { max-width: 1100px; padding-left: 1rem; padding-right: 1rem; }
-.stMarkdown h5 { font-size: 15px; font-weight: 500; line-height: 1.2; color: #0a3d62; margin-bottom: 0.2rem !important; }
-.stMarkdown h5 span { font-weight: 400; color: #555; font-size: 14px; }
-.metric-card, .annual-card-base { min-height: 95px !important; padding: 10px 15px !important; display: flex; flex-direction: column; justify-content: center; text-align: center; box-sizing: border-box; background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.08); margin-bottom: 10px; border-left: none !important; transition: all 0.3s ease; }
+html, body { background-color: var(--sig-sand1); color: var(--sig-sand4); font-family:'Segoe UI', Helvetica, Arial, sans-serif; }
+h1, h2, h3, h4, .country-title { color: var(--sig-sky); }
+.stMarkdown h5 { font-size: 15px; font-weight: 500; line-height: 1.2; color: var(--sig-sky); margin-bottom: 0.2rem !important; }
+.stMarkdown h5 span { font-weight: 400; color: var(--sig-sand4); font-size: 14px; }
+.metric-card, .annual-card-base { min-height: 95px !important; padding: 10px 15px !important; display: flex; flex-direction: column; justify-content: center; text-align: center; box-sizing: border-box; background: var(--white); border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.08); margin-bottom: 10px; border-left: none !important; transition: all 0.3s ease; }
 .metric-card:hover{ box-shadow: 0 6px 16px rgba(0,0,0,0.12); transform: translateY(-2px); }
-.metric-card h4, .annual-card-base h4 { margin:0; font-size:15px; font-weight: 500; color:#555; }
-.metric-card h3, .annual-card-base h3 { margin: 2px 0 0; color:#0a3d62; font-size:18px; font-weight: 700; }
-.card-earn { background: #f7fff7 !important; }
-.card-ded { background: #fff7f7 !important; }
-.card-net { background: #f7faff !important; }
-.card-bonus-in { background: #f7faff !important; }
-.card-bonus-out { background: #fff7f7 !important; }
-.card-total { background: #f5f5f5 !important; }
-.table-wrap { background:#fff; border:1px solid #d0d7de; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+.metric-card h4, .annual-card-base h4 { margin:0; font-size:15px; font-weight: 500; color:var(--sig-sand4); }
+.metric-card h3, .annual-card-base h3 { margin: 2px 0 0; color:var(--sig-sky); font-size:18px; font-weight: 700; }
+.card-earn { background: #f0f8ff !important; }
+.card-ded { background: #fff0f5 !important; }
+.card-net { background: #f0fff0 !important; }
+.table-wrap { background:var(--white); border:1px solid #d0d7de; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
 .monthly-table { width: 100%; border-collapse: collapse; margin: 0; border: none; font-size: 15px; }
-.monthly-table thead th { background-color: #0a3d62; color: white; padding: 12px 15px; text-align: left; font-weight: 600; }
+.monthly-table thead th { background-color: var(--sig-sky); color: var(--white); padding: 12px 15px; text-align: left; font-weight: 600; }
 .monthly-table tbody td { padding: 10px 15px; border-bottom: 1px solid #eee; }
 .monthly-table tbody tr:nth-child(even) { background-color: #fcfcfc; }
 .monthly-table tbody tr:last-child td { border-bottom: none; }
-html, body { font-family:'Segoe UI', Helvetica, Arial, sans-serif; background:#f7f9fb; color:#1a1a1a;}
-h1,h2,h3 { color:#0a3d62; }
 hr { border:0; height:1px; background:#e2e6ea; margin:24px 0; border-radius:1px; }
-section[data-testid="stSidebar"]{ width: 350px !important; min-width: 350px !important; max-width: 350px !important; }
+section[data-testid="stSidebar"]{ background-color: var(--sig-sky) !important; width: 350px !important; min-width: 350px !important; max-width: 350px !important; }
 div[data-testid="stSidebar-resizer"] { display: none; }
-section[data-testid="stSidebar"] h1, section[data-testid="stSidebar"] h2, section[data-testid="stSidebar"] h3, section[data-testid="stSidebar"] p, section[data-testid="stSidebar"] .stMarkdown, section[data-testid="stSidebar"] label, section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] label span { color:#ffffff !important; }
+section[data-testid="stSidebar"] h1, section[data-testid="stSidebar"] h2, section[data-testid="stSidebar"] h3, section[data-testid="stSidebar"] p, section[data-testid="stSidebar"] .stMarkdown, section[data-testid="stSidebar"] label, section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] label span { color: var(--white) !important; }
 section[data-testid="stSidebar"] h2 { margin-bottom: 25px !important; }
 section[data-testid="stSidebar"] h3 { margin-bottom: 0.5rem !important; margin-top: 1rem !important; }
 section[data-testid="stSidebar"] div[data-testid="stSelectbox"] label { margin-bottom: 0.5rem !important; }
 section[data-testid="stSidebar"] div[data-testid="stSelectbox"] > div[data-baseweb="select"] { margin-top: 0 !important; }
-section[data-testid="stSidebar"] .stTextInput input, section[data-testid="stSidebar"] .stNumberInput input, section[data-testid="stSidebar"] .stSelectbox input, section[data-testid="stSidebar"] .stNumberInput input:focus, section[data-testid="stSidebar"] .stSelectbox div[role="combobox"] *, section[data-testid="stSidebar"] [data-baseweb="menu"] div[role="option"]{ color:#0b1f33 !important; background:#fff !important; }
+section[data-testid="stSidebar"] .stTextInput input, section[data-testid="stSidebar"] .stNumberInput input, section[data-testid="stSidebar"] .stSelectbox input, section[data-testid="stSidebar"] .stNumberInput input:focus, section[data-testid="stSidebar"] .stSelectbox div[role="combobox"] *, section[data-testid="stSidebar"] [data-baseweb="menu"] div[role="option"]{ color: var(--sig-sand4) !important; background: var(--white) !important; }
 .country-header{ display:flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 5px; }
 .country-flag{ font-size:45px; }
-.country-title{ font-size:36px; font-weight:700; color:#0a3d62; }
-.annual-card-label .sti-note { display: block; font-size: 14px; font-weight: 400; line-height: 1.3; margin-top: 2px; }
+.country-title{ font-size:36px; font-weight:700; color: var(--sig-sky); }
 .card-row-spacing { margin-top: 20px; }
 </style>""", unsafe_allow_html=True)
 
@@ -512,23 +516,22 @@ if active_menu_key == "calc":
     pct_txt = f"{bonus_pct*100:.1f}%"
     faixa_txt = f"≤ {(max_pct or 0)*100:.0f}%" if level == "Others" else f"{min_pct*100:.0f}% – {max_pct*100:.0f}%"
     dentro = (bonus_pct <= (max_pct or 0)) if level == "Others" else (min_pct <= bonus_pct <= max_pct)
-    cor = "#1976d2" if dentro else "#d32f2f"; status_txt = T.get("sti_in_range") if dentro else T.get("sti_out_range")
-    bg_cor = "card-bonus-in" if dentro else "card-bonus-out"
+    cor = "#145efc" if dentro else "#d32f2f"; status_txt = T.get("sti_in_range") if dentro else T.get("sti_out_range")
     sti_note_text = f"<span style='color:{cor};'><strong>{pct_txt}</strong> — <strong>{status_txt}</strong></span> ({faixa_txt}) — <em>{area_display} • {level_display}</em>"
     col_salario, col_bonus, col_total = st.columns(3)
-    col_salario.markdown(f"<div class='metric-card card-earn'><h4> {T.get('annual_salary')} </h4><h3>{fmt_money(salario_anual, symbol)}</h3></div>", unsafe_allow_html=True)
-    col_bonus.markdown(f"<div class='metric-card {bg_cor}'><h4 style='color:{cor};'> {T.get('annual_bonus')} </h4><h3 style='color:{cor};'>{fmt_money(bonus_anual, symbol)}</h3></div>", unsafe_allow_html=True)
-    col_total.markdown(f"<div class='metric-card card-total'><h4> {T.get('annual_total')} </h4><h3>{fmt_money(total_anual, symbol)}</h3></div>", unsafe_allow_html=True)
-    st.markdown(f"<div style='margin-top: 10px; padding: 5px 0;'><p style='font-size: 17px; font-weight: 600; color: #0a3d62; margin: 0;'>📅 {T.get('months_factor')}: {months}</p><p style='font-size: 17px; font-weight: 600; color: #0a3d62; margin: 5px 0 0 0;'>🎯 STI Ratio: {sti_note_text}</p></div>", unsafe_allow_html=True)
+    col_salario.markdown(f"<div class='metric-card'><h4> {T.get('annual_salary')} </h4><h3>{fmt_money(salario_anual, symbol)}</h3></div>", unsafe_allow_html=True)
+    col_bonus.markdown(f"<div class='metric-card'><h4 style='color:{cor};'> {T.get('annual_bonus')} </h4><h3 style='color:{cor};'>{fmt_money(bonus_anual, symbol)}</h3></div>", unsafe_allow_html=True)
+    col_total.markdown(f"<div class='metric-card'><h4> {T.get('annual_total')} </h4><h3>{fmt_money(total_anual, symbol)}</h3></div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='margin-top: 10px; padding: 5px 0;'><p style='font-size: 17px; font-weight: 600; color: #145efc; margin: 0;'>📅 {T.get('months_factor')}: {months}</p><p style='font-size: 17px; font-weight: 600; color: #145efc; margin: 5px 0 0 0;'>🎯 STI Ratio: {sti_note_text}</p></div>", unsafe_allow_html=True)
     st.write("---")
     chart_df = pd.DataFrame({"Componente": [T.get('annual_salary'), T.get('annual_bonus')], "Valor": [salario_anual, bonus_anual]})
     base = alt.Chart(chart_df).transform_joinaggregate(Total='sum(Valor)').transform_calculate(Percent='datum.Valor / datum.Total', Label=alt.expr.if_(alt.datum.Valor > alt.datum.Total * 0.05, alt.datum.Componente + " (" + alt.expr.format(alt.datum.Percent, ".1%") + ")", ""))
-    pie = base.mark_arc(outerRadius=120, innerRadius=80, cornerRadius=2).encode(theta=alt.Theta("Valor:Q", stack=True), color=alt.Color("Componente:N", legend=None), order=alt.Order("Percent:Q", sort="descending"), tooltip=[alt.Tooltip("Componente:N"), alt.Tooltip("Valor:Q", format=",.2f")])
-    text = base.mark_text(radius=140).encode(text=alt.Text("Label:N"), theta=alt.Theta("Valor:Q", stack=True), order=alt.Order("Percent:Q", sort="descending"), color=alt.value("black"))
-    final_chart = alt.layer(pie, text).properties(title=T.get("pie_chart_title_dist")).configure_view(strokeWidth=0).configure_title(fontSize=17, anchor='middle', color='#0a3d62')
+    pie = base.mark_arc(outerRadius=120, innerRadius=80, cornerRadius=2).encode(theta=alt.Theta("Valor:Q", stack=True), color=alt.Color("Componente:N", legend=None, scale=alt.Scale(range=['#145efc', '#bfbab5'])), order=alt.Order("Percent:Q", sort="descending"), tooltip=[alt.Tooltip("Componente:N"), alt.Tooltip("Valor:Q", format=",.2f")])
+    text = base.mark_text(radius=140).encode(text=alt.Text("Label:N"), theta=alt.Theta("Valor:Q", stack=True), order=alt.Order("Percent:Q", sort="descending"), color=alt.value("#73706d"))
+    final_chart = alt.layer(pie, text).properties(title=T.get("pie_chart_title_dist")).configure_view(strokeWidth=0).configure_title(fontSize=17, anchor='middle', color='#145efc')
     st.altair_chart(final_chart, use_container_width=True)
 
-# ========================= NOVO: COMPARADOR DE REMUNERAÇÃO ==========================
+# ========================= COMPARADOR DE REMUNERAÇÃO ==========================
 elif active_menu_key == "comp":
     st.subheader(T.get("calc_params_title", "Parâmetros de Cálculo"))
     col_prop, col_cand = st.columns(2)
@@ -577,11 +580,11 @@ elif active_menu_key == "comp":
         st.markdown(f"<div class='table-wrap'>{df_detalhe_prop.to_html(index=False, classes='monthly-table')}</div>", unsafe_allow_html=True)
         st.markdown("<div class='card-row-spacing'>", unsafe_allow_html=True)
         p1, p2, p3 = st.columns(3)
-        p1.markdown(f"<div class='metric-card card-earn'><h4>💰 {T.get('tot_earnings')}</h4><h3>{fmt_money(calc_prop['total_earn'], symbol)}</h3></div>", unsafe_allow_html=True)
-        p2.markdown(f"<div class='metric-card card-ded'><h4>📉 {T.get('tot_deductions')}</h4><h3>{fmt_money(calc_prop['total_ded'], symbol)}</h3></div>", unsafe_allow_html=True)
-        p3.markdown(f"<div class='metric-card card-net'><h4>💵 {T.get('net')}</h4><h3>{fmt_money(calc_prop['net'], symbol)}</h3></div>", unsafe_allow_html=True)
+        p1.markdown(f"<div class='metric-card card-earn'><h4>💰 {T.get('tot_earnings', 'Proventos')}</h4><h3>{fmt_money(calc_prop['total_earn'], symbol)}</h3></div>", unsafe_allow_html=True)
+        p2.markdown(f"<div class='metric-card card-ded'><h4>📉 {T.get('tot_deductions', 'Descontos')}</h4><h3>{fmt_money(calc_prop['total_ded'], symbol)}</h3></div>", unsafe_allow_html=True)
+        p3.markdown(f"<div class='metric-card card-net'><h4>💵 {T.get('net', 'Líquido')}</h4><h3>{fmt_money(calc_prop['net'], symbol)}</h3></div>", unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
-        if country == "Brasil": st.markdown(f"<p style='font-size: 15px; text-align: center; font-weight: 600; color: #0a3d62;'>💼 {T.get('fgts_deposit')}: {fmt_money(calc_prop['fgts'], symbol)}</p>", unsafe_allow_html=True)
+        if country == "Brasil": st.markdown(f"<p style='font-size: 15px; text-align: center; font-weight: 600; color: #145efc;'>💼 {T.get('fgts_deposit')}: {fmt_money(calc_prop['fgts'], symbol)}</p>", unsafe_allow_html=True)
 
     with res_cand:
         st.markdown(f"<h4>{T.get('cand_title', 'Remuneração do Candidato')}</h4>", unsafe_allow_html=True)
@@ -592,11 +595,11 @@ elif active_menu_key == "comp":
         st.markdown(f"<div class='table-wrap'>{df_detalhe_cand.to_html(index=False, classes='monthly-table')}</div>", unsafe_allow_html=True)
         st.markdown("<div class='card-row-spacing'>", unsafe_allow_html=True)
         c1_cand, c2_cand, c3_cand = st.columns(3)
-        c1_cand.markdown(f"<div class='metric-card card-earn'><h4>💰 {T.get('tot_earnings')}</h4><h3>{fmt_money(calc_cand['total_earn'], symbol)}</h3></div>", unsafe_allow_html=True)
-        c2_cand.markdown(f"<div class='metric-card card-ded'><h4>📉 {T.get('tot_deductions')}</h4><h3>{fmt_money(calc_cand['total_ded'], symbol)}</h3></div>", unsafe_allow_html=True)
-        c3_cand.markdown(f"<div class='metric-card card-net'><h4>💵 {T.get('net')}</h4><h3>{fmt_money(calc_cand['net'], symbol)}</h3></div>", unsafe_allow_html=True)
+        c1_cand.markdown(f"<div class='metric-card card-earn'><h4>💰 {T.get('tot_earnings', 'Proventos')}</h4><h3>{fmt_money(calc_cand['total_earn'], symbol)}</h3></div>", unsafe_allow_html=True)
+        c2_cand.markdown(f"<div class='metric-card card-ded'><h4>📉 {T.get('tot_deductions', 'Descontos')}</h4><h3>{fmt_money(calc_cand['total_ded'], symbol)}</h3></div>", unsafe_allow_html=True)
+        c3_cand.markdown(f"<div class='metric-card card-net'><h4>💵 {T.get('net', 'Líquido')}</h4><h3>{fmt_money(calc_cand['net'], symbol)}</h3></div>", unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
-        if country == "Brasil": st.markdown(f"<p style='font-size: 15px; text-align: center; font-weight: 600; color: #0a3d62;'>💼 {T.get('fgts_deposit')}: {fmt_money(calc_cand['fgts'], symbol)}</p>", unsafe_allow_html=True)
+        if country == "Brasil": st.markdown(f"<p style='font-size: 15px; text-align: center; font-weight: 600; color: #145efc;'>💼 {T.get('fgts_deposit')}: {fmt_money(calc_cand['fgts'], symbol)}</p>", unsafe_allow_html=True)
 
 # =========================== REGRAS DE CONTRIBUIÇÕES ===================
 elif active_menu_key == "rules":
